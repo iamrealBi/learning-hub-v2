@@ -1,0 +1,80 @@
+name: CI — Cổng chất lượng (chặn merge)
+
+# Không xanh = không merge. Đây là "AI reviewer" THẬT (chạy được, quan sát được),
+# thay cho lời hứa suông của bản cũ.
+on:
+  push: { branches: [main] }
+  pull_request: { branches: [main] }
+
+jobs:
+  gates:
+    name: Gate cấu trúc + nội dung + build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Cài dependencies (pinned)
+        run: pip install -r requirements.txt
+
+      - name: "Gate 0 · Self-test — chứng minh các gate thật sự bắt lỗi"
+        run: python scripts/gate_selftest.py
+
+      - name: "Gate 1 · Nav — 0 mồ côi, 0 nav gãy"
+        run: python scripts/nav_audit.py
+
+      - name: "Gate 2 · Đặt tên nhất quán"
+        run: python scripts/naming_lint.py
+
+      - name: "Gate 3 · Chống lỗi thời & bịa đặt"
+        run: python scripts/banned_terms.py docs
+
+      - name: "Gate 4 · Q&A đầy đủ đáp án, không trùng"
+        run: python scripts/qa_lint.py
+
+      - name: "Gate 5 · Trích code block (mọi block C# phải có tag test:)"
+        run: python scripts/tangle.py
+
+      - name: "Gate 6 · Build site (STRICT) — phải deploy được, 0 link nội bộ gãy"
+        run: mkdocs build --strict
+
+      - name: "(tuỳ chọn) Kiểm link ngoài"
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: --no-progress "docs/**/*.md"
+        continue-on-error: true   # link ngoài chết không nên chặn merge cứng
+
+  dotnet:
+    name: Compile/chạy mọi code C#
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -r requirements.txt
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+      - name: Trích snippet
+        run: python scripts/tangle.py
+      - name: "Gate 7 · dotnet build/run mọi snippet (invented API/wrong code = FAIL)"
+        run: bash scripts/verify_dotnet.sh
+
+  # deploy chạy khi 'gates' xanh (gồm build --strict đã verify local).
+  # 'dotnet' là gate chất lượng cho PR; sau khi xác nhận nó xanh trên CI,
+  # đổi thành needs: [gates, dotnet] để chặn deploy nếu code C# không compile.
+  deploy:
+    needs: [gates]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions: { contents: write }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -r requirements.txt
+      - run: mkdocs gh-deploy --force

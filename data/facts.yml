@@ -1,0 +1,104 @@
+# ============================================================================
+# NGUỒN SỰ THẬT DUY NHẤT (Single Source of Truth) cho mọi dữ kiện dễ lỗi thời.
+# ----------------------------------------------------------------------------
+# QUY TẮC BẤT DI BẤT DỊCH:
+#   - KHÔNG BAO GIỜ viết số version / model ID trực tiếp trong văn xuôi bài học.
+#   - Luôn tham chiếu qua macro, ví dụ: {{ dotnet.current }} , {{ model('opus').id }}
+#   - Cập nhật .NET/model mới = sửa DUY NHẤT file này → toàn site tự đổi.
+#   - CI (scripts/banned_terms.py) sẽ FAIL nếu phát hiện version literal trong prose.
+#
+# Ô "verified_on" là hợp đồng chống lỗi thời: cron hằng tuần so với thực tế,
+# quá SLA thì trang tự hiện banner "có thể đã cũ" (KHÔNG làm đỏ build theo lịch).
+# ============================================================================
+
+meta:
+  verified_on: "2026-07-01"
+  sla_days:
+    framework: 90
+    models: 30
+    tools: 30
+
+dotnet:
+  current: "10.0"          # GA tháng 11/2025, LTS
+  lts: "10.0"
+  eol_warning: "8.0"       # .NET 8 sắp hết hỗ trợ — chỉ dùng cho trang 'legacy'
+
+csharp:
+  version: "14"
+
+postgres:
+  current: "17"
+  next: "18"
+
+# Danh sách model Claude hiện hành (2026). Bảng model trong bài được SINH từ đây.
+models:
+  - key: opus
+    id: "claude-opus-4-8"
+    name: "Claude Opus 4.8"
+    tier: "mạnh nhất"
+    context: "200K"
+  - key: sonnet
+    id: "claude-sonnet-4-6"
+    name: "Claude Sonnet 4.6"
+    tier: "cân bằng"
+    context: "1M"
+  - key: haiku
+    id: "claude-haiku-4-5-20251001"
+    name: "Claude Haiku 4.5"
+    tier: "nhanh/rẻ"
+    context: "200K"
+  - key: fable
+    id: "claude-fable-5"
+    name: "Fable 5"
+    tier: "chuyên biệt"
+    context: "200K"
+
+# Dữ kiện Claude Code hay bị sai trong tài liệu (dùng làm chuẩn + đưa vào allowlist).
+claude_code:
+  skill_file: "SKILL.md"           # VIẾT HOA — không phải Skill.md
+  settings_file: "settings.json"
+  hook_events:                     # PascalCase — không phải kebab-case
+    - PreToolUse
+    - PostToolUse
+    - UserPromptSubmit
+    - SessionStart
+    - SessionEnd
+    - Stop
+    - SubagentStop
+    - PreCompact
+    - Notification
+  mcp_add_cmd: "claude mcp add"     # KHÔNG phải 'mcp install'
+  skip_perms_flag: "--dangerously-skip-permissions"
+  agent_sdk_ts: "@anthropic-ai/claude-agent-sdk"
+  agent_sdk_py: "claude-agent-sdk"
+
+# Allowlist tên sản phẩm/công cụ THẬT (scripts/banned_terms.py chặn mọi tên
+# viết-hoa không nằm trong danh sách này → 'Antigravity IDE' bịa sẽ fail CI).
+product_allowlist:
+  - ".NET"
+  - "ASP.NET Core"
+  - "Entity Framework Core"
+  - "PostgreSQL"
+  - "SQLite"
+  - "Docker"
+  - "Claude Code"
+  - "Claude Agent SDK"
+  - "Cursor"
+  - "GitHub Copilot"
+  - "Visual Studio Code"
+  - "Model Context Protocol"
+  - "xUnit"
+  - "MkDocs"
+
+# Các cụm BỊ CẤM tuyệt đối (lỗi thời / bịa đặt đã phát hiện ở bản cũ).
+# scripts/banned_terms.py biến mỗi cụm này thành lỗi build (trừ khối <!-- historical -->).
+banned:
+  - "Antigravity IDE"
+  - "Skill.md"
+  - "GPT-4 Turbo"
+  - "Claude 3.5 Sonnet"
+  - "Claude 3 Opus"
+  - "Gemini 1.5"
+  - "mcp install"
+  - "--allow-all-permissions"
+  - "claude tools list"

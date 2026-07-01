@@ -1,0 +1,10 @@
+# FIXTURE input-XẤU cố ý để gate_selftest chứng minh qa_lint.py bắt được:
+#  - q-bad-01 thiếu 'answer' (rỗng)  -> giống lỗi 35/55 câu không đáp án của bản cũ
+#  - q-bad-02 trùng prompt với q-bad-01
+questions:
+  - id: q-bad-01
+    prompt: "Câu hỏi này cố ý không có đáp án"
+    answer: ""
+  - id: q-bad-02
+    prompt: "Câu hỏi này cố ý không có đáp án"
+    answer: "có đáp án nhưng trùng prompt ở trên"

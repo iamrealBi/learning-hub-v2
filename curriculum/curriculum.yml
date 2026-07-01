@@ -1,0 +1,79 @@
+# ============================================================================
+# SPINE — Trục học DUY NHẤT (một đường zero → senior), KHÔNG phải nhiều track song song.
+# ----------------------------------------------------------------------------
+# File này là NGUỒN SỰ THẬT cho: thứ tự bài, đồ thị prerequisite (DAG), tầng
+# (fast/deep), chủ sở hữu, và ai là 'canonical owner' của mỗi khái niệm.
+#   - nav của MkDocs nên được sinh/đối chiếu từ file này (scripts/nav_audit.py).
+#   - CI FAIL nếu: có chu trình trong DAG, có trang mồ côi, hoặc link tới
+#     khái niệm chưa nằm trong prerequisite bắc cầu.
+#
+# tier: fast  = nằm trên FAST PATH (~lõi tối thiểu để làm được việc)
+# tier: deep  = deep-dive tuỳ chọn, KHÔNG BAO GIỜ chặn tiến độ
+# status: core = đã kiểm chứng đầy đủ | draft = nav-stub 'sắp có' | edge = thử nghiệm
+# ============================================================================
+
+meta:
+  title: "Learning Hub v2 — Fullstack .NET + AI"
+  spine_version: "0.1"
+  fast_path_target: "6–8 tuần zero→làm-được-việc (bản rút gọn 2 ngày: xem FAST-PATH-2-NGAY.md)"
+
+# Mỗi khái niệm dùng lại (JWT, value-vs-reference…) có ĐÚNG MỘT trang canonical.
+# Mọi nơi khác phải transclude/link, không giải thích lại (chống trùng lặp).
+concepts:
+  value-vs-reference: p1-csharp/bo-nho-va-kieu-du-lieu.md
+  async-await:        p1-csharp/async-await.md
+  jwt:                p4-bao-mat/jwt.md
+  di:                 p3-web-api/dependency-injection.md
+  ef-core-query:      p2-du-lieu/ef-core-truy-van.md
+
+phases:
+  - id: P0
+    title: "Thiết lập & Workflow AI"
+    nodes:
+      - { id: p0-setup, file: 00-thiet-lap/index.md, tier: fast, status: core, owner: core-team,
+          objective: "Cài .NET + chạy 'green' bài tập đầu tiên trong <30 phút", requires: [] }
+
+  - id: P1
+    title: "Ngôn ngữ C#"
+    nodes:
+      - { id: p1-memory, file: p1-csharp/bo-nho-va-kieu-du-lieu.md, tier: fast, status: core, owner: core-team,
+          objective: "PHÂN BIỆT đúng value vs reference semantics và bác bỏ được huyền thoại 'value type = stack'",
+          requires: [p0-setup] }
+      - { id: p1-async, file: p1-csharp/async-await.md, tier: fast, status: draft, owner: core-team,
+          objective: "Giải thích async/await qua state machine; tránh async void & deadlock",
+          requires: [p1-memory] }
+
+  - id: P2
+    title: "Dữ liệu — SQL & EF Core"
+    nodes:
+      - { id: p2-sql, file: p2-du-lieu/sql-nen-tang.md, tier: fast, status: draft, owner: core-team,
+          objective: "Viết truy vấn JOIN/GROUP BY đúng trên PostgreSQL", requires: [p1-memory] }
+      - { id: p2-ef, file: p2-du-lieu/ef-core-truy-van.md, tier: fast, status: draft, owner: core-team,
+          objective: "Map domain sang EF Core, tránh N+1", requires: [p2-sql] }
+
+  - id: P3
+    title: "ASP.NET Core Web API"
+    nodes:
+      - { id: p3-api, file: p3-web-api/minimal-api.md, tier: fast, status: draft, owner: core-team,
+          objective: "Dựng REST API bằng Minimal API + DI", requires: [p2-ef] }
+      - { id: p3-di, file: p3-web-api/dependency-injection.md, tier: fast, status: draft, owner: core-team,
+          objective: "Chọn đúng DI lifetime (Singleton/Scoped/Transient)", requires: [p3-api] }
+
+  - id: P4
+    title: "Auth, Bảo mật, Test & Deploy"
+    nodes:
+      - { id: p4-jwt, file: p4-bao-mat/jwt.md, tier: fast, status: core, owner: security-expert,
+          objective: "Cấp/kiểm JWT an toàn (UtcNow, HTTPS, ClockSkew) — trang canonical duy nhất về JWT",
+          requires: [p3-di], risk_tier: T3 }
+      - { id: p4-upload, file: p4-bao-mat/tai-file-an-toan.md, tier: fast, status: draft, owner: security-expert,
+          objective: "Nhận file an toàn: chống path traversal, kiểm MIME/magic-byte", requires: [p4-jwt], risk_tier: T3 }
+      - { id: p4-test, file: p4-bao-mat/testing.md, tier: fast, status: draft, owner: core-team,
+          objective: "Viết test xUnit làm-tài-liệu-sống cho API", requires: [p3-api] }
+
+  - id: P5
+    title: "AI Engineering (fast-churn — 'run-it-to-verify')"
+    nodes:
+      - { id: p5-claude-code, file: p5-ai/claude-code.md, tier: fast, status: draft, owner: ai-expert,
+          objective: "Dùng Claude Code đúng: SKILL.md, hooks PascalCase, mcp add", requires: [p4-test], risk_tier: T3 }
+      - { id: p5-capstone, file: p5-ai/capstone.md, tier: fast, status: draft, owner: core-team,
+          objective: "Ghép P1–P5 thành một app TaskFlow chạy được đầu-cuối", requires: [p5-claude-code, p4-jwt, p2-ef] }

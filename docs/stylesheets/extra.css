@@ -1,0 +1,25 @@
+/* Card grid hover */
+.grid.cards > ul > li {
+  border-radius: 12px;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.grid.cards > ul > li:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0,0,0,.15);
+}
+
+/* Banner "có thể đã cũ" — chèn tự động khi verified_on quá SLA (xem overrides).
+   Không làm đỏ build; chỉ cảnh báo học viên. */
+.stale-banner {
+  border: 1px solid var(--md-accent-fg-color);
+  border-radius: 8px;
+  padding: .6rem .9rem;
+  margin: 1rem 0;
+  background: color-mix(in srgb, var(--md-accent-fg-color) 10%, transparent);
+  font-weight: 600;
+}
+
+/* Nhấn khối "test:run" cho dễ nhận biết code đã được CI chạy */
+.md-typeset .highlight { scroll-margin-top: 4rem; }
+
+html { scroll-behavior: smooth; }

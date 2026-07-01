@@ -1,0 +1,96 @@
+site_name: "Learning Hub v2 — Fullstack .NET & AI"
+site_description: "Một trục học duy nhất, kiểm chứng bằng CI — zero đến senior"
+site_author: "Learning Hub"
+# site_url: cập nhật khi deploy
+
+theme:
+  name: material
+  language: vi
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: amber
+      toggle: { icon: material/brightness-4, name: Chuyển chế độ tối }
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: amber
+      toggle: { icon: material/brightness-7, name: Chuyển chế độ sáng }
+  font:
+    text: Inter
+    code: JetBrains Mono
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - navigation.indexes
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+  icon:
+    logo: material/school
+
+extra_css:
+  - stylesheets/extra.css
+
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+      toc_depth: 3
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets            # transclusion --8<-- : dùng lại SSOT, không copy-paste
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          # ĐÚNG: fence_code_format (bản cũ dùng fence_mermaid_format → build sập)
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+plugins:
+  - search:
+      lang: [vi, en]
+  # Facts-as-data: nạp data/facts.yml thành biến, dùng {{ dotnet.current }} trong bài.
+  - macros:
+      include_yaml:
+        - data/facts.yml
+  - minify:
+      minify_html: true
+
+# NAV: đối chiếu với curriculum/curriculum.yml qua scripts/nav_audit.py (CI fail nếu lệch).
+# Bản vertical-slice v0.1 khai báo tường minh dưới đây.
+nav:
+  - "Trang chủ": index.md
+  - "🚀 Fast Path 2 ngày": FAST-PATH-2-NGAY.md
+  - "P0 · Thiết lập":
+    - "Zero → bài tập xanh đầu tiên": 00-thiet-lap/index.md
+  - "P1 · C#":
+    - "Bộ nhớ & Kiểu dữ liệu (mẫu CORE)": p1-csharp/bo-nho-va-kieu-du-lieu.md
+  - "P4 · Bảo mật":
+    - "JWT (trang canonical)": p4-bao-mat/jwt.md
+  - "Về hệ thống":
+    - "Kiến trúc sư phạm": PEDAGOGY.md

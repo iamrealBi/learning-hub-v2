@@ -1,0 +1,44 @@
+# NGUỒN SỰ THẬT cho Q&A. Mọi câu PHẢI có 'answer'. qa_lint.py cưỡng chế điều này.
+# code_ref (tuỳ chọn) trỏ tới block đã được CI chạy (test:run) -> đáp án có code chạy được.
+questions:
+  - id: q-mem-01
+    node: p1-memory
+    tier: fast
+    prompt: "Khác biệt THẬT giữa value type và reference type là gì?"
+    answer: >
+      Là CÁCH SAO CHÉP: value type chép toàn bộ giá trị (bản độc lập), reference type
+      chép tham chiếu (cùng một object). KHÔNG phải 'stack vs heap' — chỗ nằm chỉ là
+      chi tiết cài đặt.
+    code_ref: "p1-csharp/bo-nho-va-kieu-du-lieu.md#chung_minh"
+
+  - id: q-mem-02
+    node: p1-memory
+    tier: fast
+    prompt: "Một struct là field của một class thì nằm ở stack hay heap?"
+    answer: "Heap — nó nằm inline bên trong object của class trên heap. (Bác bỏ huyền thoại 'value type luôn ở stack'.)"
+
+  - id: q-mem-03
+    node: p1-memory
+    tier: deep
+    prompt: "GC của .NET dùng thuật toán gì? 'Mark-and-sweep' có đúng không?"
+    answer: >
+      Là tracing, generational, MARK-AND-COMPACT cho SOH (gen 0/1/2) — nén để chống
+      phân mảnh. 'Mark-and-sweep' là mô tả SAI/thiếu. LOH mặc định sweep (không nén).
+
+  - id: q-jwt-01
+    node: p4-jwt
+    tier: fast
+    prompt: "Vì sao nên dùng DateTime.UtcNow cho 'expires', và vì sao câu 'DateTime.Now lệch 7 giờ' là sai?"
+    answer: >
+      exp là mốc UTC. Thư viện tự chuyển DateTime.Now (Kind=Local) sang UTC nên KHÔNG lệch
+      7 giờ (cùng exp như UtcNow). Bẫy thật là Kind=Unspecified (từ Parse/DB) bị coi là UTC.
+      Dùng UtcNow để luôn tường minh, không phụ thuộc Kind.
+    code_ref: "p4-bao-mat/jwt.md#2-cap-token-code-dung"
+
+  - id: q-jwt-02
+    node: p4-jwt
+    tier: fast
+    prompt: "JWT lưu trong localStorage dính lỗ hổng gì, khác cookie thế nào?"
+    answer: >
+      localStorage -> rủi ro XSS (script đọc được token). Cookie -> rủi ro CSRF, nhưng
+      chặn được bằng SameSite/anti-forgery và HttpOnly khiến JS không đọc token.

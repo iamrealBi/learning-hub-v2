@@ -1,0 +1,15 @@
+# MkDocs build output
+site/
+
+# Sản phẩm trung gian của gate compile C#
+verify/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# OS
+.DS_Store
+Thumbs.db
