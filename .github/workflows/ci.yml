@@ -64,11 +64,10 @@ jobs:
       - name: "Gate 7 · dotnet build/run mọi snippet (invented API/wrong code = FAIL)"
         run: bash scripts/verify_dotnet.sh
 
-  # deploy chạy khi 'gates' xanh (gồm build --strict đã verify local).
-  # 'dotnet' là gate chất lượng cho PR; sau khi xác nhận nó xanh trên CI,
-  # đổi thành needs: [gates, dotnet] để chặn deploy nếu code C# không compile.
+  # deploy chỉ chạy khi CẢ 'gates' VÀ 'dotnet' xanh — code C# không compile thì không deploy.
+  # (Đã xác nhận job 'dotnet' xanh trên CI với .NET 10, nên siết gate này.)
   deploy:
-    needs: [gates]
+    needs: [gates, dotnet]
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions: { contents: write }
