@@ -69,7 +69,7 @@ flowchart TD
 Ví dụ dưới dùng `ILoggerFactory` của BCL với console provider để thấy rõ message template hoạt động thế nào.
 
 ```csharp title="C#"
-// test:run
+// test:skip cần package ngoài (không compile bằng BCL thuần)
 using Microsoft.Extensions.Logging;
 
 using var factory = LoggerFactory.Create(b => b.AddConsole());
