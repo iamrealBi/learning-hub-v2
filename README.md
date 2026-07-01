@@ -16,11 +16,14 @@ learning-hub-v2/
 ├── data/facts.yml          # NGUỒN SỰ THẬT: version, model ID, allowlist, banned (chống lỗi thời)
 ├── data/questions.yml      # Q&A có schema (mọi câu PHẢI có đáp án)
 ├── curriculum/curriculum.yml  # SPINE: 1 trục học, DAG prerequisite, tier, canonical-owner
-├── docs/                   # nội dung (vertical slice v0.1)
+├── docs/                   # 20 bài CORE (24 trang) — trọn lộ trình zero→senior
 │   ├── index.md · FAST-PATH-2-NGAY.md · PEDAGOGY.md
-│   ├── 00-thiet-lap/       # zero → bài xanh đầu tiên
-│   ├── p1-csharp/bo-nho-va-kieu-du-lieu.md   # ★ CHƯƠNG MẪU CORE (nhân bản cái này)
-│   └── p4-bao-mat/jwt.md   # trang canonical JWT (bảo mật đúng)
+│   ├── 00-thiet-lap/       # P0 · zero → bài xanh đầu tiên
+│   ├── p1-csharp/          # P1 · nen-tang, bo-nho, oop, collections-linq, async-await, exceptions
+│   ├── p2-du-lieu/         # P2 · sql-nen-tang, joins-aggregation, ef-core
+│   ├── p3-web-api/         # P3 · minimal-api, dependency-injection, validation
+│   ├── p4-bao-mat/         # P4 · jwt, tai-file-an-toan, testing, logging-exceptions, deploy-docker
+│   └── p5-ai/              # P5 · claude-code, mcp, capstone (TaskFlow đầu-cuối)
 ├── templates/chuong-template.md   # khung sư phạm bắt buộc cho mọi chương
 ├── scripts/                # CÁC GATE (biến chất lượng thành thứ cưỡng chế)
 ├── tests/fixtures/         # input-xấu để gate_selftest chứng minh gate hoạt động

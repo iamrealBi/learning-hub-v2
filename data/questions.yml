@@ -376,3 +376,162 @@ questions:
   tier: fast
   prompt: Vì sao agent chạy test xanh chưa đủ để commit?
   answer: Vì agent có thể đã sửa test cho khớp bug; phải đọc diff và tin test trước khi commit.
+- id: exceptions-q1
+  node: exceptions
+  tier: fast
+  prompt: Sự khác biệt giữa throw; và throw ex; là gì?
+  answer: throw; giữ nguyên stack trace gốc; throw ex; reset stack trace, làm mất nơi lỗi thật phát sinh.
+- id: exceptions-q2
+  node: exceptions
+  tier: fast
+  prompt: finally có chạy khi try chứa return không?
+  answer: Có, finally luôn chạy trước khi return thực sự trả giá trị.
+- id: exceptions-q3
+  node: exceptions
+  tier: fast
+  prompt: Nên dùng TryParse hay try/catch để đọc số người dùng nhập? Vì sao?
+  answer: TryParse — vì nhập sai là tình huống thường ngày, không nên dùng exception cho control-flow
+    (tốn chi phí và khó đọc).
+- id: exceptions-q4
+  node: exceptions
+  tier: fast
+  prompt: Hai guard hiện đại nào thay thế cho việc tự viết if (x == null) throw ...?
+  answer: ArgumentNullException.ThrowIfNull(x) và ArgumentException.ThrowIfNullOrEmpty(s).
+- id: exceptions-q5
+  node: exceptions
+  tier: fast
+  prompt: Vì sao catch (Exception) cho mọi thứ là thói quen xấu?
+  answer: Nó nuốt cả lỗi nghiêm trọng bạn không xử lý được, che giấu bug và làm khó chẩn đoán nguyên nhân.
+- id: validation-q1
+  node: validation
+  tier: fast
+  prompt: Vì sao không được tin dữ liệu từ client dù frontend đã validate?
+  answer: Vì kẻ tấn công có thể gọi thẳng API bỏ qua UI; backend là hàng rào bắt buộc cuối cùng.
+- id: validation-q2
+  node: validation
+  tier: fast
+  prompt: '[ApiController] làm gì tự động với ModelState sai?'
+  answer: Tự trả 400 Bad Request kèm ValidationProblemDetails trước khi action chạy.
+- id: validation-q3
+  node: validation
+  tier: fast
+  prompt: '''Số dư không đủ để rút tiền'' là validation dữ liệu hay business rule?'
+  answer: Business rule; thường trả 409 hoặc 422, không phải 400.
+- id: validation-q4
+  node: validation
+  tier: fast
+  prompt: Khi nào nên chọn FluentValidation thay vì Data Annotations?
+  answer: Khi luật phức tạp, liên quan nhiều field hoặc có điều kiện, và muốn test đơn vị dễ dàng.
+- id: validation-q5
+  node: validation
+  tier: fast
+  prompt: Chuẩn nào định nghĩa định dạng lỗi HTTP mà ProblemDetails triển khai?
+  answer: RFC 9457 (Problem Details for HTTP APIs), kế thừa RFC 7807.
+- id: logging-exceptions-1
+  node: logging-exceptions
+  tier: fast
+  prompt: Vì sao structured logging tốt hơn nối chuỗi?
+  answer: Nó giữ message template và các trường có tên riêng biệt, cho phép truy vấn/lọc theo giá trị
+    (ví dụ OrderId=42) thay vì chỉ có chuỗi phẳng.
+- id: logging-exceptions-2
+  node: logging-exceptions
+  tier: fast
+  prompt: Kể đúng thứ tự 6 log level từ thấp đến cao.
+  answer: Trace, Debug, Information, Warning, Error, Critical.
+- id: logging-exceptions-3
+  node: logging-exceptions
+  tier: fast
+  prompt: IExceptionHandler.TryHandleAsync trả true nghĩa là gì?
+  answer: Exception đã được xử lý xong; pipeline không chuyển tiếp cho handler khác.
+- id: logging-exceptions-4
+  node: logging-exceptions
+  tier: fast
+  prompt: Ở production, được phép đưa gì và không được đưa gì vào response lỗi?
+  answer: 'Được: title, status, correlationId. Không được: stack trace, SQL, tên biến/đường dẫn nội bộ,
+    thông điệp exception thô.'
+- id: logging-exceptions-5
+  node: logging-exceptions
+  tier: fast
+  prompt: Correlation id dùng để làm gì?
+  answer: Nối tất cả dòng log của cùng một request lại với nhau để truy vết lỗi từ mã do client cung cấp.
+- id: deploy-docker-q1
+  node: deploy-docker
+  tier: fast
+  prompt: Vì sao stage build và stage runtime dùng hai image khác nhau?
+  answer: sdk để biên dịch (nặng, nhiều công cụ), aspnet để chạy (nhỏ, ít bề mặt tấn công); multi-stage
+    chỉ copy output nên image cuối nhỏ và an toàn.
+- id: deploy-docker-q2
+  node: deploy-docker
+  tier: fast
+  prompt: Lệnh nào trong Dockerfile giúp container không chạy bằng root?
+  answer: USER app (chuyển sang user không đặc quyền có sẵn trong image aspnet).
+- id: deploy-docker-q3
+  node: deploy-docker
+  tier: fast
+  prompt: EXPOSE 8080 có tự động mở cổng ra host không?
+  answer: 'Không; chỉ là tài liệu hoá, cần -p khi docker run hoặc ports: trong compose.'
+- id: deploy-docker-q4
+  node: deploy-docker
+  tier: fast
+  prompt: Vì sao không nên đặt mật khẩu DB bằng ENV trong Dockerfile?
+  answer: Mỗi layer bất biến và đọc được qua docker history nên secret bị bake vĩnh viễn; phải truyền
+    lúc runtime.
+- id: deploy-docker-q5
+  node: deploy-docker
+  tier: fast
+  prompt: 'Trong compose, condition: service_healthy giải quyết vấn đề gì?'
+  answer: Đảm bảo api chỉ khởi động sau khi Postgres sẵn sàng (pg_isready), tránh lỗi kết nối lúc khởi
+    động.
+- id: p5-mcp-q1
+  node: mcp
+  tier: fast
+  prompt: MCP giải bài toán tích hợp từ độ phức tạp nào xuống độ phức tạp nào?
+  answer: Từ N × M xuống N + M nhờ một giao thức chung.
+- id: p5-mcp-q2
+  node: mcp
+  tier: fast
+  prompt: Primitive nào do model chủ động gọi và thường có tác dụng phụ?
+  answer: Tools (model-controlled).
+- id: p5-mcp-q3
+  node: mcp
+  tier: fast
+  prompt: Lệnh CLI nào dùng để thêm một server MCP vào Claude Code?
+  answer: claude mcp add <tên> -- <lệnh chạy server>.
+- id: p5-mcp-q4
+  node: mcp
+  tier: fast
+  prompt: Vì sao không nên nhúng token trực tiếp vào .mcp.json?
+  answer: Dễ bị commit gây rò rỉ bí mật; nên dùng biến môi trường và .gitignore.
+- id: p5-mcp-q5
+  node: mcp
+  tier: fast
+  prompt: Đâu là ranh giới quyền thực sự của một server truy cập database?
+  answer: Quyền của tài khoản/scope kết nối DB (ví dụ user readonly), thực thi ở lớp database.
+- id: capstone-q1
+  node: capstone
+  tier: fast
+  prompt: Tầng nào trong TaskFlow chịu trách nhiệm bảo toàn quy tắc 'task đã xoá không thể hoàn thành'?
+  answer: Domain (P1) — bất biến đặt trong entity, không ở endpoint.
+- id: capstone-q2
+  node: capstone
+  tier: fast
+  prompt: Trong DoD, vì sao bắt buộc có một test tích hợp cho luồng 401/403?
+  answer: Vì thiếu phân quyền là lỗ hổng nghiêm trọng dễ lọt; test tự động bắt được nó trước khi lên production.
+- id: capstone-q3
+  node: capstone
+  tier: fast
+  prompt: Vì sao capstone khuyến khích dùng service qua DI thay vì new trong endpoint?
+  answer: DI cho phép mock/thay thế khi test và quản lý vòng đời; new thủ công tạo phụ thuộc cứng, khó
+    kiểm thử.
+- id: capstone-q4
+  node: capstone
+  tier: fast
+  prompt: Nêu một cạm bẫy khi chạy TaskFlow trong Docker liên quan tới kết nối cơ sở dữ liệu.
+  answer: Trong container DB không ở localhost; phải trỏ tới tên service/biến môi trường, nếu không kết
+    nối thất bại.
+- id: capstone-q5
+  node: capstone
+  tier: fast
+  prompt: Trong luồng request, thành phần nào chạy trước endpoint và làm gì?
+  answer: 'Middleware (xác thực JWT + logging): kiểm token, gắn ClaimsPrincipal, ghi log; chặn request
+    sai trước khi tới endpoint.'

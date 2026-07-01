@@ -1,7 +1,7 @@
 site_name: "Learning Hub v2 — Fullstack .NET & AI"
 site_description: "Một trục học duy nhất, kiểm chứng bằng CI — zero đến senior"
 site_author: "Learning Hub"
-# site_url: cập nhật khi deploy
+site_url: "https://iamrealbi.github.io/learning-hub-v2/"
 
 theme:
   name: material
@@ -94,6 +94,7 @@ nav:
     - "03 — OOP": p1-csharp/oop.md
     - "04 — Collections & LINQ": p1-csharp/collections-linq.md
     - "05 — async/await": p1-csharp/async-await.md
+    - "06 — Xử lý ngoại lệ": p1-csharp/exceptions.md
   - "P2 · Dữ liệu (SQL & EF Core)":
     - "01 — SQL nền tảng": p2-du-lieu/sql-nen-tang.md
     - "02 — JOIN, GROUP BY & Subquery": p2-du-lieu/joins-aggregation.md
@@ -101,11 +102,16 @@ nav:
   - "P3 · Web API":
     - "01 — Minimal API & REST": p3-web-api/minimal-api.md
     - "02 — Dependency Injection": p3-web-api/dependency-injection.md
-  - "P4 · Bảo mật & Test":
+    - "03 — Validation": p3-web-api/validation.md
+  - "P4 · Bảo mật, Test & Deploy":
     - "01 — JWT (canonical)": p4-bao-mat/jwt.md
     - "02 — Tải file an toàn": p4-bao-mat/tai-file-an-toan.md
     - "03 — Testing (xUnit)": p4-bao-mat/testing.md
+    - "04 — Logging & Ngoại lệ toàn cục": p4-bao-mat/logging-exceptions.md
+    - "05 — Docker & Deploy": p4-bao-mat/deploy-docker.md
   - "P5 · AI Engineering":
     - "01 — Dùng Claude Code": p5-ai/claude-code.md
+    - "02 — Model Context Protocol": p5-ai/mcp.md
+    - "03 — 🏁 Capstone: TaskFlow": p5-ai/capstone.md
   - "Về hệ thống":
     - "Kiến trúc sư phạm": PEDAGOGY.md
