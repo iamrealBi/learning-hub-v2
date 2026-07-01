@@ -19,15 +19,15 @@ est_minutes_fast: 30
 ## 1. Cài .NET SDK {{ dotnet.current }}
 
 === "Windows"
-    ```powershell
+    ```powershell title="PowerShell"
     winget install Microsoft.DotNet.SDK.10
     ```
 === "macOS"
-    ```bash
+    ```bash title="Terminal"
     brew install --cask dotnet-sdk
     ```
 === "Linux"
-    ```bash
+    ```bash title="Terminal"
     # xem hướng dẫn phát hành theo distro; kiểm chứng phiên bản:
     dotnet --version   # phải in ra {{ dotnet.current }}.x
     ```
@@ -51,7 +51,7 @@ int Add(int a, int b) => a + b;
 Console.WriteLine(Add(2, 3) == 5 ? "PASS ✅" : "FAIL ❌");
 ```
 
-```bash
+```bash title="Terminal"
 dotnet run    # → PASS ✅
 ```
 

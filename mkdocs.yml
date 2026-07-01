@@ -89,8 +89,23 @@ nav:
   - "P0 · Thiết lập":
     - "Zero → bài tập xanh đầu tiên": 00-thiet-lap/index.md
   - "P1 · C#":
-    - "Bộ nhớ & Kiểu dữ liệu (mẫu CORE)": p1-csharp/bo-nho-va-kieu-du-lieu.md
-  - "P4 · Bảo mật":
-    - "JWT (trang canonical)": p4-bao-mat/jwt.md
+    - "01 — Nền tảng": p1-csharp/nen-tang.md
+    - "02 — Bộ nhớ & Kiểu dữ liệu": p1-csharp/bo-nho-va-kieu-du-lieu.md
+    - "03 — OOP": p1-csharp/oop.md
+    - "04 — Collections & LINQ": p1-csharp/collections-linq.md
+    - "05 — async/await": p1-csharp/async-await.md
+  - "P2 · Dữ liệu (SQL & EF Core)":
+    - "01 — SQL nền tảng": p2-du-lieu/sql-nen-tang.md
+    - "02 — JOIN, GROUP BY & Subquery": p2-du-lieu/joins-aggregation.md
+    - "03 — EF Core": p2-du-lieu/ef-core.md
+  - "P3 · Web API":
+    - "01 — Minimal API & REST": p3-web-api/minimal-api.md
+    - "02 — Dependency Injection": p3-web-api/dependency-injection.md
+  - "P4 · Bảo mật & Test":
+    - "01 — JWT (canonical)": p4-bao-mat/jwt.md
+    - "02 — Tải file an toàn": p4-bao-mat/tai-file-an-toan.md
+    - "03 — Testing (xUnit)": p4-bao-mat/testing.md
+  - "P5 · AI Engineering":
+    - "01 — Dùng Claude Code": p5-ai/claude-code.md
   - "Về hệ thống":
     - "Kiến trúc sư phạm": PEDAGOGY.md

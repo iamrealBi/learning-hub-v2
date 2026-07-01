@@ -1,44 +1,378 @@
 # NGUỒN SỰ THẬT cho Q&A. Mọi câu PHẢI có 'answer'. qa_lint.py cưỡng chế điều này.
-# code_ref (tuỳ chọn) trỏ tới block đã được CI chạy (test:run) -> đáp án có code chạy được.
+# code_ref (tuỳ chọn) trỏ tới block đã được CI chạy (test:run).
 questions:
-  - id: q-mem-01
-    node: p1-memory
-    tier: fast
-    prompt: "Khác biệt THẬT giữa value type và reference type là gì?"
-    answer: >
-      Là CÁCH SAO CHÉP: value type chép toàn bộ giá trị (bản độc lập), reference type
-      chép tham chiếu (cùng một object). KHÔNG phải 'stack vs heap' — chỗ nằm chỉ là
-      chi tiết cài đặt.
-    code_ref: "p1-csharp/bo-nho-va-kieu-du-lieu.md#chung_minh"
+- id: q-mem-01
+  node: p1-memory
+  tier: fast
+  prompt: Khác biệt THẬT giữa value type và reference type là gì?
+  answer: 'Là CÁCH SAO CHÉP: value type chép toàn bộ giá trị (bản độc lập), reference type chép tham chiếu
+    (cùng một object). KHÔNG phải ''stack vs heap'' — chỗ nằm chỉ là chi tiết cài đặt.
 
-  - id: q-mem-02
-    node: p1-memory
-    tier: fast
-    prompt: "Một struct là field của một class thì nằm ở stack hay heap?"
-    answer: "Heap — nó nằm inline bên trong object của class trên heap. (Bác bỏ huyền thoại 'value type luôn ở stack'.)"
+    '
+  code_ref: p1-csharp/bo-nho-va-kieu-du-lieu.md#chung_minh
+- id: q-mem-02
+  node: p1-memory
+  tier: fast
+  prompt: Một struct là field của một class thì nằm ở stack hay heap?
+  answer: Heap — nó nằm inline bên trong object của class trên heap. (Bác bỏ huyền thoại 'value type luôn
+    ở stack'.)
+- id: q-mem-03
+  node: p1-memory
+  tier: deep
+  prompt: GC của .NET dùng thuật toán gì? 'Mark-and-sweep' có đúng không?
+  answer: 'Là tracing, generational, MARK-AND-COMPACT cho SOH (gen 0/1/2) — nén để chống phân mảnh. ''Mark-and-sweep''
+    là mô tả SAI/thiếu. LOH mặc định sweep (không nén).
 
-  - id: q-mem-03
-    node: p1-memory
-    tier: deep
-    prompt: "GC của .NET dùng thuật toán gì? 'Mark-and-sweep' có đúng không?"
-    answer: >
-      Là tracing, generational, MARK-AND-COMPACT cho SOH (gen 0/1/2) — nén để chống
-      phân mảnh. 'Mark-and-sweep' là mô tả SAI/thiếu. LOH mặc định sweep (không nén).
+    '
+- id: q-jwt-01
+  node: p4-jwt
+  tier: fast
+  prompt: Vì sao nên dùng DateTime.UtcNow cho 'expires', và vì sao câu 'DateTime.Now lệch 7 giờ' là sai?
+  answer: 'exp là mốc UTC. Thư viện tự chuyển DateTime.Now (Kind=Local) sang UTC nên KHÔNG lệch 7 giờ
+    (cùng exp như UtcNow). Bẫy thật là Kind=Unspecified (từ Parse/DB) bị coi là UTC. Dùng UtcNow để luôn
+    tường minh, không phụ thuộc Kind.
 
-  - id: q-jwt-01
-    node: p4-jwt
-    tier: fast
-    prompt: "Vì sao nên dùng DateTime.UtcNow cho 'expires', và vì sao câu 'DateTime.Now lệch 7 giờ' là sai?"
-    answer: >
-      exp là mốc UTC. Thư viện tự chuyển DateTime.Now (Kind=Local) sang UTC nên KHÔNG lệch
-      7 giờ (cùng exp như UtcNow). Bẫy thật là Kind=Unspecified (từ Parse/DB) bị coi là UTC.
-      Dùng UtcNow để luôn tường minh, không phụ thuộc Kind.
-    code_ref: "p4-bao-mat/jwt.md#2-cap-token-code-dung"
+    '
+  code_ref: p4-bao-mat/jwt.md#2-cap-token-code-dung
+- id: q-jwt-02
+  node: p4-jwt
+  tier: fast
+  prompt: JWT lưu trong localStorage dính lỗ hổng gì, khác cookie thế nào?
+  answer: 'localStorage -> rủi ro XSS (script đọc được token). Cookie -> rủi ro CSRF, nhưng chặn được
+    bằng SameSite/anti-forgery và HttpOnly khiến JS không đọc token.
 
-  - id: q-jwt-02
-    node: p4-jwt
-    tier: fast
-    prompt: "JWT lưu trong localStorage dính lỗ hổng gì, khác cookie thế nào?"
-    answer: >
-      localStorage -> rủi ro XSS (script đọc được token). Cookie -> rủi ro CSRF, nhưng
-      chặn được bằng SameSite/anti-forgery và HttpOnly khiến JS không đọc token.
+    '
+- id: nen-tang-q1
+  node: nen-tang
+  tier: fast
+  prompt: Kiểu nào nên dùng để lưu số tiền, và vì sao?
+  answer: decimal — biểu diễn thập phân chính xác, tránh sai số làm tròn khi cộng dồn tiền tệ.
+- id: nen-tang-q2
+  node: nen-tang
+  tier: fast
+  prompt: Khác biệt cốt lõi giữa const và readonly là gì?
+  answer: const cố định lúc biên dịch (chỉ literal); readonly gán một lần lúc chạy, thường trong constructor.
+- id: nen-tang-q3
+  node: nen-tang
+  tier: fast
+  prompt: Vì sao int.TryParse an toàn hơn int.Parse khi xử lý input người dùng?
+  answer: TryParse trả về bool và không ném exception với chuỗi lỗi nên không làm sập chương trình; Parse
+    ném FormatException.
+- id: nen-tang-q4
+  node: nen-tang
+  tier: fast
+  prompt: (int)3.9 cho kết quả gì? Muốn 4 thì dùng cái gì?
+  answer: Cho 3 (cắt phần thập phân). Muốn 4 dùng Math.Round(3.9).
+- id: nen-tang-q5
+  node: nen-tang
+  tier: fast
+  prompt: var total = 0m; — total có kiểu tĩnh là gì?
+  answer: decimal — var vẫn là kiểu tĩnh, suy ra từ literal 0m.
+- id: oop-q1
+  node: oop
+  tier: fast
+  prompt: Class và object khác nhau thế nào?
+  answer: Class là bản thiết kế/khuôn; object là thực thể cụ thể tạo từ class bằng new, mỗi object có
+    trạng thái riêng.
+- id: oop-q2
+  node: oop
+  tier: fast
+  prompt: 'Khi nào phương thức được chọn theo kiểu thực tế lúc chạy: override hay new?'
+  answer: override (kèm virtual ở lớp cha) — đó là đa hình runtime; new chọn theo kiểu khai báo lúc biên
+    dịch.
+- id: oop-q3
+  node: oop
+  tier: fast
+  prompt: Nêu một điểm khác biệt then chốt giữa abstract class và interface.
+  answer: abstract class chứa được field và cài đặt sẵn và chỉ kế thừa một lớp cha; interface không chứa
+    field và một lớp cài đặt được nhiều interface.
+- id: oop-q4
+  node: oop
+  tier: fast
+  prompt: Đóng gói được thực hiện bằng công cụ nào trong C#?
+  answer: private field kết hợp property (có validate), giấu trạng thái nội bộ và kiểm soát truy cập.
+- id: oop-q5
+  node: oop
+  tier: fast
+  prompt: Nguyên tắc DIP nói gì và vì sao hữu ích khi test?
+  answer: Phụ thuộc vào trừu tượng (interface) thay vì cài đặt cụ thể; nhờ đó thay được bằng mock/fake
+    khi test.
+- id: collections-linq-q1
+  node: collections-linq
+  tier: fast
+  prompt: Cần tra cứu giá trị theo khoá cực nhanh, khoá duy nhất — chọn collection nào?
+  answer: Dictionary<K,V> — tra theo khoá O(1) trung bình.
+- id: collections-linq-q2
+  node: collections-linq
+  tier: fast
+  prompt: orders.Where(...) đã chạy phép lọc ngay tại dòng đó chưa? Vì sao?
+  answer: Chưa. Where là toán tử deferred, chỉ mô tả; phép lọc chạy khi query bị duyệt (foreach/ToList/Sum...).
+- id: collections-linq-q3
+  node: collections-linq
+  tier: fast
+  prompt: Khác biệt cốt lõi giữa First và FirstOrDefault?
+  answer: First ném InvalidOperationException khi rỗng; FirstOrDefault trả về default(T) (null hoặc 0).
+- id: collections-linq-q4
+  node: collections-linq
+  tier: fast
+  prompt: Muốn lọc dữ liệu ngay tại database (dịch sang SQL) thì dùng IEnumerable hay IQueryable?
+  answer: IQueryable<T> — lambda thành expression tree, được provider (EF Core) dịch sang SQL, lọc tại
+    DB.
+- id: collections-linq-q5
+  node: collections-linq
+  tier: fast
+  prompt: Vì sao nên dùng .Any() thay cho .Count() > 0?
+  answer: Any() dừng ngay khi gặp phần tử đầu tiên; Count() có thể duyệt toàn bộ nguồn.
+- id: p1-async-q1
+  node: async-await
+  tier: fast
+  prompt: Vì sao await một tác vụ I/O không làm phát sinh thread mới?
+  answer: Trong lúc chờ I/O, thread được trả về thread pool; OS báo hoàn tất qua callback nên không thread
+    nào đứng chờ.
+- id: p1-async-q2
+  node: async-await
+  tier: fast
+  prompt: Đoạn await A(); await B(); (mỗi cái 1s) tổng bao lâu, và sửa thế nào để còn ~1s?
+  answer: '~2 giây (tuần tự). Sửa: khởi động cả hai trước rồi await Task.WhenAll(ta, tb) → ~1 giây.'
+- id: p1-async-q3
+  node: async-await
+  tier: fast
+  prompt: Vì sao nên tránh task.Result trong web app?
+  answer: Nó block thread để chờ, gây deadlock (khi có SynchronizationContext) hoặc thread-pool starvation;
+    dùng await thay thế.
+- id: p1-async-q4
+  node: async-await
+  tier: fast
+  prompt: Khi nào dùng WhenAny thay vì WhenAll?
+  answer: 'Khi chỉ cần task đầu tiên hoàn tất: timeout, đua nhiều nguồn, lấy phản hồi nhanh nhất. WhenAll
+    chờ tất cả.'
+- id: p1-async-q5
+  node: async-await
+  tier: fast
+  prompt: async void sai ở chỗ nào, ngoại lệ duy nhất được phép là gì?
+  answer: Exception từ async void không bắt được ở nơi gọi nên gây crash; chỉ chấp nhận cho event handler
+    UI, còn lại trả Task/Task<T>.
+- id: sql-nen-tang-q1
+  node: sql-nen-tang
+  tier: fast
+  prompt: Trong câu SELECT price * 2 AS gia_doi FROM products WHERE gia_doi > 100 — câu này lỗi. Vì sao?
+  answer: Alias gia_doi tạo ở bước SELECT nhưng WHERE chạy trước SELECT nên alias chưa tồn tại; phải viết
+    WHERE price * 2 > 100.
+- id: sql-nen-tang-q2
+  node: sql-nen-tang
+  tier: fast
+  prompt: SELECT count(*) FROM users WHERE age <> 30 với An=30, Bình=NULL, Cường=25 trả về mấy?
+  answer: 1 (chỉ Cường); dòng Bình có age NULL nên NULL <> 30 là UNKNOWN, bị loại.
+- id: sql-nen-tang-q3
+  node: sql-nen-tang
+  tier: fast
+  prompt: Nên dùng gì thay cho serial khi tạo cột khoá chính tự tăng, và tại sao?
+  answer: GENERATED ALWAYS AS IDENTITY — theo chuẩn SQL, chống ghi đè id vô ý, quản lý sequence gọn hơn.
+- id: sql-nen-tang-q4
+  node: sql-nen-tang
+  tier: fast
+  prompt: Kiểu nào phù hợp lưu số tiền 450000.00 để tránh sai số?
+  answer: numeric(p,s) ví dụ numeric(10,2); không dùng float/double vì làm tròn nhị phân.
+- id: sql-nen-tang-q5
+  node: sql-nen-tang
+  tier: fast
+  prompt: Thứ tự thực thi logic đúng của FROM, WHERE, GROUP BY, HAVING, SELECT, ORDER BY, LIMIT là gì?
+  answer: FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT/OFFSET.
+- id: joins-aggregation-q1
+  node: joins-aggregation
+  tier: fast
+  prompt: INNER JOIN và LEFT JOIN khác nhau ở điểm nào về dòng không khớp?
+  answer: INNER JOIN loại bỏ dòng không khớp cả hai bên; LEFT JOIN giữ toàn bộ dòng bảng trái, điền NULL
+    cho cột bảng phải khi không khớp.
+- id: joins-aggregation-q2
+  node: joins-aggregation
+  tier: fast
+  prompt: Vì sao không được viết WHERE COUNT(*) > 5?
+  answer: COUNT là hàm tổng hợp chỉ tồn tại sau GROUP BY, còn WHERE chạy trước khi gom nhóm; phải dùng
+    HAVING COUNT(*) > 5.
+- id: joins-aggregation-q3
+  node: joins-aggregation
+  tier: fast
+  prompt: COUNT(*) khác COUNT(col) thế nào khi col có NULL?
+  answer: COUNT(*) đếm mọi dòng; COUNT(col) chỉ đếm dòng có col không NULL.
+- id: joins-aggregation-q4
+  node: joins-aggregation
+  tier: fast
+  prompt: Viết mệnh đề tìm khách chưa có đơn bằng NOT EXISTS.
+  answer: SELECT c.name FROM customers c WHERE NOT EXISTS (SELECT 1 FROM orders o WHERE o.customer_id
+    = c.id);
+- id: joins-aggregation-q5
+  node: joins-aggregation
+  tier: fast
+  prompt: Correlated subquery khác subquery thường ở đâu?
+  answer: Correlated subquery tham chiếu cột truy vấn ngoài và chạy lại cho từng dòng ngoài; subquery
+    thường độc lập, chạy một lần.
+- id: p2-ef-core-1
+  node: ef-core
+  tier: fast
+  prompt: IQueryable được thực thi lúc nào?
+  answer: Khi materialize (ToList/ToListAsync, foreach, First, Count, Any), không phải lúc gọi .Where;
+    LINQ là deferred.
+- id: p2-ef-core-2
+  node: ef-core
+  tier: fast
+  prompt: Hai lệnh CLI nào tạo migration rồi áp vào database?
+  answer: dotnet ef migrations add <Ten> rồi dotnet ef database update.
+- id: p2-ef-core-3
+  node: ef-core
+  tier: fast
+  prompt: Khi nào nên dùng AsNoTracking()?
+  answer: Khi truy vấn chỉ đọc (hiển thị/báo cáo), không định sửa và SaveChanges; nhanh và ít tốn RAM
+    hơn.
+- id: p2-ef-core-4
+  node: ef-core
+  tier: fast
+  prompt: N+1 xảy ra thế nào và cách khắc phục cơ bản?
+  answer: Truy cập navigation trong vòng lặp mà không nạp sẵn tạo 1 câu chính + N câu con; khắc phục bằng
+    Include hoặc projection Select.
+- id: p2-ef-core-5
+  node: ef-core
+  tier: fast
+  prompt: Vì sao không nên trả IQueryable ra khỏi repository?
+  answer: Vì bên ngoài có thể nối thêm LINQ chạy SQL ngoài kiểm soát, phụ thuộc DbContext đã đóng và phá
+    ranh giới tầng; nên đóng bằng ToListAsync/FirstOrDefaultAsync và trả kiểu cụ thể như List<T>.
+- id: p3-minimal-api-q1
+  node: minimal-api
+  tier: fast
+  prompt: POST /orders tạo đơn hàng thành công thì trả status code nào và kèm header gì?
+  answer: 201 Created, kèm header Location trỏ tới URL tài nguyên vừa tạo (Results.Created).
+- id: p3-minimal-api-q2
+  node: minimal-api
+  tier: fast
+  prompt: Trong app.MapGet("/users/{id:int}", (int id) => ...), tham số id được bind từ đâu?
+  answer: Từ route param {id:int} trong path; constraint :int chỉ khớp giá trị số.
+- id: p3-minimal-api-q3
+  node: minimal-api
+  tier: fast
+  prompt: Vì sao nên trả Results.NotFound() thay vì object rỗng với status 200?
+  answer: 'Status code là hợp đồng ngữ nghĩa: 404 nói rõ không có tài nguyên; 200 + body rỗng khiến client
+    hiểu nhầm là thành công.'
+- id: p3-minimal-api-q4
+  node: minimal-api
+  tier: fast
+  prompt: URL POST /createUser vi phạm nguyên tắc REST nào?
+  answer: URL phải là danh từ số nhiều chỉ tài nguyên, không nhét động từ; hành động do HTTP method diễn
+    đạt. Đúng là POST /users.
+- id: p3-minimal-api-q5
+  node: minimal-api
+  tier: fast
+  prompt: Khác biệt ngữ nghĩa giữa PUT /products/5 và POST /products?
+  answer: PUT thay thế tài nguyên đã biết id, idempotent; POST tạo mới tài nguyên, không idempotent.
+- id: p3-di-q1
+  node: dependency-injection
+  tier: fast
+  prompt: AddScoped tạo bao nhiêu instance trong một request HTTP có 3 chỗ cùng yêu cầu service đó?
+  answer: Đúng 1 instance, tái dùng trong suốt scope của request.
+- id: p3-di-q2
+  node: dependency-injection
+  tier: fast
+  prompt: Vì sao DbContext nên là Scoped chứ không phải Singleton?
+  answer: DbContext không an toàn đa luồng và mang trạng thái theo request; Singleton sẽ chia sẻ một instance
+    cho mọi request đồng thời gây lỗi dữ liệu/concurrency.
+- id: p3-di-q3
+  node: dependency-injection
+  tier: fast
+  prompt: Captive dependency là gì?
+  answer: Service sống-lâu (Singleton) giữ tham chiếu tới service sống-ngắn hơn (Scoped), khiến nó bị
+    giam và tồn tại sai vòng đời.
+- id: p3-di-q4
+  node: dependency-injection
+  tier: fast
+  prompt: Cách đúng để một Singleton dùng một service Scoped là gì?
+  answer: Tiêm IServiceScopeFactory, mở CreateScope() mỗi lần cần, lấy Scoped qua GetRequiredService rồi
+    Dispose scope.
+- id: p3-di-q5
+  node: dependency-injection
+  tier: fast
+  prompt: Nguyên tắc thiết kế nào cho phép đổi implementation mà không sửa code dùng nó, và DI hiện thực
+    thế nào?
+  answer: Nghịch đảo phụ thuộc (Dependency Inversion) — phụ thuộc vào abstraction; DI tiêm implementation
+    qua constructor nên chỉ đổi dòng đăng ký.
+- id: tai-file-an-toan-q1
+  node: tai-file-an-toan
+  tier: fast
+  prompt: Hàm BCL nào bóc bỏ mọi thành phần đường dẫn khỏi tên file client?
+  answer: Path.GetFileName — chỉ giữ phần tên cuối, loại bỏ .. và mọi phần thư mục.
+- id: tai-file-an-toan-q2
+  node: tai-file-an-toan
+  tier: fast
+  prompt: Vì sao không được tin Content-Type hay đuôi file khi phân loại?
+  answer: Cả hai do client kiểm soát và có thể bịa; chỉ magic bytes (nội dung thật) mới đáng tin.
+- id: tai-file-an-toan-q3
+  node: tai-file-an-toan
+  tier: fast
+  prompt: Nên kiểm kích thước file trước hay sau khi đọc toàn bộ nội dung? Vì sao?
+  answer: Trước. Từ chối sớm tránh nạp file khổng lồ vào bộ nhớ/đĩa (chống DoS) và tiết kiệm xử lý.
+- id: tai-file-an-toan-q4
+  node: tai-file-an-toan
+  tier: fast
+  prompt: Lưu file upload trong wwwroot gây rủi ro cụ thể gì?
+  answer: File bị phục vụ tĩnh; nội dung độc có thể chạy dưới domain của bạn dẫn tới stored XSS/thực thi.
+    Phải lưu ngoài webroot hoặc chặn thực thi.
+- id: tai-file-an-toan-q5
+  node: tai-file-an-toan
+  tier: fast
+  prompt: Vì sao đặt tên lưu bằng Guid an toàn hơn dùng tên client?
+  answer: GUID do server sinh, client không kiểm soát nên loại bỏ path traversal và va chạm/ghi đè tên;
+    tên client chỉ giữ để hiển thị.
+- id: testing-q1
+  node: testing
+  tier: fast
+  prompt: Khi nào dùng [Theory] thay vì viết nhiều [Fact]?
+  answer: Khi cùng một logic cần kiểm với nhiều bộ dữ liệu — [Theory]+[InlineData] biến mỗi bộ thành một
+    test riêng, báo lỗi rõ giá trị nào sai.
+- id: testing-q2
+  node: testing
+  tier: fast
+  prompt: Ba khối của Arrange-Act-Assert làm gì?
+  answer: 'Arrange: dựng dữ liệu đầu vào. Act: gọi đúng một hành động cần kiểm. Assert: so kết quả thực
+    tế với kỳ vọng.'
+- id: testing-q3
+  node: testing
+  tier: fast
+  prompt: Vì sao đặt tên test theo hành vi là tài liệu sống?
+  answer: Mỗi tên nêu rõ điều kiện và hành vi mong đợi, nên đọc danh sách tên test là đọc được đặc tả
+    hệ thống mà không cần đọc cài đặt.
+- id: testing-q4
+  node: testing
+  tier: fast
+  prompt: WebApplicationFactory<Program> khác test logic thuần ở điểm cốt lõi nào?
+  answer: Nó khởi động toàn bộ app trong bộ nhớ và gọi endpoint http thật qua routing/DI/middleware; test
+    logic thuần chỉ gọi một lớp cô lập, không qua pipeline.
+- id: testing-q5
+  node: testing
+  tier: fast
+  prompt: Vì sao mock qua interface giúp test tất định hơn?
+  answer: Fake/mock cho phép điều khiển đầu ra của phụ thuộc (DB, mạng), nên kết quả không phụ thuộc yếu
+    tố ngoài, chạy nhanh và luôn cho cùng kết quả.
+- id: claude-code-1
+  node: claude-code
+  tier: fast
+  prompt: Nêu 2 lệnh để quản lý ngữ cảnh phiên và khác biệt của chúng.
+  answer: /compact nén lịch sử nhưng giữ ý chính (tiếp tục cùng task); /clear xoá sạch để bắt đầu task
+    mới.
+- id: claude-code-2
+  node: claude-code
+  tier: fast
+  prompt: File nào là bộ nhớ dự án mà agent tự nạp mỗi phiên, và lệnh nào tạo nó?
+  answer: File CLAUDE.md ở gốc repo; lệnh /init sinh bản khởi đầu.
+- id: claude-code-3
+  node: claude-code
+  tier: fast
+  prompt: Lệnh nào để thêm một MCP server?
+  answer: claude mcp add <tên> -- <lệnh khởi chạy server>.
+- id: claude-code-4
+  node: claude-code
+  tier: fast
+  prompt: Muốn ghi audit trước mỗi lần agent chạy công cụ thì dùng event hook nào (PascalCase)?
+  answer: PreToolUse (chạy sau thì PostToolUse); harness thực thi hook.
+- id: claude-code-5
+  node: claude-code
+  tier: fast
+  prompt: Vì sao agent chạy test xanh chưa đủ để commit?
+  answer: Vì agent có thể đã sửa test cho khớp bug; phải đọc diff và tin test trước khi commit.

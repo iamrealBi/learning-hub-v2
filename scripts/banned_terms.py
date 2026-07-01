@@ -49,7 +49,9 @@ def scan(paths: list[pathlib.Path], banned: list[str]) -> list[str]:
             if in_hist:
                 continue
             for term in banned:
-                if term.lower() in line.lower():
+                # KHỚP PHÂN BIỆT HOA/THƯỜNG: mục đích là cấm đúng chuỗi sai-case
+                # (vd cấm 'Skill.md' nhưng CHO PHÉP 'SKILL.md' đúng chuẩn).
+                if term in line:
                     violations.append(f"{p}:{i}  CẤM: '{term}'  ->  {s[:80]}")
             for pat in VERSION_PATTERNS:
                 if pat.search(line):
