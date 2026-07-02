@@ -664,8 +664,9 @@ questions:
   node: records-pattern-matching
   tier: fast
   prompt: Trong switch expression, đặt arm '> 0 =>' trước arm '> 100 =>' gây ra chuyện gì?
-  answer: Arm > 100 trở thành unreachable (không bao giờ chạy) vì > 0 đã nuốt mọi số dương kể cả > 100.
-    Compiler cảnh báo CS8510. Phải xếp arm hẹp (> 100) trước arm rộng (> 0).
+  answer: Arm > 100 trở thành unreachable (không bao giờ chạy được) vì > 0 đã nuốt mọi số dương kể cả > 100.
+    Đây là LỖI BIÊN DỊCH CS8510 (không chỉ cảnh báo) - code sẽ không compile được. Phải xếp arm hẹp
+    (> 100) trước arm rộng (> 0).
 - id: records-pattern-matching-q5
   node: records-pattern-matching
   tier: fast

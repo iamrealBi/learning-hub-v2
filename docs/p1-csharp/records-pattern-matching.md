@@ -697,17 +697,16 @@ SwitchExpressionException
 
 ### 5.3 Cạm bẫy THỨ TỰ ARM
 
-`switch` expression thử arm **từ trên xuống**, dừng ở arm đầu tiên khớp. Đặt arm **rộng** trước arm **hẹp** → arm hẹp thành *chết* (unreachable) và compiler cảnh báo `CS8510`.
+`switch` expression thử arm **từ trên xuống**, dừng ở arm đầu tiên khớp. Đặt arm **rộng** trước arm **hẹp** → arm hẹp thành *chết* (unreachable). Với `switch` **expression** (khác `switch` statement), đây KHÔNG chỉ là cảnh báo — trình biên dịch **từ chối biên dịch** với lỗi `CS8510` ("pattern is unreachable"). Đây là điểm hay: compiler tự bắt lỗi logic này trước khi bạn kịp chạy code.
 
-```csharp title="Thứ tự arm SAI: arm rộng nuốt arm hẹp"
-// test:run
+```csharp title="Thứ tự arm SAI: arm rộng nuốt arm hẹp — LỖI BIÊN DỊCH, không chạy được"
+// test:skip cố ý minh hoạ lỗi biên dịch CS8510 (pattern is unreachable) — xem giải thích
 static string Wrong(int n) => n switch
 {
     > 0 => "dương",     // arm RỘNG đứng trước
-    > 100 => "rất lớn", // <-- KHÔNG BAO GIỜ chạy: > 100 đã bị "> 0" nuốt
+    > 100 => "rất lớn", // <-- LỖI CS8510: unreachable, "> 100" đã bị "> 0" nuốt
     _ => "khác"
 };
-Console.WriteLine(Wrong(500)); // "dương" — không phải "rất lớn"!
 ```
 
 Đúng thì phải đặt arm hẹp/cụ thể **trước**:
@@ -785,7 +784,7 @@ b
 
 2. **`record struct` mặc định mutable.** `record struct Coord(int X, int Y)` sinh `set`, không phải `init`. Nếu bạn *muốn* value object bất biến (thường là vậy), luôn viết **`readonly record struct`**. Quên chữ `readonly` là bug âm thầm.
 
-3. **Thứ tự arm trong switch expression.** Arm rộng đặt trước nuốt arm hẹp (mục 5.3). Luôn xếp **cụ thể → tổng quát**, và đọc cảnh báo `CS8510` (unreachable) nghiêm túc.
+3. **Thứ tự arm trong switch expression.** Arm rộng đặt trước nuốt arm hẹp (mục 5.3) → **lỗi biên dịch** `CS8510` (unreachable), không phải chỉ cảnh báo. Luôn xếp **cụ thể → tổng quát**.
 
 4. **Quên nhánh mặc định `_`.** Không vét cạn → cảnh báo `CS8509` + `SwitchExpressionException` lúc runtime. Luôn có `_ =>` trừ khi bạn *chắc chắn* đã phủ hết (và ngay cả với enum vẫn nên có, phòng giá trị enum mới).
 
@@ -904,7 +903,7 @@ Trả lời rồi mở đáp án.
 
 4. Trong switch expression, đặt `> 0 =>` trước `> 100 =>` gây ra chuyện gì?
    ??? note "Đáp án"
-       Arm `> 100` trở thành **unreachable** (không bao giờ chạy) vì `> 0` đã nuốt mọi số > 0, kể cả > 100. Compiler cảnh báo `CS8510`. Phải xếp arm hẹp (`> 100`) **trước** arm rộng (`> 0`).
+       Arm `> 100` trở thành **unreachable** (không bao giờ chạy được) vì `> 0` đã nuốt mọi số > 0, kể cả > 100. Với switch **expression**, đây là **lỗi biên dịch** `CS8510`, code sẽ không compile được chứ không chỉ chạy sai. Phải xếp arm hẹp (`> 100`) **trước** arm rộng (`> 0`).
 
 5. `x is var y` khi `x` là `null` cho kết quả gì?
    ??? note "Đáp án"
