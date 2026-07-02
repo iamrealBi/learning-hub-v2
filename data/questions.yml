@@ -97,6 +97,19 @@ questions:
   prompt: Nguyên tắc DIP nói gì và vì sao hữu ích khi test?
   answer: Phụ thuộc vào trừu tượng (interface) thay vì cài đặt cụ thể; nhờ đó thay được bằng mock/fake
     khi test.
+- id: oop-q6
+  node: oop
+  tier: fast
+  prompt: Interface có được chứa field lưu trữ dữ liệu không? Nếu class implement interface mà thiếu
+    một method thì chuyện gì xảy ra?
+  answer: Không - interface chỉ khai báo chữ ký method/property, không có field lưu trữ. Nếu class thiếu
+    implement một method, trình biên dịch báo lỗi CS0535 ngay lúc build.
+- id: oop-q7
+  node: oop
+  tier: fast
+  prompt: Default interface method (C# 8+) dùng để giải quyết vấn đề gì?
+  answer: Cho phép thêm method mới vào một interface đã có nhiều lớp thực thi mà không bắt buộc mọi lớp
+    cũ phải sửa code - lớp cũ tự động dùng bản mặc định.
 - id: collections-linq-q1
   node: collections-linq
   tier: fast
