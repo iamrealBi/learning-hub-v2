@@ -126,16 +126,98 @@ class Counter
 
 **Ý tưởng:** giấu trạng thái nội bộ, chỉ cho bên ngoài tương tác qua "cửa" được kiểm soát. Nhờ đó object **luôn ở trạng thái hợp lệ**.
 
-### Access modifier — ai thấy được gì
+### Access modifier — kiểm soát ai thấy được gì (đầy đủ)
 
-| Modifier | Phạm vi thấy được |
+Access modifier quyết định **từ đâu** một type hoặc thành viên (field/property/method) được nhìn thấy và dùng. C# có **6 access modifier** cho thành viên, cộng type modifier `file`. Đây là bảng đầy đủ, chính xác:
+
+| Modifier | Truy cập được từ | Ghi chú |
+|---|---|---|
+| `private` | **chỉ trong chính type chứa nó** | Mặc định cho thành viên của class/struct |
+| `public` | **mọi nơi**, mọi assembly | Không giới hạn |
+| `protected` | type chứa nó **+ mọi lớp con** (kể cả assembly khác) | Cho kế thừa |
+| `internal` | **mọi nơi trong cùng assembly** (project biên dịch ra 1 dll) | Mặc định cho type cấp cao nhất |
+| `protected internal` | cùng assembly **HOẶC** lớp con (dù ở assembly khác) — phép **HỢP** (rộng hơn) | |
+| `private protected` | lớp con **VÀ** phải cùng assembly — phép **GIAO** (hẹp hơn) | Có từ C# 7.2 |
+
+Ngoài ra `file` (C# 11) là **type modifier**: type khai báo `file class X` chỉ thấy được **trong đúng file .cs đó** — dùng cho source generator, tránh đụng tên.
+
+**Ma trận truy cập** (✓ = thấy được) — đọc kỹ hai dòng `protected internal` và `private protected`, đây là chỗ hầu hết mọi người nhầm:
+
+| Modifier | Trong cùng type | Lớp con · cùng assembly | Lớp con · khác assembly | Không-phải-con · cùng assembly | Mọi nơi khác |
+|---|:---:|:---:|:---:|:---:|:---:|
+| `private` | ✓ | ✗ | ✗ | ✗ | ✗ |
+| `private protected` | ✓ | ✓ | ✗ | ✗ | ✗ |
+| `protected` | ✓ | ✓ | ✓ | ✗ | ✗ |
+| `internal` | ✓ | ✓ | ✗ | ✓ | ✗ |
+| `protected internal` | ✓ | ✓ | ✓ | ✓ | ✗ |
+| `public` | ✓ | ✓ | ✓ | ✓ | ✓ |
+
+Mẹo nhớ: `protected internal` = "protected **hoặc** internal" (cộng hai vùng lại → rộng). `private protected` = "protected **và** internal" (giao hai vùng → hẹp: vừa phải là con, vừa phải cùng assembly).
+
+**Giá trị mặc định** (khi bạn KHÔNG viết modifier) — phải nhớ vì rất hay dính:
+
+| Ngữ cảnh | Mặc định |
 |---|---|
-| `private` | chỉ trong chính class đó (mặc định cho field) |
-| `protected` | class đó + các lớp con |
-| `internal` | trong cùng assembly (project) |
-| `public` | mọi nơi |
+| Type cấp cao nhất (class/struct/... trong namespace) | `internal` (KHÔNG phải public!) |
+| Thành viên của `class` / `struct` | `private` |
+| Type lồng trong class (nested type) | `private` |
+| Thành viên của `interface` | `public` |
+| Thành viên của `enum` | `public` |
 
-Nguyên tắc vàng: **để mức truy cập THẤP nhất có thể**. Field gần như luôn `private`; lộ ra ngoài qua **property**.
+Đây là ví dụ chạy được cho các trường hợp thấy được trong cùng file:
+
+```csharp title="Access modifier — cái gì thấy được"
+// test:run
+var acc = new Account();
+acc.Deposit(100m);                 // public: gọi được
+Console.WriteLine(acc.Balance);    // public get: đọc được -> 100
+var vip = new VipAccount();
+Console.WriteLine(vip.Report());   // lớp con đọc _balance (protected) OK -> "Số dư: 0"
+
+class Account
+{
+    protected decimal _balance;                 // lớp con thấy, ngoài không
+    private int _txCount;                        // CHỈ Account thấy
+    public decimal Balance => _balance;          // cửa công khai chỉ-đọc
+    public void Deposit(decimal amount) { _balance += amount; _txCount++; }
+}
+class VipAccount : Account
+{
+    public string Report() => $"Số dư: {_balance}";   // OK: _balance là protected
+    // Không thể đọc _txCount ở đây: nó private của Account -> sẽ là lỗi CS0122
+}
+```
+
+**Kết quả:** `100` rồi `Số dư: 0`. Lớp con `VipAccount` đọc được `_balance` (protected) nhưng KHÔNG đọc được `_txCount` (private của cha).
+
+Còn đây là các trường hợp **không biên dịch được** — biết để tránh (đánh dấu bỏ chạy vì cố tình sai):
+
+```csharp title="Những lỗi truy cập điển hình"
+// test:skip minh hoạ LỖI BIÊN DỊCH cố ý (không build)
+var a = new Account();
+a._balance = 999m;   // ❌ CS0122: '_balance' is inaccessible (protected, gọi từ ngoài)
+a.Deposit(-5m);      // biên dịch OK nhưng logic nên tự chặn (xem phần validate)
+
+// ❌ CS0051: lộ type kém-truy-cập qua thành viên public:
+internal class Secret { }
+public class Service
+{
+    public Secret Get() => new();   // 'Service.Get()' public nhưng trả về Secret (internal)
+}
+```
+
+!!! danger "Bẫy: 'nhất quán truy cập' (accessibility consistency)"
+    Một thành viên **không được lộ ra rộng hơn** những type xuất hiện trong chữ ký của nó. `public` method trả về/nhận một type `internal` → lỗi **CS0051**. Tương tự, một property `public` không thể có kiểu là class `private`. Quy tắc: type dùng trong API công khai cũng phải công khai tương xứng.
+
+**Nguyên tắc thực chiến:**
+
+- **Mặc định chọn mức HẸP nhất**, chỉ nới khi thật cần. Field → `private`; lộ ra qua property.
+- `internal` cho thứ chỉ dùng nội bộ project (không muốn thành API công khai của thư viện).
+- `protected` khi thiết kế cho kế thừa; `private protected` khi muốn "chỉ lớp con của TÔI trong assembly này".
+- Test cần thấy `internal`? Dùng thuộc tính assembly `[assembly: InternalsVisibleTo("MyProject.Tests")]` thay vì đổi thành `public`.
+- Property tinh chỉnh cả hai chiều: `{ get; private set; }` (đọc công khai, ghi nội bộ), `{ get; init; }` (chỉ gán lúc khởi tạo). Xem phần dưới.
+
+Nguyên tắc vàng bao trùm: **để mức truy cập THẤP nhất có thể** — mỗi mức public là một lời hứa bạn phải giữ mãi về sau.
 
 ### Property — cánh cửa có kiểm soát
 

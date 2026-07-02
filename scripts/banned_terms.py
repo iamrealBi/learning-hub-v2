@@ -16,13 +16,11 @@ import yaml
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 FACTS = ROOT / "data" / "facts.yml"
 
-# version literal trong prose -> lỗi (buộc dùng macro thay thế)
+# Chỉ chặn model-ID chắc chắn LỖI THỜI. Cho phép trích dẫn version C#/.NET trong prose
+# vì giáo trình PHẢI nêu chính xác tính năng ra ở phiên bản nào (vd "records: C# 9",
+# ".NET 1.x"). "Phiên bản hiện hành" vẫn dùng macro {{ dotnet.current }} theo kỷ luật.
 VERSION_PATTERNS = [
-    re.compile(r"\.NET\s+\d", re.I),
-    re.compile(r"\bC#\s+\d"),
     re.compile(r"\bclaude-3\b", re.I),
-    re.compile(r"\bgpt-[45]\b", re.I),
-    re.compile(r"\bGemini\s+\d", re.I),
 ]
 
 def load_banned() -> list[str]:
