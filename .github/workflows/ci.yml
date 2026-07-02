@@ -39,6 +39,9 @@ jobs:
       - name: "Gate 5 · Trích code block (mọi block C# phải có tag test:)"
         run: python scripts/tangle.py
 
+      - name: "Gate 5b · Chống vỡ macro-syntax ('{{'/'}}' lạc trong code)"
+        run: python scripts/macro_safety.py docs
+
       - name: "Gate 6 · Build site (STRICT) — phải deploy được, 0 link nội bộ gãy"
         run: mkdocs build --strict
 

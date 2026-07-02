@@ -535,3 +535,298 @@ questions:
   prompt: Trong luồng request, thành phần nào chạy trước endpoint và làm gì?
   answer: 'Middleware (xác thực JWT + logging): kiểm token, gắn ClaimsPrincipal, ghi log; chặn request
     sai trước khi tới endpoint.'
+- id: generics-q1
+  node: generics
+  tier: fast
+  prompt: Vì sao ArrayList gây boxing với int còn List<int> thì không?
+  answer: ArrayList.Add nhận object nên int (value type) phải được box (cấp phát heap + copy) để thành
+    object. List<int> được JIT sinh mã riêng với int nằm trực tiếp trong mảng nội bộ int[], không cần
+    chuyển sang object nên không boxing.
+- id: generics-q2
+  node: generics
+  tier: fast
+  prompt: Liệt kê thứ tự bắt buộc khi kết hợp nhiều ràng buộc where.
+  answer: '(1) ràng buộc chính chọn tối đa một trong class/struct/unmanaged/notnull đứng đầu; (2) base
+    class tối đa một; (3) các interface; (4) new() luôn cuối cùng. Ví dụ: where T : class, IFoo, new().'
+- id: generics-q3
+  node: generics
+  tier: fast
+  prompt: IEnumerable<out T> covariant nghĩa là gì, và vì sao IList<T> không thể covariant?
+  answer: Covariant nghĩa IEnumerable<Dog> được coi là IEnumerable<Animal> vì T chỉ ở vị trí trả về (chỉ
+    lấy ra). IList<T> có Add(T) với T ở vị trí tham số vào; nếu covariant thì có thể Add(new Cat()) vào
+    danh sách Dog, phá type-safety, nên T không được đánh dấu out.
+- id: generics-q4
+  node: generics
+  tier: fast
+  prompt: Tại sao không thể viết hai overload Foo<T>() where T:class và Foo<T>() where T:struct?
+  answer: Ràng buộc where không thuộc chữ ký phương thức, nên hai method có chữ ký giống hệt (Foo<T>()),
+    gây lỗi trùng định nghĩa CS0111. Muốn phân nhánh value/reference phải kiểm tra typeof(T).IsValueType
+    bên trong một method duy nhất.
+- id: generics-q5
+  node: generics
+  tier: fast
+  prompt: default(int), default(string), default(bool?) lần lượt là gì?
+  answer: default(int) = 0; default(string) = null; default(bool?) = null (nullable value không có giá
+    trị). Reference type là null, value type là giá trị 0/struct rỗng.
+- id: generics-q6
+  node: generics
+  tier: fast
+  prompt: Counter<int>.Total và Counter<string>.Total có dùng chung ô nhớ không? Vì sao?
+  answer: Không. CLR coi Counter<int> và Counter<string> là hai closed type độc lập, mỗi cái có bộ static
+    field riêng. Tăng Counter<int>.Total không ảnh hưởng Counter<string>.Total.
+- id: generics-q7
+  node: generics
+  tier: fast
+  prompt: Cách đúng để so sánh bằng nhau giữa hai giá trị kiểu T trong generic là gì, và vì sao không
+    dùng ==?
+  answer: Dùng EqualityComparer<T>.Default.Equals(x, y). Không dùng == vì với T chưa ràng buộc thường
+    không biên dịch, và với reference type == so sánh tham chiếu chứ không so nội dung. EqualityComparer<T>.Default
+    tự gọi IEquatable<T> nếu có (không boxing).
+- id: generics-q8
+  node: generics
+  tier: fast
+  prompt: typeof(List<>) khác typeof(List<int>) như thế nào, và List`1 nghĩa là gì?
+  answer: typeof(List<>) là open generic type definition (IsGenericTypeDefinition == true), chưa điền
+    tham số kiểu, không tạo instance được. typeof(List<int>) là closed type đã điền int, tạo instance
+    được. List`1 = tên List + arity (số tham số kiểu) là 1; Dictionary<,> là Dictionary`2.
+- id: delegates-events-q1
+  node: delegates-events
+  tier: fast
+  prompt: Đâu là khác biệt giữa Func<int,string> và Action<int,string>?
+  answer: Func<int,string> nhận một tham số int và trả về string (kiểu cuối là kết quả). Action<int,string>
+    nhận hai tham số int và string, không trả về gì (void).
+- id: delegates-events-q2
+  node: delegates-events
+  tier: fast
+  prompt: Vòng for (int i=0;i<3;i++) list.Add(() => i); rồi gọi hết cho ra gì? Vì sao? Cách sửa?
+  answer: 'Ra 3,3,3 vì i là một biến duy nhất dùng chung cả vòng lặp, mọi lambda capture cùng ô nhớ và
+    khi chạy i đã bằng 3. Sửa: copy vào biến nội vòng (int copy=i; () => copy) hoặc dùng foreach.'
+- id: delegates-events-q3
+  node: delegates-events
+  tier: fast
+  prompt: Khi gọi một multicast Func<int> gồm ba hàm trả 1, 2, 3 — giá trị nhận được là gì?
+  answer: Là 3 — multicast chạy hết cả ba hàm nhưng chỉ trả về kết quả của hàm cuối cùng. Muốn lấy đủ
+    phải duyệt GetInvocationList().
+- id: delegates-events-q4
+  node: delegates-events
+  tier: fast
+  prompt: Vì sao event an toàn hơn một field public delegate?
+  answer: Vì event giới hạn bên ngoài chỉ được += và -=; việc gán = (xóa handler người khác) và raise
+    (gọi) chỉ làm được bên trong lớp khai báo. Field delegate public cho phép ai cũng gán đè và tự gọi.
+- id: delegates-events-q5
+  node: delegates-events
+  tier: fast
+  prompt: Vì sao quên unsubscribe gây rò rỉ bộ nhớ, và trong tình huống nào nặng nhất?
+  answer: Publisher giữ delegate, delegate giữ Target = subscriber, nên publisher tham chiếu ngược subscriber
+    khiến nó không được GC. Nặng nhất khi publisher sống lâu (singleton/service) còn subscriber ngắn hạn
+    (view/form). Phòng bằng -= đối xứng, IDisposable, hoặc weak event.
+- id: delegates-events-q6
+  node: delegates-events
+  tier: fast
+  prompt: Khác biệt cốt lõi giữa Func<T,bool> và Expression<Func<T,bool>>, và vì sao EF Core cần cái thứ
+    hai?
+  answer: Func<T,bool> đã biên dịch thành IL chạy được, chỉ gọi được. Expression<Func<T,bool>> là cây
+    đối tượng mô tả cấu trúc lambda, đọc/phân tích/dịch được lúc runtime. EF Core cần nó để dịch lambda
+    sang SQL chạy server-side; nếu dùng Func, EF phải tải cả bảng về rồi lọc — hỏng hiệu năng.
+- id: delegates-events-q7
+  node: delegates-events
+  tier: fast
+  prompt: Nếu một handler trong chuỗi multicast ném exception, các handler sau có chạy không?
+  answer: Không. Exception làm đứt chuỗi ngay lập tức; các handler đăng ký sau nó không chạy. Muốn chạy
+    hết bất chấp lỗi, tự duyệt GetInvocationList() và bọc try/catch từng phần tử.
+- id: delegates-events-q8
+  node: delegates-events
+  tier: fast
+  prompt: static x => x * 2 khác x => x * 2 chỗ nào?
+  answer: 'static lambda bị cấm capture biến ngoài (dùng biến bao ngoài sẽ lỗi biên dịch). Lợi ích: khẳng
+    định hàm thuần, tránh cấp phát display class ẩn khi vô tình capture — tốt cho hiệu năng và độ rõ ràng.'
+- id: records-pattern-matching-q1
+  node: records-pattern-matching
+  tier: fast
+  prompt: Điều gì thật sự định nghĩa một record, immutability hay value equality?
+  answer: Value equality. Record có thể mutable (property set) nhưng vẫn là record. Bản chất record là
+    compiler luôn sinh Equals/GetHashCode/operator== so theo giá trị các thành viên (cộng EqualityContract
+    với record class).
+- id: records-pattern-matching-q2
+  node: records-pattern-matching
+  tier: fast
+  prompt: new Team("A", new[]{"x"}) == new Team("A", new[]{"x"}) cho kết quả gì với record Team(string
+    Name, string[] Members)? Vì sao?
+  answer: False. Field string[] so bằng EqualityComparer<string[]>.Default = reference equality; hai mảng
+    là hai object khác nhau. Muốn True phải override Equals+GetHashCode so theo phần tử (SequenceEqual).
+- id: records-pattern-matching-q3
+  node: records-pattern-matching
+  tier: fast
+  prompt: Khác biệt property positional sinh ra giữa record class và record struct (không readonly)?
+  answer: record class sinh property init (bất biến). record struct sinh property set (mutable). Muốn
+    record struct bất biến phải dùng readonly record struct (sinh init + field readonly).
+- id: records-pattern-matching-q4
+  node: records-pattern-matching
+  tier: fast
+  prompt: Trong switch expression, đặt arm '> 0 =>' trước arm '> 100 =>' gây ra chuyện gì?
+  answer: Arm > 100 trở thành unreachable (không bao giờ chạy) vì > 0 đã nuốt mọi số dương kể cả > 100.
+    Compiler cảnh báo CS8510. Phải xếp arm hẹp (> 100) trước arm rộng (> 0).
+- id: records-pattern-matching-q5
+  node: records-pattern-matching
+  tier: fast
+  prompt: x is var y khi x là null cho kết quả gì?
+  answer: Luôn True, và y sẽ là null. var pattern khớp mọi giá trị, không lọc null. Muốn lọc null dùng
+    is not null hoặc is { }.
+- id: records-pattern-matching-q6
+  node: records-pattern-matching
+  tier: fast
+  prompt: a with { } (ngoặc rỗng) làm gì? Object kết quả có ReferenceEquals với a không?
+  answer: Tạo một bản sao nông giống hệt a. a == kết_quả là True (value equality) nhưng ReferenceEquals(a,
+    kết_quả) là False (object mới). Đây là clone không phá huỷ.
+- id: records-pattern-matching-q7
+  node: records-pattern-matching
+  tier: fast
+  prompt: Vì sao record Cat và record Dog cùng kế thừa Animal, cùng Name/Age, lại không bằng nhau?
+  answer: Vì Equals tự sinh so cả EqualityContract (= typeof kiểu runtime). Cat có EqualityContract ==
+    typeof(Cat), Dog có typeof(Dog) nên khác nhau, không bằng dù nội dung giống hệt.
+- id: records-pattern-matching-q8
+  node: records-pattern-matching
+  tier: fast
+  prompt: Bao nhiêu slice .. được phép trong một list pattern? Cho ví dụ hợp lệ và không hợp lệ.
+  answer: 'Tối đa một .. Hợp lệ: [1, .., 9], [.., x], [a, ..]. Không hợp lệ (lỗi biên dịch): [.., 3, ..]
+    vì hai slice khiến compiler không biết cắt ở đâu.'
+- id: collections-q1
+  node: collections
+  tier: fast
+  prompt: Vì sao Add của List<T> là O(1) khấu hao (amortized) chứ không phải O(1) tuyệt đối?
+  answer: Vì thỉnh thoảng mảng nền đầy, phải cấp mảng gấp đôi và copy toàn bộ (O(n)). Nhưng vì mỗi lần
+    gấp đôi kéo dài rất nhiều lần Add rẻ, chi phí trung bình mỗi Add vẫn là O(1) — gọi là khấu hao (amortized).
+- id: collections-q2
+  node: collections
+  tier: fast
+  prompt: Một class làm key Dictionary mà chỉ override Equals, quên GetHashCode, hậu quả gì?
+  answer: 'Vi phạm hợp đồng: hai key bằng nhau có thể có hash khác nhau nên rơi vào bucket khác và không
+    tìm thấy — phần tử biến mất. Bắt buộc override cả hai và bảo đảm Equals suy ra cùng hash (dùng HashCode.Combine).'
+- id: collections-q3
+  node: collections
+  tier: fast
+  prompt: Khác nhau giữa dict.Add(k,v) và dict[k]=v khi khoá đã tồn tại?
+  answer: Add ném ArgumentException; indexer ghi đè không lỗi. Dùng Add khi muốn phát hiện trùng khoá,
+    dùng indexer khi muốn upsert.
+- id: collections-q4
+  node: collections
+  tier: fast
+  prompt: Vì sao foreach rồi list.Remove(x) bên trong lại ném exception, và hai cách sửa?
+  answer: 'Enumerator phát hiện collection đổi phiên bản (_version) giữa chừng nên ném InvalidOperationException.
+    Sửa: (a) list.RemoveAll(predicate); (b) duyệt ngược for (i=Count-1; i>=0; i--) + RemoveAt; (c) duyệt
+    list.ToList() rồi sửa gốc.'
+- id: collections-q5
+  node: collections
+  tier: fast
+  prompt: Nên nhận tham số kiểu gì cho hàm chỉ duyệt để tính tổng, và vì sao?
+  answer: IEnumerable<T> — rộng nhất, nhận được mảng, List, HashSet, kết quả LINQ; đồng thời báo rõ hàm
+    không sửa collection của caller. Nhận List<T> là khoá cứng và cho phép sửa ngầm.
+- id: collections-q6
+  node: collections
+  tier: fast
+  prompt: Span<T> khác Memory<T> ở đâu; khi nào phải dùng Memory<T>?
+  answer: Span<T> là ref struct, chỉ sống trên stack — không làm field, không qua async/await, không box.
+    Cần giữ lát cắt vùng nhớ lâu dài hoặc truyền qua ranh giới async thì dùng Memory<T>/ReadOnlyMemory<T>
+    (được phép nằm trên heap).
+- id: collections-q7
+  node: collections
+  tier: fast
+  prompt: So sánh SortedDictionary và SortedList về chèn và bộ nhớ.
+  answer: 'SortedDictionary là cây đỏ-đen: chèn/xoá O(log n) nhưng tốn bộ nhớ cho node. SortedList là
+    hai mảng song song: chèn O(n) (dịch mảng) nhưng liền khối, ít bộ nhớ, truy cập theo index O(1). Nhiều
+    thay đổi chọn SortedDictionary; ít thay đổi/nhiều đọc theo thứ tự chọn SortedList.'
+- id: collections-q8
+  node: collections
+  tier: fast
+  prompt: '[..a, ..b] nghĩa là gì, và khác a[1..3] chỗ nào?'
+  answer: '[..a, ..b] là collection expression với toán tử spread — trải mọi phần tử của a rồi b vào một
+    collection mới. a[1..3] là range — lát cắt của a từ chỉ số 1 đến trước 3. Cùng ký hiệu .. nhưng khác
+    ngữ cảnh (spread bên trong [] vs range khi lập chỉ mục).'
+- id: q_enum_constraint
+  node: generics
+  tier: deep
+  prompt: 'Ràng buộc `where T : Enum` mở khoá điều gì mà một `T` không ràng buộc không làm được, và vì
+    sao nó khác với `where T : SomeClass` thông thường?'
+  answer: '`where T : Enum` cho phép gọi các API tĩnh dành riêng cho enum trên biến kiểu T (ví dụ dùng
+    `Enum.GetNames(typeof(T))`, `HasFlag`), điều mà T không ràng buộc không cho phép vì trình biên dịch
+    không biết T có phải enum hay không. Nó khác `where T : SomeClass` (kế thừa lớp cụ thể) ở chỗ `Enum`
+    là một ràng buộc "đặc biệt" được trình biên dịch nhận diện cho MỌI kiểu enum bất kỳ (không phải một
+    lớp cụ thể duy nhất) — tương tự `Delegate` cho mọi kiểu delegate.'
+- id: q_generic_delegates
+  node: generics
+  tier: deep
+  prompt: '`Func<T, TOut>` và `Action<T>` có phải là "phép màu ngôn ngữ" riêng của C# không? Giải thích
+    bản chất của chúng.'
+  answer: Không. `Func<>`/`Action<>` chỉ là các generic delegate được định nghĩa sẵn trong namespace `System`
+    của BCL (nhiều bản overload theo số tham số), hoạt động theo đúng cơ chế đóng kiểu (closed type) như
+    `List<T>` hay bất kỳ generic class nào khác. Bạn hoàn toàn có thể tự khai báo một generic delegate
+    tương đương, ví dụ `delegate TOut Transformer<T, TOut>(T input);`.
+- id: q_mystack_bigo
+  node: generics
+  tier: deep
+  prompt: Vì sao `Push` của `MyStack<T>` được coi là O(1) amortized dù thỉnh thoảng nó gọi `Array.Resize`
+    tốn O(n)?
+  answer: Vì mảng nội bộ được nhân đôi kích thước mỗi lần resize thay vì tăng dần từng ô, nên số lần resize
+    trong N lần Push chỉ là O(log N), và tổng chi phí copy phần tử qua tất cả các lần resize là O(N) —
+    chia đều ra thì trung bình mỗi lần Push chỉ tốn O(1) (chi phí amortized), dù một vài lần Push riêng
+    lẻ (đúng lúc mảng đầy) sẽ tốn O(n).
+- id: '9'
+  node: delegates-events
+  tier: deep
+  prompt: Vì sao `Action<object> aObject = o => {...}; Action<string> aString = aObject;` biên dịch được,
+    còn chiều ngược lại (`Action<string>` gán cho `Action<object>`) thì không? Đây gọi là gì?
+  answer: 'Đây là contravariance (phản biến) theo tham số: Action<in T> cho phép một delegate nhận tham
+    số kiểu cha (object) đứng thay cho biến khai báo nhận kiểu con (string), vì bất kỳ string nào truyền
+    vào cũng là một object hợp lệ. Chiều ngược lại sai vì một hàm chỉ biết xử lý string không thể nhận
+    một object bất kỳ (có thể không phải string) một cách an toàn.'
+- id: '10'
+  node: delegates-events
+  tier: deep
+  prompt: '`Func<string> fString = () => "x"; Func<object> fObject = fString;` — vì sao gán được mà không
+    cần ép kiểu? Nếu đổi Func thành Action<string>/Action<object> ở vị trí tham số thì chiều hiệp biến
+    có còn đúng không?'
+  answer: 'Vì Func<out TResult> được đánh dấu out (hiệp biến — covariant): kiểu trả về cụ thể hơn (string,
+    kiểu con) luôn dùng thay được cho kiểu trả về tổng quát hơn (object, kiểu cha). Đổi sang vị trí tham
+    số (Action<in T>) thì chiều đảo ngược — đó là contravariance, không phải covariance: tham số phải
+    nới rộng lên kiểu cha, không thu hẹp xuống kiểu con.'
+- id: '11'
+  node: delegates-events
+  tier: deep
+  prompt: Vì sao dùng async void cho event handler lại nguy hiểm hơn async Task? Nếu handler bên trong
+    ném exception, ai bắt được nó?
+  answer: Với async Task, exception được đóng gói vào đối tượng Task để caller await rồi try/catch. Với
+    async void, không có Task nào chứa exception — nó bị ném thẳng ra SynchronizationContext/thread pool
+    hiện tại ngay khi xảy ra, và nơi raise event (Ev?.Invoke()) không thể bắt được dù có bọc try/catch
+    quanh đó. Chỉ chính bản thân handler mới có thể tự bắt lỗi của mình, bằng cách bọc try/catch toàn
+    bộ thân handler.
+- id: priority-queue-order
+  node: collections
+  tier: deep
+  prompt: PriorityQueue<TElement, TPriority> rút phần tử ra theo tiêu chí nào, và Enqueue/Dequeue/Peek
+    có độ phức tạp gì?
+  answer: Luôn Dequeue phần tử có TPriority nhỏ nhất trước (min-heap), bất kể thứ tự Enqueue. Enqueue/Dequeue
+    là O(log n) (sift-up/sift-down trên heap dựng bằng mảng), Peek là O(1) vì phần tử ưu tiên nhất luôn
+    ở gốc heap.
+- id: custom-equality-comparer
+  node: collections
+  tier: deep
+  prompt: Muốn Dictionary<string,int> coi "AN" và "an" là cùng một khoá thì làm thế nào, và cơ chế nào
+    cho phép việc đó?
+  answer: Truyền một IEqualityComparer<string> tuỳ chỉnh vào constructor, ví dụ new Dictionary<string,int>(StringComparer.OrdinalIgnoreCase).
+    Dictionary sẽ dùng Equals/GetHashCode của comparer này thay vì của kiểu khoá mặc định khi băm và so
+    sánh.
+- id: concurrent-dictionary-when
+  node: collections
+  tier: deep
+  prompt: Khi nào nên đổi từ Dictionary<K,V> + lock thủ công sang ConcurrentDictionary<K,V>?
+  answer: Khi thật sự có nhiều luồng cùng ghi đồng thời vào cùng một bảng với tần suất cao. ConcurrentDictionary
+    cung cấp thao tác nguyên tử (AddOrUpdate, GetOrAdd) mà không cần khoá toàn bộ bảng, giảm tranh chấp
+    so với lock thô. Nếu chỉ một luồng ghi rồi nhiều luồng chỉ đọc, Dictionary thường + đồng bộ đơn giản
+    vẫn đủ.
+- id: icomparer-vs-icomparable
+  node: collections
+  tier: deep
+  prompt: IComparer<T> khác IComparable<T> ở điểm nào, và khi nào bắt buộc phải dùng IComparer<T>?
+  answer: IComparable<T> triển khai ngay trên kiểu để định nghĩa một thứ tự tự nhiên duy nhất. IComparer<T>
+    là đối tượng so sánh tách biệt, truyền vào constructor của SortedSet/SortedDictionary/Sort, cho phép
+    nhiều cách sắp xếp khác nhau. Bắt buộc dùng IComparer<T> khi kiểu khoá không do bạn viết (ví dụ string).

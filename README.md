@@ -40,6 +40,7 @@ learning-hub-v2/
 | 3 · Chống lỗi thời/bịa | `banned_terms.py` | "Antigravity IDE", ".NET 8 = mới nhất", "Claude 3.5 Sonnet" |
 | 4 · Q&A | `qa_lint.py` | 35/55 câu không đáp án |
 | 5 · Trích code | `tangle.py` | Code không được kiểm chứng |
+| 5b · Macro-safety | `macro_safety.py` | `{{`/`}}` trong code (vd escape brace C#) làm vỡ build macro |
 | 6 · Build strict | `mkdocs build --strict` | Config mermaid hỏng → site không deploy |
 | 7 · Compile C# | `verify_dotnet.sh` | Code sai/API bịa ("value type=stack", hook JSON sai) |
 

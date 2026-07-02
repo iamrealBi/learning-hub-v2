@@ -92,9 +92,13 @@ nav:
     - "01 — Nền tảng": p1-csharp/nen-tang.md
     - "02 — Bộ nhớ & Kiểu dữ liệu": p1-csharp/bo-nho-va-kieu-du-lieu.md
     - "03 — OOP": p1-csharp/oop.md
-    - "04 — Collections & LINQ": p1-csharp/collections-linq.md
-    - "05 — async/await": p1-csharp/async-await.md
-    - "06 — Xử lý ngoại lệ": p1-csharp/exceptions.md
+    - "04 — Generics": p1-csharp/generics.md
+    - "05 — Delegates, Events & Lambda": p1-csharp/delegates-events.md
+    - "06 — Records & Pattern Matching": p1-csharp/records-pattern-matching.md
+    - "07 — Collections": p1-csharp/collections.md
+    - "08 — Collections & LINQ (tổng hợp)": p1-csharp/collections-linq.md
+    - "09 — async/await": p1-csharp/async-await.md
+    - "10 — Xử lý ngoại lệ": p1-csharp/exceptions.md
   - "P2 · Dữ liệu (SQL & EF Core)":
     - "01 — SQL nền tảng": p2-du-lieu/sql-nen-tang.md
     - "02 — JOIN, GROUP BY & Subquery": p2-du-lieu/joins-aggregation.md

@@ -15,6 +15,7 @@ FIX = ROOT / "tests" / "fixtures"
 
 import banned_terms
 import qa_lint
+import macro_safety
 
 def main() -> int:
     fails: list[str] = []
@@ -32,6 +33,13 @@ def main() -> int:
         fails.append("qa_lint KHÔNG bắt được fixture xấu (gate hỏng!)")
     else:
         print(f"✅ qa_lint bắt được {len(v2)} vi phạm trong fixture (đúng kỳ vọng)")
+
+    # 3) macro_safety PHẢI bắt được '{{'/'}}'  không hợp lệ trong code fence
+    v3 = macro_safety.scan([FIX / "bad_macro_brace.md"])
+    if not v3:
+        fails.append("macro_safety KHÔNG bắt được fixture xấu (gate hỏng!)")
+    else:
+        print(f"✅ macro_safety bắt được {len(v3)} vi phạm trong fixture (đúng kỳ vọng)")
 
     if fails:
         print("\n❌ GATE SELF-TEST THẤT BẠI:")

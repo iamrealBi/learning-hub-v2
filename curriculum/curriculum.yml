@@ -21,7 +21,14 @@ meta:
 # Mọi nơi khác phải transclude/link, không giải thích lại (chống trùng lặp).
 concepts:
   value-vs-reference: p1-csharp/bo-nho-va-kieu-du-lieu.md
+  oop:                p1-csharp/oop.md
+  generics:           p1-csharp/generics.md
+  delegates-events:   p1-csharp/delegates-events.md
+  records-patterns:   p1-csharp/records-pattern-matching.md
+  collections:        p1-csharp/collections.md
+  linq:               p1-csharp/collections-linq.md
   async-await:        p1-csharp/async-await.md
+  exceptions:         p1-csharp/exceptions.md
   jwt:                p4-bao-mat/jwt.md
   di:                 p3-web-api/dependency-injection.md
   ef-core-query:      p2-du-lieu/ef-core-truy-van.md
@@ -36,12 +43,36 @@ phases:
   - id: P1
     title: "Ngôn ngữ C#"
     nodes:
+      - { id: p1-nen-tang, file: p1-csharp/nen-tang.md, tier: fast, status: core, owner: core-team,
+          objective: "Dùng đúng kiểu dữ liệu, điều kiện, vòng lặp, method — nền tảng để đọc mọi code C# sau này",
+          requires: [p0-setup] }
       - { id: p1-memory, file: p1-csharp/bo-nho-va-kieu-du-lieu.md, tier: fast, status: core, owner: core-team,
           objective: "PHÂN BIỆT đúng value vs reference semantics và bác bỏ được huyền thoại 'value type = stack'",
-          requires: [p0-setup] }
-      - { id: p1-async, file: p1-csharp/async-await.md, tier: fast, status: draft, owner: core-team,
+          requires: [p1-nen-tang] }
+      - { id: p1-oop, file: p1-csharp/oop.md, tier: fast, status: core, owner: core-team,
+          objective: "Thiết kế hệ phân cấp lớp áp dụng đóng gói/kế thừa/đa hình; chọn đúng interface vs abstract vs composition",
+          requires: [p1-memory] }
+      - { id: p1-generics, file: p1-csharp/generics.md, tier: fast, status: core, owner: core-team,
+          objective: "Viết generic class/method với ràng buộc where đúng loại; phân biệt covariance/contravariance",
+          requires: [p1-oop] }
+      - { id: p1-delegates-events, file: p1-csharp/delegates-events.md, tier: fast, status: core, owner: core-team,
+          objective: "Dùng Func/Action/event đúng cách; tránh rò rỉ bộ nhớ do quên unsubscribe",
+          requires: [p1-oop] }
+      - { id: p1-records-patterns, file: p1-csharp/records-pattern-matching.md, tier: fast, status: core, owner: core-team,
+          objective: "Dùng record cho value-equality; viết pattern matching (property/positional/list pattern)",
+          requires: [p1-oop] }
+      - { id: p1-collections, file: p1-csharp/collections.md, tier: fast, status: core, owner: core-team,
+          objective: "Chọn đúng cấu trúc dữ liệu (List/Dictionary/HashSet/Queue/Stack...) theo Big-O của thao tác cần dùng",
+          requires: [p1-generics] }
+      - { id: p1-linq, file: p1-csharp/collections-linq.md, tier: fast, status: core, owner: core-team,
+          objective: "Viết pipeline LINQ đúng; giải thích deferred execution và IEnumerable vs IQueryable",
+          requires: [p1-collections] }
+      - { id: p1-async, file: p1-csharp/async-await.md, tier: fast, status: core, owner: core-team,
           objective: "Giải thích async/await qua state machine; tránh async void & deadlock",
           requires: [p1-memory] }
+      - { id: p1-exceptions, file: p1-csharp/exceptions.md, tier: fast, status: core, owner: core-team,
+          objective: "Xử lý ngoại lệ đúng chỗ; phân biệt throw vs throw ex; tránh dùng exception cho control-flow",
+          requires: [p1-nen-tang] }
 
   - id: P2
     title: "Dữ liệu — SQL & EF Core"

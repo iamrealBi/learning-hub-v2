@@ -5,18 +5,18 @@ owner: core-team
 verified_on: "2026-07-01"
 dotnet_version: "10.0"
 bloom: "Apply"
-requires: [p1-oop]
+requires: [p1-collections]
 est_minutes_fast: 30
 ---
 
-# Collections & LINQ
+# LINQ cơ bản
 
-!!! info "Bạn đang ở đây · P1 → node `p1-collections`"
-    **cần trước:** oop (class, interface, `IEnumerable<T>`).
+!!! info "Bạn đang ở đây · P1 → node `p1-linq`"
+    **cần trước:** [Collections](collections.md) (đã biết `List<T>`, `Dictionary<K,V>`, `HashSet<T>` và độ phức tạp tra cứu của chúng — chương này KHÔNG dạy lại).
     **mở khoá sau bài này:** async/await, ef core, minimal api.
     ⏱️ Fast path ~30 phút · Deep dive +20 phút (tuỳ chọn, không bắt buộc).
 
-> **Mục tiêu (đo được):** Sau bài này bạn **áp dụng** đúng `List<T>`, `Dictionary<K,V>`, `HashSet<T>` theo độ phức tạp tra cứu, **viết** được pipeline LINQ với `Where/Select/OrderBy/GroupBy/Aggregate`, và **giải thích** được *deferred execution* cùng khác biệt `IEnumerable` vs `IQueryable`.
+> **Mục tiêu (đo được):** Sau bài này bạn **viết** được pipeline LINQ với `Where/Select/OrderBy/GroupBy/Aggregate`, và **giải thích** được *deferred execution* cùng khác biệt `IEnumerable` vs `IQueryable`.
 
 ---
 
@@ -39,17 +39,7 @@ Console.WriteLine(string.Join(",", query)); // ?
 
 ## 1. Ý niệm cốt lõi
 
-Ba collection generic dùng nhiều nhất, mỗi loại tối ưu cho một kiểu truy cập khác nhau. Chọn sai cấu trúc = code chậm hoặc trùng dữ liệu.
-
-| Collection | Dùng khi | Tra cứu (lookup) | Ghi chú |
-|---|---|---|---|
-| `List<T>` | danh sách có thứ tự, truy cập theo chỉ số | O(1) theo index, **O(n)** theo giá trị (`Contains`) | mảng động, cho phép trùng |
-| `Dictionary<K,V>` | ánh xạ khoá → giá trị | **O(1)** trung bình theo khoá | khoá là duy nhất, dùng hash |
-| `HashSet<T>` | tập hợp, kiểm tra "đã có chưa" | **O(1)** trung bình cho `Contains` | không trùng, không thứ tự |
-
-Quy tắc chọn nhanh: cần *thứ tự/chỉ số* → `List`; cần *tra theo khoá* → `Dictionary`; cần *loại trùng / kiểm tra thành viên* → `HashSet`.
-
-**LINQ** (Language Integrated Query) là bộ toán tử chạy trên bất kỳ `IEnumerable<T>` nào. Pipeline LINQ điển hình:
+**LINQ** (Language Integrated Query) là bộ toán tử chạy trên bất kỳ `IEnumerable<T>` nào — kể cả `List<T>`, `Dictionary<K,V>`, `HashSet<T>`, mảng, hay chính `IQueryable<T>` của EF Core. (Nếu chưa vững `List`/`Dictionary`/`HashSet`, xem lại [chương Collections](collections.md) trước.) Pipeline LINQ điển hình:
 
 ```mermaid
 flowchart LR
