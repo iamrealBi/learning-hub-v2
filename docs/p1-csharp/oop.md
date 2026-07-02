@@ -4,275 +4,517 @@ status: core
 owner: core-team
 verified_on: "2026-07-01"
 dotnet_version: "10.0"
-bloom: phân tích
+bloom: "Analyze"
 requires: [p1-nen-tang]
-est_minutes_fast: 35
+est_minutes_fast: 55
+est_minutes_deep: 120
 ---
 
 # Lập trình hướng đối tượng (OOP)
 
-!!! info "Bạn đang ở đây"
-    cần trước: bạn đã nắm cú pháp c# nền tảng (biến, kiểu, hàm, điều kiện, vòng lặp) từ chương nền tảng.
-    mở khoá: sau chương này bạn hiểu bốn trụ oop, phân biệt được abstract class với interface, và giải thích được đa hình runtime chạy như thế nào trên .NET {{ dotnet.current }}.
+!!! info "Bạn đang ở đây · P1 → node `p1-oop`"
+    **Cần trước:** cú pháp C# nền tảng (biến, kiểu, hàm, điều kiện, vòng lặp, exceptions cơ bản).
+    **Mở khoá:** Generics, Collections & LINQ, và toàn bộ thiết kế tầng dịch vụ ở P3 (DI dựa hoàn toàn trên tư duy OOP + interface).
+    ⏱️ Fast path ~55 phút · Deep dive +65 phút.
 
-> Mục tiêu (đo được): sau chương này bạn có thể **phân tích** một đoạn code có kế thừa + `virtual/override` và dự đoán chính xác phương thức nào được gọi lúc chạy, đồng thời tự thiết kế được một hệ phân cấp lớp áp dụng đóng gói và đa hình.
+> **Mục tiêu (đo được):** Sau chương này bạn (1) **tự thiết kế** được một hệ phân cấp lớp áp dụng đóng gói; (2) **dự đoán chính xác** phương thức nào chạy trong code có `virtual`/`override`/`new`; (3) **chọn đúng** giữa `abstract class`, `interface` và composition cho một bài toán; (4) **nhận diện và sửa** vi phạm SOLID trong code cho sẵn.
 
-## 0. Đoán nhanh trước khi học
+---
 
-Cho đoạn code: một biến khai báo kiểu `Animal` nhưng gán một `Dog` (kế thừa `Animal`). Cả hai đều có phương thức `Speak()` được đánh dấu `virtual` ở `Animal` và `override` ở `Dog`. Khi gọi `animal.Speak()`, phiên bản nào chạy?
+## 0. Đoán nhanh trước khi học (30 giây)
 
-Thử đoán trước khi mở đáp án.
+Đọc và **tự đoán output** trước khi mở đáp án — đoán sai lúc này giúp bạn nhớ lâu hơn nhiều.
 
-??? note "Đáp án"
-    Phiên bản của `Dog` chạy. Vì `Speak()` là `virtual/override`, .NET quyết định phương thức dựa trên **kiểu thực tế của đối tượng lúc chạy** (`Dog`), không phải kiểu khai báo của biến (`Animal`). Đây chính là đa hình runtime. Nếu đổi sang `new` (method hiding) thì kết quả sẽ khác — xem mục 1.
-
-## 1. Ý niệm cốt lõi
-
-**Class** là bản thiết kế (khuôn); **object** là thực thể cụ thể tạo ra từ khuôn đó bằng `new`. Một class định nghĩa một lần, có thể tạo vô số object độc lập, mỗi object giữ trạng thái riêng.
-
-OOP xoay quanh **bốn trụ**:
-
-| Trụ | Ý nghĩa | Công cụ trong c# |
-|-----|---------|------------------|
-| Đóng gói (Encapsulation) | Giấu trạng thái nội bộ, chỉ lộ ra qua cửa được kiểm soát | `private` field + `property` có validate |
-| Kế thừa (Inheritance) | Lớp con tái dùng và mở rộng lớp cha | `class Dog : Animal` |
-| Đa hình (Polymorphism) | Cùng lời gọi, hành vi khác nhau theo kiểu thực tế | `virtual` / `override` |
-| Trừu tượng (Abstraction) | Định nghĩa hợp đồng, ẩn chi tiết cài đặt | `abstract` / `interface` |
-
-Sơ đồ một hệ phân cấp lớp điển hình:
-
-```mermaid
-classDiagram
-    class Animal {
-        +string Name
-        +Speak() string
-    }
-    class Dog {
-        +Speak() string
-    }
-    class Cat {
-        +Speak() string
-    }
-    class IAnimal {
-        <<interface>>
-        +Speak() string
-    }
-    IAnimal <|.. Animal
-    Animal <|-- Dog
-    Animal <|-- Cat
-```
-
-**`virtual/override` vs `new` (method hiding):** đây là điểm dễ sai nhất.
-
-| Tiêu chí | `override` | `new` (hiding) |
-|----------|-----------|----------------|
-| Quyết định phương thức theo | Kiểu **thực tế lúc chạy** | Kiểu **khai báo lúc biên dịch** |
-| Đa hình | Có | Không |
-| Yêu cầu ở lớp cha | Phương thức phải `virtual`/`abstract` | Không cần |
-
-**`abstract class` vs `interface`:**
-
-| Tiêu chí | abstract class | interface |
-|----------|----------------|-----------|
-| Trạng thái (field) | Có thể chứa | Không (chỉ hằng/property) |
-| Cài đặt sẵn | Có thể có | Chỉ default member |
-| Kế thừa bội | Một lớp cha | Nhiều interface |
-| Dùng khi | Chia sẻ code + "là một loại" | Định nghĩa khả năng/hợp đồng |
-
-!!! danger "Đính chính hiểu lầm phổ biến"
-    "Cứ dùng `new` thay `override` cũng chạy được như nhau" — SAI. Với `new`, nếu bạn giữ đối tượng qua biến kiểu cha thì phương thức của **cha** chạy, không phải con. Điều này phá vỡ đa hình và là nguồn bug rất khó tìm. Quy tắc: muốn đa hình thì luôn dùng cặp `virtual` + `override`.
-
-**Giới thiệu ngắn SOLID:** năm nguyên tắc thiết kế. Hai cái quan trọng để bắt đầu:
-
-- **SRP (Single Responsibility):** mỗi lớp chỉ nên có một lý do để thay đổi. Lớp `Invoice` không nên vừa tính tiền vừa gửi email.
-- **DIP (Dependency Inversion):** phụ thuộc vào trừu tượng (interface), không phụ thuộc vào cài đặt cụ thể. Nhờ đó dễ thay thế, dễ test.
-
-## 2. Ví dụ mẫu
-
-Đa hình runtime với `abstract class` + `override`:
-
-```csharp title="C#"
+```csharp title="Đoán output"
 // test:run
-Animal[] zoo = [new Dog("Rex"), new Cat("Miu"), new Dog("Bô")];
+Base x = new Child();   // biến kiểu Base, đối tượng thật là Child
+Console.WriteLine(x.Speak());
 
-foreach (Animal a in zoo)
-{
-    // Cùng lời gọi a.Speak(), nhưng hành vi khác nhau theo kiểu thực tế
-    Console.WriteLine($"{a.Name}: {a.Speak()}");
-}
-
-abstract class Animal
-{
-    public string Name { get; }
-    protected Animal(string name) => Name = name;
-    public abstract string Speak();
-}
-
-class Dog : Animal
-{
-    public Dog(string name) : base(name) { }
-    public override string Speak() => "Gâu gâu";
-}
-
-class Cat : Animal
-{
-    public Cat(string name) : base(name) { }
-    public override string Speak() => "Meo meo";
-}
+class Base { public virtual string Speak() => "Base"; }
+class Child : Base { public override string Speak() => "Child"; }
 ```
 
-Output kỳ vọng:
+??? note "Đáp án — mở SAU khi đã đoán"
+    In ra **`Child`**. Dù biến khai báo kiểu `Base`, đối tượng thật là `Child`, và vì `Speak()` là `virtual`+`override`, C# chọn phiên bản theo **kiểu thực tế lúc chạy** — đó là **đa hình runtime**. Nếu `Child` dùng `new` thay vì `override` thì kết quả sẽ là `Base`. Mục 4 sẽ chứng minh sự khác biệt này bằng code chạy được.
 
-```text title="Kết quả"
-Rex: Gâu gâu
-Miu: Meo meo
-Bô: Gâu gâu
+---
+
+## 1. Vì sao cần OOP? (đừng bỏ qua phần này)
+
+Hãy nhìn một chương trình quản lý tài khoản viết kiểu **thủ tục** (procedural) — dữ liệu và hàm rời rạc:
+
+```csharp title="Cách thủ tục — dễ hỏng"
+// test:run
+// Trạng thái trần trụi, ai cũng sửa được, không có ai canh giữ tính hợp lệ
+decimal balance = 100m;
+balance = balance - 1000m;          // rút quá số dư mà KHÔNG ai chặn
+Console.WriteLine(balance);          // -900  → dữ liệu đã sai, phát hiện quá muộn
 ```
 
-Đóng gói với `private` field + property có validate:
+Vấn đề: `balance` là biến trần, **bất kỳ dòng code nào cũng gán bậy được**. Không có "người gác cổng" đảm bảo *số dư không bao giờ âm*. Khi chương trình lớn lên (hàng trăm chỗ đụng vào `balance`), một chỗ sai là cả hệ thống sai, và rất khó tìm.
 
-```csharp title="C#"
+**OOP giải quyết bằng cách gom "dữ liệu + hành vi hợp lệ trên dữ liệu đó" vào một đơn vị (object) tự bảo vệ mình.** Cùng bài toán, viết theo OOP:
+
+```csharp title="Cách OOP — tự bảo vệ tính hợp lệ"
 // test:run
 var acc = new BankAccount(100m);
-acc.Deposit(50m);
-Console.WriteLine($"Số dư: {acc.Balance}");
-
 try
 {
-    acc.Deposit(-10m); // Bị chặn bởi validate
+    acc.Withdraw(1000m);             // sẽ bị TỪ CHỐI ngay tại nguồn
 }
-catch (ArgumentException ex)
+catch (InvalidOperationException ex)
 {
-    Console.WriteLine($"Lỗi: {ex.Message}");
+    Console.WriteLine($"Bị chặn: {ex.Message}");   // "Bị chặn: Số dư không đủ"
 }
+Console.WriteLine($"Số dư vẫn an toàn: {acc.Balance}");   // 100 — không hề bị làm sai
 
 class BankAccount
 {
-    private decimal _balance; // Trạng thái nội bộ, không lộ ra ngoài
-
-    public decimal Balance => _balance; // Chỉ đọc từ bên ngoài
-
+    private decimal _balance;                    // không ai bên ngoài chạm tới trực tiếp
+    public decimal Balance => _balance;
     public BankAccount(decimal initial) => _balance = initial;
 
-    public void Deposit(decimal amount)
+    public void Withdraw(decimal amount)
     {
-        if (amount <= 0)
-            throw new ArgumentException("Số tiền phải dương");
-        _balance += amount;
+        if (amount > _balance)
+            throw new InvalidOperationException("Số dư không đủ");   // gác cổng
+        _balance -= amount;
     }
 }
 ```
 
-Output kỳ vọng:
+Chạy đoạn trên: lệnh rút bị **chặn ngay tại nơi phát sinh** (object tự từ chối), số dư giữ nguyên 100 — sai không lan ra. Đó là giá trị cốt lõi của OOP: **bất biến (invariant) của dữ liệu được một object canh giữ**, không phụ thuộc kỷ luật của người gọi.
 
-```text title="Kết quả"
-Số dư: 150
-Lỗi: Số tiền phải dương
+OOP xoay quanh **bốn trụ**. Ta sẽ học sâu từng trụ, mỗi trụ có ví dụ chạy được:
+
+```mermaid
+flowchart LR
+    A[OOP] --> B[Đóng gói<br/>giấu & bảo vệ trạng thái]
+    A --> C[Kế thừa<br/>tái dùng & mở rộng]
+    A --> D[Đa hình<br/>cùng lời gọi, hành vi khác]
+    A --> E[Trừu tượng<br/>hợp đồng, ẩn chi tiết]
 ```
 
-## 3. Bài tập có giàn giáo
+---
 
-Thiết kế interface `IShape` với phương thức `double Area()`. Cài đặt hai lớp `Circle` và `Rectangle`. Sau đó duyệt một mảng `IShape[]` và in tổng diện tích (đa hình qua interface).
+## 2. Class & Object — nền tảng
 
-Giàn giáo:
+- **Class** là *bản thiết kế* (khuôn): định nghĩa một object *có gì* (field/property) và *làm được gì* (method).
+- **Object** là *thực thể cụ thể* tạo từ class bằng `new`. Từ một class tạo được **vô số object độc lập**, mỗi cái giữ **trạng thái riêng**.
 
-```csharp title="C#"
-// test:skip giàn giáo chưa hoàn chỉnh, người học tự điền
-interface IShape
+```csharp title="Mỗi object có trạng thái riêng"
+// test:run
+var a = new Counter();
+var b = new Counter();
+a.Increment(); a.Increment();     // chỉ a tăng
+b.Increment();                    // chỉ b tăng
+Console.WriteLine($"a = {a.Value}, b = {b.Value}");   // a = 2, b = 1
+
+class Counter
 {
-    double Area();
+    private int _value;                       // trạng thái riêng của MỖI object
+    public int Value => _value;               // property chỉ-đọc
+    public void Increment() => _value++;
 }
-
-class Circle : IShape
-{
-    private readonly double _r;
-    public Circle(double r) => _r = r;
-    // TODO: cài đặt Area() = pi * r * r
-}
-
-// TODO: viết class Rectangle : IShape với width, height
 ```
 
-??? note "Lời giải"
-    ```csharp title="C#"
+**Kết quả:** `a = 2, b = 1`. Hai object `a` và `b` hoàn toàn độc lập — sửa cái này không ảnh hưởng cái kia. **Constructor** (`new Counter()`) là nơi khởi tạo trạng thái ban đầu.
+
+---
+
+## 3. Trụ 1 — Đóng gói (Encapsulation)
+
+**Ý tưởng:** giấu trạng thái nội bộ, chỉ cho bên ngoài tương tác qua "cửa" được kiểm soát. Nhờ đó object **luôn ở trạng thái hợp lệ**.
+
+### Access modifier — ai thấy được gì
+
+| Modifier | Phạm vi thấy được |
+|---|---|
+| `private` | chỉ trong chính class đó (mặc định cho field) |
+| `protected` | class đó + các lớp con |
+| `internal` | trong cùng assembly (project) |
+| `public` | mọi nơi |
+
+Nguyên tắc vàng: **để mức truy cập THẤP nhất có thể**. Field gần như luôn `private`; lộ ra ngoài qua **property**.
+
+### Property — cánh cửa có kiểm soát
+
+```csharp title="Các dạng property"
+// test:run
+var p = new Person("An", 2000);
+Console.WriteLine($"{p.Name}, {p.Age} tuổi, {(p.IsAdult ? "đủ" : "chưa đủ")} 18");
+p.Rename("Bình");
+try { p.Rename(""); } catch (ArgumentException e) { Console.WriteLine(e.Message); }
+Console.WriteLine(p.Name);
+
+class Person
+{
+    public string Name { get; private set; }   // đọc công khai, chỉ sửa nội bộ
+    public int BirthYear { get; init; }         // chỉ gán lúc khởi tạo (init)
+    public int Age => 2026 - BirthYear;         // property TÍNH TOÁN, không lưu trữ
+    public bool IsAdult => Age >= 18;
+
+    public Person(string name, int birthYear)
+    {
+        if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Tên bắt buộc");
+        Name = name;
+        BirthYear = birthYear;
+    }
+
+    public void Rename(string newName)          // muốn đổi tên phải qua method có validate
+    {
+        if (string.IsNullOrWhiteSpace(newName)) throw new ArgumentException("Tên không được rỗng");
+        Name = newName;
+    }
+}
+```
+
+Điểm cần thấm:
+
+- `get; private set;` → bên ngoài **đọc** được nhưng chỉ nội bộ **ghi** được.
+- `get; init;` → chỉ gán lúc `new`, sau đó **bất biến**.
+- `Age`/`IsAdult` là property **tính toán** — không lưu trữ, luôn nhất quán với `BirthYear`.
+- Không có `set` công khai cho `Name` ⇒ mọi thay đổi phải đi qua `Rename()` — nơi ta **validate**. Đây là "gác cổng".
+
+!!! tip "Vì sao không để `public string Name;` cho nhanh?"
+    Vì field public là "cửa mở toang": ai đó gán `p.Name = ""` là object rơi vào trạng thái vô nghĩa mà không ai biết. Property + validate biến class thành nơi *duy nhất* chịu trách nhiệm về tính hợp lệ của chính nó.
+
+---
+
+## 4. Trụ 2 — Kế thừa (Inheritance)
+
+**Ý tưởng:** lớp con (derived) **tái dùng** và **mở rộng** lớp cha (base). Quan hệ đúng để dùng kế thừa là **"là một loại" (is-a)**: `Manager` *là một* `Employee`.
+
+```csharp title="Kế thừa + gọi constructor cha + protected"
+// test:run
+var m = new Manager("An", 20_000_000m, teamSize: 5);
+Console.WriteLine(m.Describe());
+
+class Employee
+{
+    public string Name { get; }
+    protected decimal Salary { get; }          // lớp con thấy, bên ngoài không
+    public Employee(string name, decimal salary) { Name = name; Salary = salary; }
+    public virtual string Describe() => $"{Name} — lương {Salary:N0}";
+}
+
+class Manager : Employee
+{
+    private readonly int _teamSize;
+    // ': base(...)' gọi constructor cha TRƯỚC, truyền dữ liệu lên
+    public Manager(string name, decimal salary, int teamSize) : base(name, salary)
+        => _teamSize = teamSize;
+
+    // mở rộng hành vi cha bằng cách GỌI LẠI base rồi thêm phần của mình
+    public override string Describe() => base.Describe() + $", quản lý {_teamSize} người";
+}
+```
+
+**Kết quả:** `An — lương 20,000,000, quản lý 5 người`.
+
+Điểm cần thấm:
+
+- `: base(name, salary)` — constructor con **bắt buộc** khởi tạo phần của cha trước.
+- `protected` — `Salary` chia sẻ cho lớp con nhưng vẫn ẩn với thế giới bên ngoài.
+- `base.Describe()` — con **tái dùng** logic cha rồi bổ sung, không chép lại.
+- Mọi class ngầm kế thừa `object` (gốc của mọi kiểu), nên object nào cũng có `ToString()`, `Equals()`, `GetHashCode()`.
+
+!!! danger "Kế thừa bị lạm dụng nhiều nhất"
+    Đừng kế thừa chỉ để "dùng ké code". Chỉ kế thừa khi thực sự là quan hệ **is-a** và lớp con có thể **thay thế** lớp cha ở mọi nơi (xem LSP ở mục 7). Nếu chỉ cần "dùng chức năng của cái khác", hãy **composition** (mục 6) — linh hoạt hơn nhiều.
+
+---
+
+## 5. Trụ 3 — Đa hình (Polymorphism)
+
+**Ý tưởng:** cùng một lời gọi (`shape.Area()`), nhưng **hành vi khác nhau tuỳ kiểu thực tế** của object. Đây là thứ khiến code mở rộng được mà không phải sửa chỗ cũ.
+
+```csharp title="Đa hình qua abstract + override"
+// test:run
+Shape[] shapes = [new Circle(2), new Rectangle(3, 4), new Circle(1)];
+double tong = 0;
+foreach (var s in shapes)          // cùng vòng lặp, cùng lời gọi s.Area()
+{
+    Console.WriteLine($"{s.Name}: {s.Area():F2}");
+    tong += s.Area();
+}
+Console.WriteLine($"Tổng diện tích: {tong:F2}");
+
+abstract class Shape
+{
+    public abstract string Name { get; }        // hợp đồng: lớp con PHẢI cài
+    public abstract double Area();
+}
+class Circle(double r) : Shape                   // primary constructor (C# hiện đại)
+{
+    public override string Name => "Tròn";
+    public override double Area() => Math.PI * r * r;
+}
+class Rectangle(double w, double h) : Shape
+{
+    public override string Name => "Chữ nhật";
+    public override double Area() => w * h;
+}
+```
+
+**Kết quả:** `Tròn: 12.57` · `Chữ nhật: 12.00` · `Tròn: 3.14` · `Tổng diện tích: 27.71`.
+
+Sức mạnh: muốn thêm `Triangle`, bạn **viết một class mới**, vòng lặp trên **không phải sửa một dòng**. Đó là "mở để mở rộng, đóng để sửa đổi" (OCP).
+
+### `override` vs `new` — điểm SAI kinh điển, phải chứng minh
+
+Nhiều người tưởng `new` và `override` "chạy như nhau". **Không.** Chạy đoạn dưới để thấy tận mắt:
+
+```csharp title="Bằng chứng: override giữ đa hình, new phá đa hình"
+// test:run
+Base a = new OverrideChild();   // đối tượng thật là OverrideChild
+Base b = new NewChild();        // đối tượng thật là NewChild
+Console.WriteLine($"override, gọi qua biến CHA: {a.Who()}");   // -> Child (đúng đa hình)
+Console.WriteLine($"new,      gọi qua biến CHA: {b.Who()}");   // -> Base  (MẤT đa hình!)
+Console.WriteLine($"new,      gọi qua biến CON: {new NewChild().Who()}");  // -> Child
+
+class Base { public virtual string Who() => "Base"; }
+class OverrideChild : Base { public override string Who() => "Child"; }
+class NewChild : Base { public new string Who() => "Child"; }   // 'new' = che, không override
+```
+
+**Kết quả:**
+```text title="Output"
+override, gọi qua biến CHA: Child
+new,      gọi qua biến CHA: Base
+new,      gọi qua biến CON: Child
+```
+
+Giải thích: với `new`, C# chọn phương thức theo **kiểu KHAI BÁO của biến** lúc biên dịch (`Base b` → gọi `Base.Who`). Với `override`, C# chọn theo **kiểu THỰC TẾ của object** lúc chạy (luôn là `Child`). Trong code thực tế bạn hầu như luôn giữ object qua biến kiểu cha (ví dụ `Shape[]`, `List<Employee>`), nên `new` sẽ âm thầm gọi nhầm phiên bản cha → **bug rất khó tìm**.
+
+**Quy tắc:** muốn đa hình thì luôn cặp `virtual` (ở cha) + `override` (ở con). Trình biên dịch chỉ **cảnh báo** khi bạn lỡ che bằng `new`, **không chặn** — nên phải tự cảnh giác.
+
+---
+
+## 6. Trụ 4 — Trừu tượng: `interface` vs `abstract class`
+
+**Trừu tượng** = định nghĩa *hợp đồng* (làm được gì) mà ẩn *chi tiết* (làm thế nào). C# có hai công cụ, và chọn đúng là kỹ năng quan trọng.
+
+| Tiêu chí | `interface` | `abstract class` |
+|---|---|---|
+| Ý nghĩa | "có khả năng…" (can-do) | "là một loại…" (is-a) |
+| Trạng thái (field) | Không | Có |
+| Cài đặt sẵn | Chỉ default member (hạn chế) | Có (chia sẻ code cho lớp con) |
+| Một lớp dùng được | **nhiều** interface | **một** lớp cha |
+| Dùng khi | nhiều lớp không liên quan cùng có 1 khả năng | các lớp cùng "họ" chia sẻ trạng thái + code |
+
+```csharp title="Một lớp thực thi NHIỀU interface (khả năng)"
+// test:run
+var report = new Report("Doanh thu Q1");
+Save(report);
+Print(report);
+
+// Hàm chỉ phụ thuộc vào KHẢ NĂNG nó cần, không cần biết lớp cụ thể:
+static void Save(ISaveable s)   => Console.WriteLine($"Đã lưu -> {s.FileName()}");
+static void Print(IPrintable p) => Console.WriteLine($"In:\n{p.PrintForm()}");
+
+interface ISaveable  { string FileName(); }
+interface IPrintable { string PrintForm(); }
+
+class Report(string title) : ISaveable, IPrintable   // vừa lưu được, vừa in được
+{
+    public string FileName()  => $"{title}.pdf";
+    public string PrintForm() => $"=== {title} ===";
+}
+```
+
+**Kết quả:** `Đã lưu -> Doanh thu Q1.pdf` rồi `In:` + `=== Doanh thu Q1 ===`.
+
+Điểm cần thấm: `Save` nhận `ISaveable`, `Print` nhận `IPrintable`. Chúng **không quan tâm** đối tượng là `Report` hay gì khác — chỉ cần nó *có khả năng* tương ứng. Đây là chìa khoá của code lỏng-ghép (loosely coupled), và là nền tảng của **Dependency Injection** ở P3.
+
+**Chọn cái nào?**
+
+- Cần chia sẻ **trạng thái + code chung** giữa các lớp cùng họ → `abstract class` (ví dụ `Shape` giữ logic chung).
+- Chỉ cần khai báo **một khả năng** mà nhiều lớp khác họ đều có → `interface` (ví dụ `ISaveable`).
+- Phân vân? → **ưu tiên `interface`**: nó linh hoạt hơn (một lớp thực thi được nhiều), dễ test hơn, và không "khoá" bạn vào một cây kế thừa.
+
+---
+
+## 7. Composition over Inheritance
+
+Kế thừa sâu nhiều tầng dễ vỡ (đổi lớp cha là hỏng hàng loạt lớp con — "fragile base class"). Thường **composition** ("chứa" một object khác) linh hoạt hơn: quan hệ **has-a** thay vì **is-a**.
+
+```csharp title="Composition: Car HAS-A Engine (thay được lúc chạy)"
+// test:run
+Drive(new Car(new PetrolEngine()));    // xe xăng
+Drive(new Car(new ElectricEngine()));  // đổi động cơ mà KHÔNG sửa class Car
+
+static void Drive(Car c) => Console.WriteLine(c.Start());
+
+interface IEngine { string Start(); }
+class PetrolEngine   : IEngine { public string Start() => "Nổ máy xăng"; }
+class ElectricEngine : IEngine { public string Start() => "Khởi động điện êm ru"; }
+
+class Car(IEngine engine)              // Car CHỨA một IEngine, không KẾ THỪA nó
+{
+    public string Start() => "Xe: " + engine.Start();
+}
+```
+
+**Kết quả:** `Xe: Nổ máy xăng` rồi `Xe: Khởi động điện êm ru`. Đổi hành vi bằng cách **truyền object khác vào**, không đụng tới `Car`. Quy tắc thực chiến: *"Ưu tiên composition; chỉ kế thừa khi thật sự là-một-loại và cần đa hình."*
+
+---
+
+## 8. SOLID — 5 nguyên tắc thiết kế (kèm ví dụ)
+
+SOLID là 5 nguyên tắc giúp code OOP dễ mở rộng, dễ test, dễ bảo trì.
+
+- **S — Single Responsibility:** mỗi lớp một lý-do-để-thay-đổi. `Invoice` *tính tiền* thì đừng bắt nó *gửi email* — tách `EmailSender` riêng.
+- **O — Open/Closed:** mở để **mở rộng** (thêm `Shape` mới), đóng với **sửa đổi** (không đụng vòng lặp tính tổng ở mục 5).
+- **L — Liskov Substitution:** lớp con phải **thay thế được** lớp cha mà không phá hành vi. Kinh điển: `Square` kế thừa `Rectangle` rồi ép `width == height` sẽ phá kỳ vọng "đặt width không đổi height" → vi phạm LSP.
+- **I — Interface Segregation:** interface nhỏ, chuyên biệt. Đừng bắt lớp chỉ cần in phải cài cả `Save`, `Fax`, `Scan` — tách `IPrintable`, `ISaveable` (như mục 6).
+- **D — Dependency Inversion:** phụ thuộc vào **trừu tượng**, không vào cài đặt cụ thể.
+
+```csharp title="DIP: dịch vụ phụ thuộc INTERFACE, không phụ thuộc lớp cụ thể"
+// test:run
+// Đổi cách thông báo mà KHÔNG sửa OrderService — chỉ truyền cài đặt khác vào.
+new OrderService(new EmailNotifier()).Place("Sách");
+new OrderService(new SmsNotifier()).Place("Cà phê");
+
+interface INotifier { void Send(string msg); }
+class EmailNotifier : INotifier { public void Send(string m) => Console.WriteLine($"[email] {m}"); }
+class SmsNotifier   : INotifier { public void Send(string m) => Console.WriteLine($"[sms] {m}"); }
+
+class OrderService(INotifier notifier)   // phụ thuộc INotifier (trừu tượng), không phụ thuộc Email cụ thể
+{
+    public void Place(string item)
+    {
+        Console.WriteLine($"Đặt hàng: {item}");
+        notifier.Send($"Đơn '{item}' đã tạo");
+    }
+}
+```
+
+**Kết quả:** đặt hàng "Sách" báo qua email, "Cà phê" báo qua sms — cùng một `OrderService`. Vì `OrderService` phụ thuộc `INotifier` (trừu tượng), ta thay/giả lập (mock) thoải mái khi test. Đây chính là điều DI container ở ASP.NET Core tự động hoá.
+
+---
+
+## 9. Cạm bẫy thực chiến
+
+- **Quên `virtual` ở cha** rồi tưởng `override` chạy — trình biên dịch báo lỗi, đọc kỹ thông báo.
+- **Lỡ che bằng `new`** (chỉ cảnh báo, không chặn) → mất đa hình, gọi nhầm phiên bản cha (mục 5).
+- **Field `public`** phá đóng gói — luôn `private` + property.
+- **Kế thừa sâu 4-5 tầng** khó bảo trì — ưu tiên composition.
+- **Lớp "thượng đế"** ôm mọi việc (vi phạm SRP) — khó test, khó sửa; tách trách nhiệm.
+- **Vi phạm LSP thầm lặng:** lớp con ném `NotSupportedException` cho method cha → nơi dùng lớp cha sẽ vỡ bất ngờ.
+- **So sánh 2 object bằng `==`** mà quên rằng với class, `==` mặc định so **danh tính tham chiếu** (cùng object hay không), không so nội dung — muốn so nội dung thì dùng `record` hoặc override `Equals`.
+
+---
+
+## 10. Bài tập (làm để thành thạo)
+
+### Bài 1 (giàn giáo) — điền chỗ trống
+Thiết kế `interface IShape { double Area(); double Perimeter(); }`. Cài `Square` và `Circle`. Duyệt `IShape[]` in diện tích + chu vi.
+
+```csharp title="Starter (tự hoàn thiện)"
+// test:skip giàn giáo chưa hoàn chỉnh — người học tự điền
+interface IShape { double Area(); double Perimeter(); }
+
+class Square(double side) : IShape
+{
+    // TODO: Area = side*side; Perimeter = 4*side
+}
+// TODO: class Circle(double r) : IShape  (Area = pi*r*r; Perimeter = 2*pi*r)
+```
+
+??? success "Lời giải + giải thích"
+    ```csharp title="Lời giải"
     // test:run
-    IShape[] shapes = [new Circle(2), new Rectangle(3, 4)];
-    double total = 0;
-    foreach (IShape s in shapes)
-        total += s.Area(); // Đa hình qua interface
+    IShape[] shapes = [new Square(3), new Circle(2)];
+    foreach (var s in shapes)
+        Console.WriteLine($"S={s.Area():F2}, P={s.Perimeter():F2}");
 
-    Console.WriteLine($"Tổng diện tích: {total:F2}");
-
-    interface IShape
+    interface IShape { double Area(); double Perimeter(); }
+    class Square(double side) : IShape
     {
-        double Area();
+        public double Area() => side * side;
+        public double Perimeter() => 4 * side;
     }
-
-    class Circle : IShape
+    class Circle(double r) : IShape
     {
-        private readonly double _r;
-        public Circle(double r) => _r = r;
-        public double Area() => Math.PI * _r * _r;
-    }
-
-    class Rectangle : IShape
-    {
-        private readonly double _w, _h;
-        public Rectangle(double w, double h) => (_w, _h) = (w, h);
-        public double Area() => _w * _h;
+        public double Area() => Math.PI * r * r;
+        public double Perimeter() => 2 * Math.PI * r;
     }
     ```
+    Cả hai lớp cam kết cùng hợp đồng `IShape`, nên vòng lặp xử lý chúng đồng nhất — thêm hình mới không phải sửa vòng lặp (OCP).
 
-    Output: `Tổng diện tích: 24.57`
+### Bài 2 (thiết kế) — không có starter
+Thiết kế domain **thư viện**: `Book` (Title, có trạng thái *đang mượn/sẵn có*), `Member`. Viết `Library` với `Borrow(member, book)` và `Return(book)`. Yêu cầu: **không cho mượn sách đang được mượn** (dùng đóng gói canh giữ bất biến), và mọi thay đổi trạng thái phải qua method có validate. Tự viết vài dòng ở top-level để chứng minh mượn 2 lần cùng cuốn sẽ bị chặn.
 
-    **Vì sao:** `s.Area()` không quan tâm `s` là `Circle` hay `Rectangle`; .NET tra bảng phương thức của kiểu thực tế lúc chạy để gọi đúng cài đặt. Đây là DIP trong thực tế: vòng lặp phụ thuộc vào trừu tượng `IShape`, không phụ thuộc lớp cụ thể, nên thêm hình mới không cần sửa vòng lặp.
+??? success "Gợi ý lời giải"
+    ```csharp title="Một cách làm"
+    // test:run
+    var lib = new Library();
+    var b = lib.Add("Clean Code");
+    lib.Borrow("An", b);
+    try { lib.Borrow("Bình", b); } catch (InvalidOperationException e) { Console.WriteLine(e.Message); }
+    lib.Return(b);
+    lib.Borrow("Bình", b);              // giờ mượn được
+    Console.WriteLine($"'{b.Title}' đang mượn bởi: {b.BorrowedBy}");
 
-## 4. Cạm bẫy thường gặp
+    class Book(string title)
+    {
+        public string Title { get; } = title;
+        public string? BorrowedBy { get; private set; }     // null = sẵn có
+        public bool IsAvailable => BorrowedBy is null;
+        public void MarkBorrowed(string who) => BorrowedBy = who;   // chỉ Library gọi (cùng file)
+        public void MarkReturned() => BorrowedBy = null;
+    }
+    class Library
+    {
+        private readonly List<Book> _books = [];
+        public Book Add(string title) { var b = new Book(title); _books.Add(b); return b; }
+        public void Borrow(string member, Book book)
+        {
+            if (!book.IsAvailable) throw new InvalidOperationException($"'{book.Title}' đang được mượn");
+            book.MarkBorrowed(member);
+        }
+        public void Return(Book book) => book.MarkReturned();
+    }
+    ```
+    Bất biến "một cuốn chỉ mượn được khi sẵn có" được `Library.Borrow` canh giữ; trạng thái `BorrowedBy` chỉ đổi qua method, không phơi `set` ra ngoài.
 
-!!! warning "Những lỗi hay mắc"
-    - Quên `virtual` ở lớp cha rồi tưởng `override` sẽ hoạt động — trình biên dịch sẽ báo lỗi, đọc kỹ thông báo.
-    - Dùng `new` che phương thức cha một cách vô tình (trình biên dịch chỉ cảnh báo, không chặn) rồi mất đa hình.
-    - Để field `public` phá vỡ đóng gói — luôn ưu tiên `private` field + property.
-    - Lạm dụng kế thừa sâu nhiều tầng; thường composition (chứa đối tượng khác) linh hoạt hơn kế thừa.
-    - Nhồi nhiều trách nhiệm vào một lớp, vi phạm SRP, khiến lớp khó test và khó sửa.
+### Bài 3 (thử thách) — dùng AI như pair
+Cho code sau **vi phạm SRP + DIP**: một class `ReportService` vừa tạo báo cáo, vừa tự mở file ghi đĩa, vừa gửi email. Hãy **tách** thành `ReportBuilder`, `IReportStore`, `INotifier` và ghép lại qua constructor injection. Viết test nhỏ chứng minh có thể thay `IReportStore` bằng bản giả (in ra console) mà không sửa `ReportService`. Tự chấm theo: (1) mỗi lớp một trách nhiệm; (2) `ReportService` chỉ phụ thuộc interface; (3) thay cài đặt không cần sửa `ReportService`.
 
-## Tự kiểm tra
+---
+
+## Tự kiểm tra (trả lời không nhìn bài)
 
 1. Class và object khác nhau thế nào?
+2. Vì sao `public` field phá đóng gói, và property sửa được điều đó ra sao?
+3. `Base x = new Child()` — với `override` thì `x.Speak()` gọi bản nào? Với `new` thì bản nào? Vì sao?
+4. Khi nào chọn `interface`, khi nào `abstract class`?
+5. "Composition over inheritance" nghĩa là gì, cho một ví dụ?
+6. DIP nói gì và vì sao giúp code dễ test?
 
-    ??? note "Đáp án"
-        Class là bản thiết kế/khuôn định nghĩa cấu trúc và hành vi; object là thực thể cụ thể tạo từ class bằng `new`, mỗi object có trạng thái riêng.
+??? note "Đáp án"
+    1. Class là bản thiết kế (định nghĩa một lần); object là thực thể cụ thể tạo bằng `new`, mỗi object có trạng thái riêng độc lập.
+    2. Field `public` cho phép mọi nơi gán bậy, phá bất biến. Property + validate biến class thành nơi *duy nhất* kiểm soát tính hợp lệ (ví dụ chặn số dư âm).
+    3. `override` → gọi **`Child`** (chọn theo kiểu thực tế lúc chạy = đa hình). `new` → gọi **`Base`** khi truy cập qua biến kiểu `Base` (chọn theo kiểu khai báo lúc biên dịch), nên mất đa hình.
+    4. `abstract class` khi các lớp cùng họ chia sẻ **trạng thái + code**; `interface` khi khai báo **một khả năng** mà nhiều lớp khác họ đều có, hoặc khi cần một lớp mang nhiều khả năng. Phân vân → ưu tiên `interface`.
+    5. Ưu tiên "chứa" object khác (has-a) hơn là "kế thừa" (is-a) để linh hoạt. Ví dụ `Car` chứa `IEngine` thay bằng được, thay vì `Car : PetrolEngine`.
+    6. Dependency Inversion: phụ thuộc **trừu tượng** (interface) thay vì cài đặt cụ thể. Khi test, ta truyền bản giả/mock của interface vào, không cần hạ tầng thật (email, DB).
 
-2. Khi nào phương thức được chọn theo kiểu thực tế lúc chạy: `override` hay `new`?
+!!! tip "Ôn cách quãng"
+    Đưa 6 câu trên vào bộ Leitner (1 ngày → 3 ngày → 1 tuần). Bài Review cuối P1 sẽ trộn lại chúng cùng câu từ Generics và LINQ (interleaving).
 
-    ??? note "Đáp án"
-        `override` (cùng `virtual` ở lớp cha) — đó là đa hình runtime. `new` chọn theo kiểu khai báo lúc biên dịch.
+---
 
-3. Nêu một điểm khác biệt then chốt giữa abstract class và interface.
+??? abstract "🔬 DEEP DIVE (tuỳ chọn) — dispatch, đồng nhất & so sánh object"
+    *Không nằm trên fast path. Đọc khi muốn hiểu tầng dưới.*
 
-    ??? note "Đáp án"
-        abstract class có thể chứa trạng thái (field) và cài đặt sẵn, và một lớp chỉ kế thừa được một lớp cha; interface không chứa field và một lớp cài đặt được nhiều interface.
+    **Đa hình chạy thế nào (vtable):** mỗi class có `virtual` method sở hữu một bảng con trỏ hàm (**vtable / method table**). Object giữ tham chiếu tới vtable của **kiểu thực tế** của nó. Khi gọi `x.Speak()`, runtime tra vtable của object (không phải của kiểu biến) để tìm địa chỉ hàm → vì thế `override` chọn theo kiểu thực tế. `new` thì gọi tĩnh theo kiểu biến, không qua vtable. JIT còn có thể **devirtualize** (bỏ qua vtable) khi chứng minh được kiểu thực tế, nên chi phí đa hình trong thực tế thường không đáng kể.
 
-4. Đóng gói được thực hiện bằng công cụ nào trong c#?
+    **Class là reference type:** biến kiểu class chứa **tham chiếu** tới object trên heap. `a == b` với hai object class mặc định so **danh tính tham chiếu** (có cùng là một object không), *không* so nội dung. Muốn so theo nội dung: dùng `record` (tự sinh value-equality) hoặc override `Equals` + `GetHashCode` (phải override cùng nhau — hai object bằng nhau thì hash phải bằng nhau, nếu không sẽ hỏng `Dictionary`/`HashSet`).
 
-    ??? note "Đáp án"
-        `private` field kết hợp `property` (có thể kèm validate trong setter/phương thức), giấu trạng thái nội bộ và kiểm soát cách truy cập.
+    **`object` là gốc:** mọi kiểu kế thừa `System.Object`, nên có sẵn `ToString()`, `Equals()`, `GetHashCode()`, `GetType()`. Override `ToString()` giúp debug/log dễ đọc hơn nhiều.
 
-5. Nguyên tắc DIP nói gì và vì sao hữu ích khi test?
+    Kiểm chứng trên .NET {{ dotnet.current }} / C# {{ csharp.version }}: chạy lại các đoạn mục 5 và so output.
 
-    ??? note "Đáp án"
-        Phụ thuộc vào trừu tượng (interface) thay vì cài đặt cụ thể. Nhờ đó ta có thể thay bằng bản giả (mock/fake) khi test, không cần chạy cài đặt thật.
-
-??? abstract "DEEP DIVE: vtable và cơ chế dispatch"
-    Đa hình runtime không phải phép màu. Khi một lớp có phương thức `virtual`, CLR sinh cho mỗi kiểu một **method table** (vtable) chứa con trỏ tới cài đặt thực tế. Mỗi object mang một con trỏ `MethodTable` ở đầu vùng nhớ của nó.
-
-    Khi bạn gọi `a.Speak()` với `a` kiểu tĩnh `Animal`:
-
-    - Với phương thức **non-virtual**: JIT gọi trực tiếp địa chỉ đã biết lúc biên dịch (nhanh hơn, nhưng không đa hình).
-    - Với phương thức **virtual/abstract**: JIT sinh mã tra con trỏ `MethodTable` của object lúc chạy, tìm slot tương ứng rồi nhảy tới cài đặt của kiểu thực tế. Đây là lý do `override` chọn đúng `Dog.Speak()`.
-
-    Với **interface**, cơ chế thêm một tầng: interface dispatch dùng một map riêng (interface map) để phân giải slot, hiện đại hoá bằng kỹ thuật cache (Virtual Stub Dispatch) để giảm chi phí. Chi phí một lệnh gọi virtual thường chỉ vài chu kỳ CPU thêm so với gọi trực tiếp — đủ rẻ cho hầu hết ứng dụng, nhưng đáng cân nhắc trong vòng lặp nóng.
-
-    Từ .NET {{ dotnet.current }}, các tối ưu như devirtualization (JIT chứng minh được kiểu thực tế và bỏ qua vtable) và guarded devirtualization giúp nhiều lời gọi virtual thực chất chạy nhanh như non-virtual. Đây là kiến thức hữu ích khi bạn phân tích hiệu năng ở cấp thấp, không cần cho code thường ngày.
-
-Tiếp theo -> giao diện và trừu tượng nâng cao
+---
+**Tiếp theo →** P1 · Generics *(chương kế trong lộ trình)*
