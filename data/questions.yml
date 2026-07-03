@@ -1,5 +1,4 @@
-# NGUỒN SỰ THẬT cho Q&A. Mọi câu PHẢI có 'answer'. qa_lint.py cưỡng chế điều này.
-# code_ref (tuỳ chọn) trỏ tới block đã được CI chạy (test:run).
+# Q&A data — nguồn sự thật duy nhất, kiểm bằng scripts/qa_lint.py (mọi câu PHẢI có answer, không trùng prompt)
 questions:
 - id: q-mem-01
   node: p1-memory
@@ -270,33 +269,54 @@ questions:
   prompt: Vì sao không nên trả IQueryable ra khỏi repository?
   answer: Vì bên ngoài có thể nối thêm LINQ chạy SQL ngoài kiểm soát, phụ thuộc DbContext đã đóng và phá
     ranh giới tầng; nên đóng bằng ToListAsync/FirstOrDefaultAsync và trả kiểu cụ thể như List<T>.
-- id: p3-minimal-api-q1
+- id: minimal-api-q1
+  node: minimal-api
+  tier: fast
+  prompt: REST dựa trên khái niệm cốt lõi nào để quyết định cách đặt tên URL và chọn HTTP method?
+  answer: Tài nguyên (resource) - mỗi tài nguyên có một URL riêng viết bằng danh từ số nhiều, còn HTTP
+    method diễn tả hành động lên tài nguyên đó, không nhồi động từ vào URL.
+- id: minimal-api-q2
+  node: minimal-api
+  tier: fast
+  prompt: WebApplicationBuilder và WebApplication (kết quả của Build()) khác nhau ở vai trò gì?
+  answer: WebApplicationBuilder dùng để cấu hình trước khi chạy (đăng ký service, đọc config); WebApplication
+    dùng để định tuyến (MapGet...) và chạy (Run()). Gọi nhầm phương thức định tuyến trên builder gây lỗi
+    biên dịch CS1061.
+- id: minimal-api-q3
   node: minimal-api
   tier: fast
   prompt: POST /orders tạo đơn hàng thành công thì trả status code nào và kèm header gì?
   answer: 201 Created, kèm header Location trỏ tới URL tài nguyên vừa tạo (Results.Created).
-- id: p3-minimal-api-q2
+- id: minimal-api-q4
   node: minimal-api
   tier: fast
   prompt: Trong app.MapGet("/users/{id:int}", (int id) => ...), tham số id được bind từ đâu?
-  answer: Từ route param {id:int} trong path; constraint :int chỉ khớp giá trị số.
-- id: p3-minimal-api-q3
+  answer: Từ route param {id:int} trong path; constraint :int chỉ khớp giá trị số. Gọi /users/abc không
+    khớp route, trả 404 trước khi vào tới handler.
+- id: minimal-api-q5
   node: minimal-api
   tier: fast
   prompt: Vì sao nên trả Results.NotFound() thay vì object rỗng với status 200?
   answer: 'Status code là hợp đồng ngữ nghĩa: 404 nói rõ không có tài nguyên; 200 + body rỗng khiến client
     hiểu nhầm là thành công.'
-- id: p3-minimal-api-q4
+- id: minimal-api-q6
+  node: minimal-api
+  tier: fast
+  prompt: Dùng PUT /products/5 để chỉ sửa một trường (ví dụ giá) có nguy cơ gì?
+  answer: PUT thay thế toàn bộ tài nguyên; nếu body chỉ gửi một trường, các trường khác bị gán về giá
+    trị mặc định, mất dữ liệu ngoài ý muốn. Nên dùng PATCH với DTO nhỏ chỉ chứa trường cần sửa.
+- id: minimal-api-q7
   node: minimal-api
   tier: fast
   prompt: URL POST /createUser vi phạm nguyên tắc REST nào?
   answer: URL phải là danh từ số nhiều chỉ tài nguyên, không nhét động từ; hành động do HTTP method diễn
     đạt. Đúng là POST /users.
-- id: p3-minimal-api-q5
+- id: minimal-api-q8
   node: minimal-api
   tier: fast
-  prompt: Khác biệt ngữ nghĩa giữa PUT /products/5 và POST /products?
-  answer: PUT thay thế tài nguyên đã biết id, idempotent; POST tạo mới tài nguyên, không idempotent.
+  prompt: Vì sao dùng First()/Single() trong handler tìm-theo-id có thể biến 404 hợp lệ thành 500?
+  answer: First()/Single() ném InvalidOperationException khi không có phần tử khớp; nếu không bắt và chuyển
+    thành Results.NotFound(), ASP.NET Core trả 500 thay vì 404 hợp lý. Nên dùng FirstOrDefault().
 - id: p3-di-q1
   node: dependency-injection
   tier: fast
@@ -439,28 +459,35 @@ questions:
 - id: validation-q1
   node: validation
   tier: fast
-  prompt: Vì sao không được tin dữ liệu từ client dù frontend đã validate?
-  answer: Vì kẻ tấn công có thể gọi thẳng API bỏ qua UI; backend là hàng rào bắt buộc cuối cùng.
+  prompt: Vì sao không được tin dữ liệu từ client dù frontend đã validate rồi?
+  answer: Vì kẻ tấn công (hoặc Postman, script test) có thể gọi thẳng vào API, bỏ qua hoàn toàn giao diện
+    web — validation ở frontend chỉ để trải nghiệm mượt, không phải hàng rào bảo mật.
 - id: validation-q2
   node: validation
   tier: fast
-  prompt: '[ApiController] làm gì tự động với ModelState sai?'
-  answer: Tự trả 400 Bad Request kèm ValidationProblemDetails trước khi action chạy.
+  prompt: Gọi API với Quantity = -5 mà không có validation gì, hậu quả cụ thể có thể là gì?
+  answer: Nếu code làm Stock -= Quantity mà không kiểm tra, số âm khiến kho tăng thay vì giảm; hoặc nếu
+    Quantity dùng để cấp phát vòng lặp/mảng, có thể gây crash hay treo server.
 - id: validation-q3
   node: validation
   tier: fast
-  prompt: '''Số dư không đủ để rút tiền'' là validation dữ liệu hay business rule?'
-  answer: Business rule; thường trả 409 hoặc 422, không phải 400.
+  prompt: Cần gọi phương thức nào trên builder.Services để bật validation tự động cho Minimal API, và
+    nếu quên gọi thì chuyện gì xảy ra?
+  answer: builder.Services.AddValidation(). Nếu quên gọi, attribute Data Annotations vẫn nằm trên property
+    nhưng không ai kiểm tra khi chạy — dữ liệu sai lọt qua thẳng vào handler.
 - id: validation-q4
   node: validation
   tier: fast
-  prompt: Khi nào nên chọn FluentValidation thay vì Data Annotations?
-  answer: Khi luật phức tạp, liên quan nhiều field hoặc có điều kiện, và muốn test đơn vị dễ dàng.
+  prompt: Response lỗi validation nên có status code nào, và tại sao không phải 500?
+  answer: 400 Bad Request, vì lỗi nằm ở phía client gửi dữ liệu sai định dạng — 500 chỉ dành cho lỗi phía
+    server.
 - id: validation-q5
   node: validation
   tier: fast
-  prompt: Chuẩn nào định nghĩa định dạng lỗi HTTP mà ProblemDetails triển khai?
-  answer: RFC 9457 (Problem Details for HTTP APIs), kế thừa RFC 7807.
+  prompt: Cho ví dụ một rule mà Data Annotations khó diễn đạt nhưng FluentValidation làm tự nhiên.
+  answer: Rule liên-field như Confirm phải khớp Password, hoặc rule có điều kiện như nếu ShippingMethod
+    là Express thì PhoneNumber bắt buộc — FluentValidation có .Equal(), .When() diễn đạt tự nhiên, Data
+    Annotations không hỗ trợ trực tiếp.
 - id: logging-exceptions-1
   node: logging-exceptions
   tier: fast
@@ -1808,3 +1835,354 @@ questions:
     tác gì?
   answer: UpdateData — EF Core so sánh theo khoá chính không đổi, nhận ra là sửa dòng đã có chứ không
     phải thêm mới.
+- id: dependency-injection-q1
+  node: dependency-injection
+  tier: fast
+  prompt: AddScoped<T>() tạo bao nhiêu instance khi CÙNG một request gọi GetRequiredService<T>() ba lần?
+  answer: Đúng 1 instance — Scoped tái dùng cùng một instance trong suốt một scope (mặc định là một request
+    HTTP), bất kể được yêu cầu bao nhiêu lần bên trong scope đó.
+- id: dependency-injection-q2
+  node: dependency-injection
+  tier: fast
+  prompt: Vì sao một class tự new dependency của nó bên trong constructor lại khó unit test?
+  answer: Vì không có cách nào từ bên ngoài thay thế dependency đó bằng một bản giả/mock — class luôn
+    dùng đúng implementation cụ thể bị new cứng bên trong, nên test luôn phải chạy với implementation
+    thật.
+- id: dependency-injection-q3
+  node: dependency-injection
+  tier: fast
+  prompt: Captive dependency là gì, và ASP.NET Core mặc định phản ứng thế nào khi phát hiện nó lúc khởi
+    động?
+  answer: Captive dependency là khi một service sống lâu hơn (thường Singleton) giữ tham chiếu trực tiếp
+    tới một service sống ngắn hơn (thường Scoped) qua constructor injection. Mặc định (Development, ValidateScopes
+    = true), builder.Build() sẽ ném InvalidOperationException ngay khi khởi động thay vì để lỗi âm thầm
+    xảy ra lúc runtime.
+- id: dependency-injection-q4
+  node: dependency-injection
+  tier: fast
+  prompt: Cách đúng để một Singleton cần dùng một service Scoped mà không tạo captive dependency là gì?
+  answer: Không tiêm Scoped trực tiếp qua constructor. Thay vào đó, tiêm IServiceScopeFactory vào Singleton,
+    rồi mỗi khi cần dùng thì tự CreateScope(), lấy service Scoped bằng GetRequiredService từ scope.ServiceProvider,
+    dùng xong Dispose scope đó.
+- id: dependency-injection-q5
+  node: dependency-injection
+  tier: fast
+  prompt: Vì sao constructor injection được ưu tiên hơn Service Locator (tự gọi IServiceProvider.GetService<T>()
+    bên trong logic nghiệp vụ)?
+  answer: Constructor injection khai báo dependency một cách tường minh trong chữ ký constructor. Service
+    Locator giấu dependency thật sự bên trong thân hàm, khiến lỗi quên đăng ký chỉ lộ ra sâu bên trong
+    lúc runtime thay vì rõ ràng ngay ở chữ ký.
+- id: dependency-injection-q6
+  node: dependency-injection
+  tier: fast
+  prompt: Nếu bạn resolve một type chưa được đăng ký trong IServiceCollection từ một Minimal API handler,
+    điều gì xảy ra khi có request gọi tới, và lỗi đó xuất hiện ở giai đoạn nào?
+  answer: 'Request đó trả về 500 Internal Server Error, với ngoại lệ InvalidOperationException: Unable
+    to resolve service for type .... Đây là lỗi runtime, chỉ xảy ra khi có request thật gọi tới — code
+    vẫn biên dịch bình thường.'
+- id: dependency-injection-q7
+  node: dependency-injection
+  tier: fast
+  prompt: Vì sao một Singleton có trạng thái mutable (như bộ đếm dùng chung) thường cần đồng bộ hoá, nhưng
+    thường không cần với trạng thái tương tự trong một service Scoped?
+  answer: Singleton chỉ có một instance duy nhất dùng chung cho mọi request đồng thời — nhiều luồng có
+    thể cùng đọc/ghi cùng lúc, gây race condition. Scoped có instance riêng cho mỗi request, nên không
+    bị nhiều request khác chia sẻ cùng instance.
+- id: routing-model-binding-q1
+  node: routing-model-binding
+  tier: fast
+  prompt: Route template {id:int} khác gì so với {id} khi client gửi một giá trị không phải số?
+  answer: '{id} (không constraint) vẫn khớp route nhưng bước binding sau đó thất bại khi ép sang int →
+    400 Bad Request. {id:int} loại giá trị không phải số ngay từ bước khớp route → nếu không route nào
+    khác khớp thì 404 Not Found.'
+- id: routing-model-binding-q2
+  node: routing-model-binding
+  tier: fast
+  prompt: Vì sao tham số string? sort trong MapGet("/products", (string? sort) => ...) không cần viết
+    [FromQuery]?
+  answer: Vì sort là kiểu đơn giản (string) và tên của nó không khớp bất kỳ route parameter nào trong
+    template /products — Minimal API tự suy luận nguồn là query string.
+- id: routing-model-binding-q3
+  node: routing-model-binding
+  tier: fast
+  prompt: Một handler khai (ProductInput a, AddressInput b) với cả hai đều là record (kiểu phức tạp),
+    không có attribute. Điều gì xảy ra?
+  answer: 'Ở request đầu tiên khớp route đó, ASP.NET Core ném InvalidOperationException: Failure to infer
+    one or more parameters → trả về 500 Internal Server Error, vì Minimal API chỉ cho phép một tham số
+    tự suy luận bind từ JSON body.'
+- id: routing-model-binding-q4
+  node: routing-model-binding
+  tier: fast
+  prompt: Header có nằm trong chuỗi suy luận tự động (route → service → query → body) không? Muốn bind
+    từ header phải làm gì?
+  answer: Không. Header luôn phải khai [FromHeader] tường minh (có thể kèm Name = "..." nếu tên header
+    khác tên biến C#); không có suy luận tự động cho header.
+- id: routing-model-binding-q5
+  node: routing-model-binding
+  tier: fast
+  prompt: 'Cho route /products/{id:int} và request PUT /products/5 thiếu header Content-Type: application/json
+    dù có body JSON hợp lệ. Server trả gì?'
+  answer: 415 Unsupported Media Type — vì thiếu Content-Type đúng, ASP.NET Core không xác định được cách
+    parse body nên từ chối trước khi thử bind.
+- id: routing-model-binding-q6
+  node: routing-model-binding
+  tier: fast
+  prompt: MapGroup mang lại lợi ích gì ngoài việc gộp tiền tố URL?
+  answer: Cho phép áp dụng một lần các cấu hình chung (như RequireAuthorization, endpoint filter) cho
+    toàn bộ endpoint trong nhóm, đảm bảo tính nhất quán và tránh quên áp dụng ở một endpoint lẻ.
+- id: routing-model-binding-q7
+  node: routing-model-binding
+  tier: fast
+  prompt: Vì sao route /products/{id} (không constraint) và /products/featured dễ gây nhầm lẫn hơn /products/{id:int}
+    và /products/featured?
+  answer: Không có constraint, {id} khớp mọi chuỗi kể cả "featured", khiến việc route nào được ưu tiên
+    khớp trở nên mơ hồ. Thêm :int loại "featured" khỏi route id ngay từ bước khớp, làm rõ ràng hai route
+    không chồng lấn.
+- id: configuration-options-q1
+  node: configuration-options
+  tier: fast
+  prompt: Biến môi trường nào quyết định file appsettings.{Environment}.json nào được nạp?
+  answer: ASPNETCORE_ENVIRONMENT. Không đặt thì mặc định Production.
+- id: configuration-options-q2
+  node: configuration-options
+  tier: fast
+  prompt: Giữa appsettings.json và appsettings.Development.json, file nào được nạp sau và do đó thắng
+    khi trùng khoá?
+  answer: appsettings.Development.json được nạp sau appsettings.json nên đè lên; biến môi trường OS và
+    tham số dòng lệnh còn đè lên cả hai file này.
+- id: configuration-options-q3
+  node: configuration-options
+  tier: fast
+  prompt: Vì sao nên dùng Options pattern (class C#) thay vì đọc trực tiếp IConfiguration["Key"] ở khắp
+    nơi trong code?
+  answer: Vì IConfiguration["Key"] dùng chuỗi rời rạc không được kiểm tra lúc biên dịch — sai chính tả
+    âm thầm trả về null. Options pattern gom cấu hình vào class C# có thuộc tính thật, được IDE/compiler
+    hỗ trợ, và tiêm được qua DI.
+- id: configuration-options-q4
+  node: configuration-options
+  tier: fast
+  prompt: IOptionsSnapshot<T> có lifetime gì, và điều gì xảy ra nếu tiêm nó vào một service Singleton?
+  answer: Scoped. Tiêm vào Singleton gây captive dependency, ném InvalidOperationException lúc khởi động.
+- id: configuration-options-q5
+  node: configuration-options
+  tier: fast
+  prompt: Trong ba loại IOptions<T> / IOptionsSnapshot<T> / IOptionsMonitor<T>, loại nào đúng cho một
+    Singleton cần thấy cấu hình thay đổi lúc đang chạy?
+  answer: IOptionsMonitor<T> — bản thân nó là Singleton (tiêm an toàn vào Singleton khác) và đọc .CurrentValue
+    luôn cập nhật, khác IOptions<T> chỉ đọc một lần lúc khởi động.
+- id: configuration-options-q6
+  node: configuration-options
+  tier: fast
+  prompt: Nếu quên gọi builder.Services.Configure<EmailOptions>(...) nhưng vẫn tiêm IOptions<EmailOptions>
+    vào một endpoint, chuyện gì xảy ra khi request tới?
+  answer: Không có exception. IOptions<EmailOptions>.Value trả về một EmailOptions mới với giá trị mặc
+    định của C# cho từng thuộc tính — lỗi âm thầm, không phải lỗi biên dịch hay crash runtime.
+- id: configuration-options-q7
+  node: configuration-options
+  tier: fast
+  prompt: GetValue<int>("Email:Port") sẽ có hành vi gì nếu giá trị JSON tại khoá đó là một chuỗi không
+    phải số, ví dụ "abc"?
+  answer: Ném InvalidOperationException lúc gọi (runtime), vì không thể ép kiểu chuỗi "abc" sang int.
+- id: validation-q6
+  node: validation
+  tier: fast
+  prompt: Số dư tài khoản không đủ để rút tiền là validation dữ liệu hay business rule? Nên trả mã HTTP
+    nào?
+  answer: Business rule (cần truy vấn trạng thái hệ thống), không phải validation định dạng. Nên trả 409
+    Conflict hoặc 422 Unprocessable Entity, không phải 400.
+- id: validation-q7
+  node: validation
+  tier: fast
+  prompt: Khi validate một List<OrderItem> và phần tử thứ 2 (index 1) sai, key lỗi trong response trông
+    như thế nào?
+  answer: Dạng Lines[1].Quantity — dùng chỉ số index trong ngoặc vuông để chỉ đúng phần tử sai trong danh
+    sách.
+- id: middleware-q1
+  node: middleware
+  tier: fast
+  prompt: 'Middleware trong ASP.NET Core thực thi theo cấu trúc nào: tuần tự (hàng đợi) hay lồng nhau
+    (nested)?'
+  answer: Lồng nhau — middleware đăng ký trước bọc middleware đăng ký sau. Phần trước next() chạy theo
+    thứ tự đăng ký; phần sau next() chạy theo thứ tự ngược lại.
+- id: middleware-q2
+  node: middleware
+  tier: fast
+  prompt: Điều gì xảy ra nếu một middleware không gọi await next()?
+  answer: Pipeline dừng lại tại đó (short-circuit) — mọi middleware và endpoint phía sau không chạy. Có
+    thể là chủ đích hoặc lỗi quên gọi next().
+- id: middleware-q3
+  node: middleware
+  tier: fast
+  prompt: Vì sao UseAuthorization() phải đặt sau UseRouting()?
+  answer: UseAuthorization cần biết endpoint nào đã được match (do UseRouting xác định) để kiểm tra endpoint
+    đó có RequireAuthorization() hay không.
+- id: middleware-q4
+  node: middleware
+  tier: fast
+  prompt: Nếu sửa context.Response.Headers sau khi response đã bắt đầu gửi, chuyện gì xảy ra?
+  answer: 'Ném InvalidOperationException: Headers are read-only, response has already started — vì HTTP
+    yêu cầu gửi header trước body.'
+- id: middleware-q5
+  node: middleware
+  tier: fast
+  prompt: UseStaticFiles() thường đặt ở đâu trong pipeline và vì sao?
+  answer: Đặt sớm nhất (trước UseRouting). Nếu request khớp file tĩnh có sẵn, nó trả file ngay và short-circuit,
+    tránh tốn chi phí routing/authorization không cần thiết.
+- id: middleware-q6
+  node: middleware
+  tier: fast
+  prompt: Cho hai middleware A (đăng ký trước) và B (đăng ký sau), cả hai log trước và sau next(). Thứ
+    tự in ra console là gì?
+  answer: A-trước, B-trước, [endpoint chạy], B-sau, A-sau — vì A bọc B nên phần sau của A luôn in cuối
+    cùng.
+- id: middleware-q7
+  node: middleware
+  tier: fast
+  prompt: app.Run(...) khác app.Use(...) ở điểm nào?
+  answer: app.Run là terminal middleware — không nhận tham số next, luôn kết thúc pipeline tại đó. app.Use
+    nhận next và có thể chọn gọi hoặc không gọi middleware kế tiếp.
+- id: xu-ly-loi-toan-cuc-q1
+  node: xu-ly-loi-toan-cuc
+  tier: fast
+  prompt: Vì sao không nên viết try/catch giống nhau ở mọi endpoint thay vì xử lý lỗi toàn cục?
+  answer: Vì nó lặp code ở mọi endpoint và rất dễ để sót — chỉ cần một endpoint mới quên copy khối catch
+    là hệ thống có hai định dạng lỗi khác nhau tồn tại song song.
+- id: xu-ly-loi-toan-cuc-q2
+  node: xu-ly-loi-toan-cuc
+  tier: fast
+  prompt: UseExceptionHandler phải được đặt ở đâu trong pipeline, và vì sao?
+  answer: Gần đầu pipeline nhất có thể, vì middleware bọc theo thứ tự đăng ký — nó chỉ bắt được exception
+    từ middleware/endpoint đăng ký sau nó.
+- id: xu-ly-loi-toan-cuc-q3
+  node: xu-ly-loi-toan-cuc
+  tier: fast
+  prompt: ProblemDetails là gì và tại sao dùng nó thay vì tự bịa cấu trúc JSON lỗi riêng?
+  answer: ProblemDetails là định dạng JSON chuẩn hoá cho lỗi HTTP (RFC 7807), gồm các trường cố định như
+    title, status, detail, instance — giúp mọi client đọc và xử lý lỗi theo cùng một cấu trúc.
+- id: xu-ly-loi-toan-cuc-q4
+  node: xu-ly-loi-toan-cuc
+  tier: fast
+  prompt: IExceptionHandler.TryHandleAsync trả về false có ý nghĩa gì?
+  answer: Nghĩa là handler này không xử lý được exception đó — nhường lại cho handler tiếp theo đã đăng
+    ký, hoặc để hành vi mặc định của framework chạy.
+- id: xu-ly-loi-toan-cuc-q5
+  node: xu-ly-loi-toan-cuc
+  tier: fast
+  prompt: Vì sao lỗi validation (400) không nên được xử lý bằng cách throw exception rồi để IExceptionHandler
+    bắt?
+  answer: Vì IExceptionHandler mặc định trả 500 (lỗi không mong đợi phía server), trong khi lỗi validation
+    là lỗi phía client. Dùng exception cho validation khiến client hiểu nhầm đây là lỗi server.
+- id: xu-ly-loi-toan-cuc-q6
+  node: xu-ly-loi-toan-cuc
+  tier: fast
+  prompt: Trường nào trong ProblemDetails không nên chứa exception.ToString() hoặc exception.StackTrace
+    ở production, và vì sao?
+  answer: Trường detail (hoặc bất kỳ trường nào khác) — stack trace lộ ra cấu trúc nội bộ hệ thống, là
+    lỗ hổng bảo mật cho kẻ tấn công.
+- id: xu-ly-loi-toan-cuc-q7
+  node: xu-ly-loi-toan-cuc
+  tier: fast
+  prompt: Nếu bạn gọi app.UseExceptionHandler() không tham số nhưng quên builder.Services.AddExceptionHandler<T>(),
+    chuyện gì xảy ra khi có exception?
+  answer: 'Không có handler nào được gọi — hành vi rơi về mặc định của framework. Đây là lỗi câm: không
+    cảnh báo lúc build, chỉ lộ khi thực sự test endpoint gây lỗi.'
+- id: openapi-swagger-q1
+  node: openapi-swagger
+  tier: fast
+  prompt: OpenAPI là một công cụ hay một định dạng đặc tả? Giải thích khác biệt với Swagger UI.
+  answer: OpenAPI là một định dạng đặc tả (file JSON/YAML mô tả API), không phải công cụ. Swagger UI là
+    một công cụ đọc đặc tả đó và hiển thị cho con người.
+- id: openapi-swagger-q2
+  node: openapi-swagger
+  tier: fast
+  prompt: Cần gọi hai phương thức nào để bật tính năng sinh OpenAPI có sẵn trong .NET 9+, và mỗi phương
+    thức làm gì?
+  answer: builder.Services.AddOpenApi() đăng ký dịch vụ sinh đặc tả; app.MapOpenApi() mở endpoint HTTP
+    (mặc định /openapi/v1.json) để trả về file đặc tả đó.
+- id: openapi-swagger-q3
+  node: openapi-swagger
+  tier: fast
+  prompt: Nếu gọi AddOpenApi() nhưng quên MapOpenApi(), gọi /openapi/v1.json sẽ trả về gì?
+  answer: Trả về 404 Not Found — ứng dụng vẫn chạy bình thường, chỉ là chưa có route nào phục vụ đường
+    dẫn đó.
+- id: openapi-swagger-q4
+  node: openapi-swagger
+  tier: fast
+  prompt: WithSummary và WithDescription khác nhau ở điểm gì?
+  answer: WithSummary là dòng tóm tắt ngắn (hiển thị làm tiêu đề); WithDescription là đoạn mô tả dài hơn,
+    giải thích chi tiết hành vi endpoint.
+- id: openapi-swagger-q5
+  node: openapi-swagger
+  tier: fast
+  prompt: Produces<T>(200) cung cấp thông tin gì cho đặc tả OpenAPI mà nếu không gọi, framework có thể
+    suy luận thiếu chính xác?
+  answer: Nó khai báo tường minh schema (cấu trúc field, kiểu dữ liệu) của response ứng với đúng status
+    code đó — hữu ích khi endpoint có nhiều nhánh trả về khác kiểu nhau.
+- id: openapi-swagger-q6
+  node: openapi-swagger
+  tier: fast
+  prompt: Vì sao không nên luôn để /openapi/v1.json và Swagger UI mở công khai ở production cho mọi loại
+    API?
+  answer: Vì file đặc tả liệt kê toàn bộ route nội bộ, kiểu dữ liệu, và đôi khi thông tin nghiệp vụ nhạy
+    cảm — với API nội bộ, để lộ ra Internet là trao bản đồ hệ thống cho người ngoài dò quét.
+- id: openapi-swagger-q7
+  node: openapi-swagger
+  tier: fast
+  prompt: Khi nào nên chọn Swashbuckle thay vì AddOpenApi/MapOpenApi thuần?
+  answer: Khi cần giao diện trực quan để người dùng tự bấm thử API trên trình duyệt mà không cần Postman,
+    hoặc dự án đã quen thuộc với hệ sinh thái Swashbuckle từ trước.
+- id: goi-api-ngoai-q1
+  node: goi-api-ngoai
+  tier: fast
+  prompt: Vì sao gọi new HttpClient() bên trong mỗi request lại nguy hiểm dưới tải cao?
+  answer: Mỗi new HttpClient() mở một socket TCP riêng; sau khi đóng, socket kẹt ở trạng thái TIME_WAIT
+    trước khi hệ điều hành thu hồi. Dưới tải cao, số socket TIME_WAIT tích luỹ nhanh hơn tốc độ giải phóng,
+    dẫn tới cạn cổng khả dụng (socket exhaustion).
+- id: goi-api-ngoai-q2
+  node: goi-api-ngoai
+  tier: fast
+  prompt: IHttpClientFactory giải quyết đồng thời hai vấn đề nào so với new HttpClient() mỗi request và
+    so với một static HttpClient dùng chung mãi mãi?
+  answer: 'So với new HttpClient() mỗi request: tránh socket exhaustion nhờ tái sử dụng handler. So với
+    static HttpClient dùng chung mãi mãi: tránh stale DNS, vì factory luân phiên loại bỏ và tạo handler
+    mới định kỳ.'
+- id: goi-api-ngoai-q3
+  node: goi-api-ngoai
+  tier: fast
+  prompt: GetFromJsonAsync<T> sẽ ném exception gì nếu body response không phải JSON hợp lệ?
+  answer: System.Text.Json.JsonException. Đây là lý do phải kiểm tra IsSuccessStatusCode trước khi tin
+    tưởng body là JSON hợp lệ.
+- id: goi-api-ngoai-q4
+  node: goi-api-ngoai
+  tier: fast
+  prompt: Khi HttpClient.Timeout hết hạn, loại exception nào được ném ra, và tại sao bắt nhầm TimeoutException
+    là một lỗi phổ biến?
+  answer: TaskCanceledException (kế thừa từ OperationCanceledException), không phải TimeoutException.
+    Nếu code chỉ catch (TimeoutException), exception timeout thật sự sẽ không được bắt.
+- id: goi-api-ngoai-q5
+  node: goi-api-ngoai
+  tier: fast
+  prompt: EnsureSuccessStatusCode() làm gì, và nó ném loại exception gì khi status code không phải 2xx?
+  answer: Nó kiểm tra status code của response; nếu không nằm trong khoảng 200-299, ném HttpRequestException
+    với thông điệp mô tả status code cụ thể, và thuộc tính StatusCode để đọc lại status gốc.
+- id: goi-api-ngoai-q6
+  node: goi-api-ngoai
+  tier: fast
+  prompt: Vì sao đăng ký AddHttpClient("PaymentApi", ...) với BaseAddress sẵn lại tốt hơn gọi factory.CreateClient()
+    rồi tự set BaseAddress ở mỗi nơi dùng?
+  answer: Named client gom cấu hình vào một chỗ đăng ký duy nhất, tránh lặp lại và sai lệch cấu hình.
+    Nếu quên set BaseAddress ở client không tên, gọi URL tương đối sẽ ném InvalidOperationException ngay
+    lúc chạy.
+- id: goi-api-ngoai-q7
+  node: goi-api-ngoai
+  tier: fast
+  prompt: Polly giải quyết vấn đề gì mà retry/circuit breaker tự viết tay dễ làm sai?
+  answer: Retry tự viết tay dễ quên backoff tăng dần và dễ retry nhầm cả lỗi vĩnh viễn (như 400). Circuit
+    breaker tự viết tay khó cài đúng ngưỡng và thời gian ngắt mạch. Polly cung cấp sẵn cả hai chính sách
+    đã kiểm chứng.
+- id: goi-api-ngoai-q8
+  node: goi-api-ngoai
+  tier: fast
+  prompt: response.Content.ReadFromJsonAsync<T>() gọi hai lần trên cùng một response sẽ có vấn đề gì?
+  answer: HttpContent là một stream chỉ đọc được một lần. Đọc lần thứ hai sẽ gây lỗi hoặc trả về dữ liệu
+    rỗng — nếu cần dùng lại, phải đọc một lần thành biến rồi xử lý từ biến đó.

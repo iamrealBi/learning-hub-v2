@@ -114,7 +114,13 @@ nav:
   - "P3 · Web API":
     - "01 — Minimal API & REST": p3-web-api/minimal-api.md
     - "02 — Dependency Injection": p3-web-api/dependency-injection.md
-    - "03 — Validation": p3-web-api/validation.md
+    - "03 — Routing & Model Binding": p3-web-api/routing-model-binding.md
+    - "04 — Configuration & Options": p3-web-api/configuration-options.md
+    - "05 — Validation": p3-web-api/validation.md
+    - "06 — Middleware Pipeline": p3-web-api/middleware.md
+    - "07 — Xử lý lỗi toàn cục & ProblemDetails": p3-web-api/xu-ly-loi-toan-cuc.md
+    - "08 — OpenAPI & Swagger": p3-web-api/openapi-swagger.md
+    - "09 — Gọi API bên ngoài (HttpClient)": p3-web-api/goi-api-ngoai.md
   - "P4 · Bảo mật, Test & Deploy":
     - "01 — JWT (canonical)": p4-bao-mat/jwt.md
     - "02 — Tải file an toàn": p4-bao-mat/tai-file-an-toan.md

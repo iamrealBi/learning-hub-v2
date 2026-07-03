@@ -114,10 +114,33 @@ phases:
   - id: P3
     title: "ASP.NET Core Web API"
     nodes:
-      - { id: p3-api, file: p3-web-api/minimal-api.md, tier: fast, status: draft, owner: core-team,
-          objective: "Dựng REST API bằng Minimal API + DI", requires: [p2-ef] }
-      - { id: p3-di, file: p3-web-api/dependency-injection.md, tier: fast, status: draft, owner: core-team,
-          objective: "Chọn đúng DI lifetime (Singleton/Scoped/Transient)", requires: [p3-api] }
+      - { id: p3-api, file: p3-web-api/minimal-api.md, tier: fast, status: core, owner: core-team,
+          objective: "Dựng REST API bằng Minimal API: routing, HTTP method, status code chuẩn",
+          requires: [p2-ef] }
+      - { id: p3-di, file: p3-web-api/dependency-injection.md, tier: fast, status: core, owner: core-team,
+          objective: "Đăng ký service đúng lifetime (Singleton/Scoped/Transient), tránh captive dependency",
+          requires: [p3-api] }
+      - { id: p3-routing, file: p3-web-api/routing-model-binding.md, tier: fast, status: core, owner: core-team,
+          objective: "Bind route/query/body/header đúng cách, ràng buộc route constraint",
+          requires: [p3-di] }
+      - { id: p3-config, file: p3-web-api/configuration-options.md, tier: fast, status: core, owner: core-team,
+          objective: "Đọc cấu hình qua IConfiguration/Options pattern theo environment",
+          requires: [p3-di] }
+      - { id: p3-validation, file: p3-web-api/validation.md, tier: fast, status: core, owner: core-team,
+          objective: "Validate input bằng DataAnnotations & FluentValidation, trả lỗi 400 chuẩn",
+          requires: [p3-routing] }
+      - { id: p3-middleware, file: p3-web-api/middleware.md, tier: fast, status: core, owner: core-team,
+          objective: "Hiểu thứ tự pipeline middleware, viết custom middleware đúng chỗ",
+          requires: [p3-config] }
+      - { id: p3-error-handling, file: p3-web-api/xu-ly-loi-toan-cuc.md, tier: fast, status: core, owner: core-team,
+          objective: "Bắt lỗi toàn cục, trả ProblemDetails chuẩn RFC 7807",
+          requires: [p3-middleware] }
+      - { id: p3-openapi, file: p3-web-api/openapi-swagger.md, tier: fast, status: core, owner: core-team,
+          objective: "Sinh tài liệu OpenAPI/Swagger, mô tả contract API rõ ràng",
+          requires: [p3-validation] }
+      - { id: p3-httpclient, file: p3-web-api/goi-api-ngoai.md, tier: fast, status: core, owner: core-team,
+          objective: "Gọi API bên ngoài an toàn qua IHttpClientFactory, xử lý timeout/lỗi mạng",
+          requires: [p3-config] }
 
   - id: P4
     title: "Auth, Bảo mật, Test & Deploy"
