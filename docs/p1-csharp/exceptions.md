@@ -40,7 +40,160 @@ Cấu trúc cơ bản:
 - `catch`: bắt và xử lý một loại exception.
 - `finally`: dọn dẹp — **luôn** chạy.
 
-Mọi exception trong .NET đều kế thừa từ `System.Exception`. Hiểu cây phân cấp giúp bạn bắt đúng loại:
+Mọi exception trong .NET đều kế thừa từ `System.Exception`.
+
+Trước khi xem bảng tổng hợp, đây là định nghĩa một câu cho từng loại exception cụ thể hay gặp nhất, kèm ví dụ tối thiểu riêng.
+
+**`ArgumentNullException`**: ném ra khi một tham số bắt buộc nhận giá trị `null`.
+
+```csharp title="C#"
+// test:run
+try
+{
+    PrintName(null);
+}
+catch (ArgumentNullException e)
+{
+    Console.WriteLine($"Bắt ArgumentNullException: tham số '{e.ParamName}' là null");
+}
+
+static void PrintName(string? name)
+{
+    if (name is null)
+        throw new ArgumentNullException(nameof(name));
+    Console.WriteLine(name);
+}
+```
+
+```text title="Kết quả"
+Bắt ArgumentNullException: tham số 'name' là null
+```
+
+**`ArgumentException`**: ném ra khi tham số không null nhưng sai định dạng hoặc sai giá trị.
+
+```csharp title="C#"
+// test:run
+try
+{
+    SetAge(-5);
+}
+catch (ArgumentException e)
+{
+    Console.WriteLine($"Bắt ArgumentException: {e.Message}");
+}
+
+static void SetAge(int age)
+{
+    if (age < 0)
+        throw new ArgumentException("Tuổi không thể âm", nameof(age));
+    Console.WriteLine($"Tuổi = {age}");
+}
+```
+
+```text title="Kết quả"
+Bắt ArgumentException: Tuổi không thể âm (Parameter 'age')
+```
+
+**`ArgumentOutOfRangeException`**: ném ra khi giá trị tham số nằm ngoài khoảng cho phép (ví dụ chỉ số âm, tuổi ngoài 0..150).
+
+```csharp title="C#"
+// test:run
+try
+{
+    SetScore(200);
+}
+catch (ArgumentOutOfRangeException e)
+{
+    Console.WriteLine($"Bắt ArgumentOutOfRangeException: tham số '{e.ParamName}', giá trị thực tế = {e.ActualValue}");
+}
+
+static void SetScore(int score)
+{
+    if (score is < 0 or > 100)
+        throw new ArgumentOutOfRangeException(nameof(score), score, "Điểm phải trong khoảng 0..100");
+    Console.WriteLine($"Điểm = {score}");
+}
+```
+
+```text title="Kết quả"
+Bắt ArgumentOutOfRangeException: tham số 'score', giá trị thực tế = 200
+```
+
+**Lỗi nếu dùng sai** — bắt nhầm bằng `catch (ArgumentException e)` (lớp cha) rồi cố đọc `e.ActualValue` sẽ không biên dịch được, vì `ActualValue` chỉ tồn tại trên `ArgumentOutOfRangeException`, không có trên `ArgumentException`:
+
+```csharp title="C#"
+// test:skip minh hoạ lỗi biên dịch CS1061: 'ArgumentException' không có định nghĩa cho 'ActualValue'
+try
+{
+    SetScore(200);
+}
+catch (ArgumentException e)
+{
+    // CS1061: 'ArgumentException' does not contain a definition for 'ActualValue'
+    Console.WriteLine($"Giá trị thực tế = {e.ActualValue}");
+}
+```
+
+Ngoài ra, nếu tạo `ArgumentOutOfRangeException` mà không truyền `actualValue` (constructor `(paramName, message)` thay vì `(paramName, actualValue, message)`), thông điệp lỗi sẽ thiếu hẳn phần "Giá trị thực tế" — người đọc log không biết giá trị sai cụ thể là gì, gây khó chẩn đoán hơn hẳn so với ví dụ `SetScore` ở trên.
+
+**`InvalidOperationException`**: ném ra khi trạng thái hiện tại của object không cho phép thực hiện thao tác được gọi.
+
+```csharp title="C#"
+// test:run
+var list = new List<int>();
+var enumerator = list.GetEnumerator();
+list.Add(1); // thay đổi collection trong khi đang enumerate
+
+try
+{
+    enumerator.MoveNext();
+}
+catch (InvalidOperationException e)
+{
+    Console.WriteLine($"Bắt InvalidOperationException: {e.Message}");
+}
+```
+
+```text title="Kết quả"
+Bắt InvalidOperationException: Collection was modified; enumeration operation may not execute.
+```
+
+**`FormatException`**: ném ra khi một chuỗi không thể phân tích (parse) thành kiểu mong muốn.
+
+```csharp title="C#"
+// test:run
+try
+{
+    int n = int.Parse("abc");
+    Console.WriteLine(n);
+}
+catch (FormatException e)
+{
+    Console.WriteLine($"Bắt FormatException: {e.Message}");
+}
+```
+
+```text title="Kết quả"
+Bắt FormatException: The input string 'abc' was not in a correct format.
+```
+
+**`IOException`**: ném ra khi thao tác đọc/ghi file hoặc luồng mạng thất bại (ví dụ file đang bị khoá, đĩa đầy).
+
+```csharp title="C#"
+// test:skip minh hoạ IOException cần thao tác file thật trên hệ thống, không tự chứa trong sandbox
+var stream1 = File.Open("data.lock", FileMode.OpenOrCreate);
+try
+{
+    // Mở lần 2 khi file đang bị khoá độc quyền -> ném IOException
+    var stream2 = File.Open("data.lock", FileMode.Open, FileAccess.Read, FileShare.None);
+}
+catch (IOException e)
+{
+    Console.WriteLine($"Bắt IOException: {e.Message}");
+}
+```
+
+Sau khi đã thấy từng loại riêng lẻ, bảng dưới đây tổng hợp lại và sơ đồ cho thấy cây phân cấp kế thừa giữa chúng:
 
 | Loại | Khi nào xuất hiện | Bắt cụ thể? |
 |------|-------------------|-------------|
@@ -72,7 +225,122 @@ graph TD
 
 ## 2. Ví dụ mẫu
 
-Bắt loại cụ thể, dùng nhiều `catch`, và `finally` để dọn dẹp:
+**`try`/`catch`**: `try` bọc vùng code có thể lỗi, `catch` bắt và xử lý loại exception chỉ định — nếu không xảy ra lỗi đúng loại đó, khối `catch` không chạy.
+
+```csharp title="C#"
+// test:run
+try
+{
+    throw new InvalidOperationException("Trạng thái không hợp lệ");
+}
+catch (InvalidOperationException e)
+{
+    Console.WriteLine($"Đã bắt: {e.Message}");
+}
+```
+
+```text title="Kết quả"
+Đã bắt: Trạng thái không hợp lệ
+```
+
+Nếu khối `catch` khai báo **sai loại** (không phải loại thực sự được ném, và cũng không phải lớp cha của nó), exception sẽ **không** bị bắt — nó tiếp tục bay lên và làm crash chương trình:
+
+```csharp title="C#"
+// test:run
+try
+{
+    try
+    {
+        throw new InvalidOperationException("Trạng thái không hợp lệ");
+    }
+    catch (FormatException e)
+    {
+        // Sai loại: FormatException không khớp InvalidOperationException
+        Console.WriteLine($"Sẽ không bao giờ in ra dòng này: {e.Message}");
+    }
+}
+catch (InvalidOperationException e)
+{
+    // Exception "lọt" qua catch sai loại ở trên, bị bắt lại ở đây
+    Console.WriteLine($"Bắt sai loại phía trong -> lỗi bay tiếp lên: {e.Message}");
+}
+```
+
+```text title="Kết quả"
+Bắt sai loại phía trong -> lỗi bay tiếp lên: Trạng thái không hợp lệ
+```
+
+**`finally`**: khối chạy **luôn luôn** sau `try`/`catch`, bất kể có exception hay không, dùng để dọn dẹp tài nguyên.
+
+```csharp title="C#"
+// test:run
+try
+{
+    Console.WriteLine("Đang thử...");
+}
+finally
+{
+    Console.WriteLine("Dọn dẹp — luôn chạy");
+}
+```
+
+```text title="Kết quả"
+Đang thử...
+Dọn dẹp — luôn chạy
+```
+
+Nếu **bỏ `finally`** khi vòng lặp bên trong ném lỗi giữa chừng, bước dọn dẹp cho lần lặp đó sẽ bị bỏ qua hoàn toàn — không có gì đảm bảo nó chạy:
+
+```csharp title="C#"
+// test:run
+int[] data = { 10, 0 };
+
+foreach (var divisor in data)
+{
+    try
+    {
+        int result = 100 / divisor;
+        Console.WriteLine($"100 / {divisor} = {result}");
+    }
+    catch (DivideByZeroException)
+    {
+        Console.WriteLine($"Bỏ qua: không chia được cho {divisor}");
+    }
+    // Không có finally -> dòng "dọn dẹp" dưới đây bị thiếu ở mọi trường hợp,
+    // nhưng nguy hiểm hơn: nếu dọn dẹp nằm SAU catch mà code ném tiếp exception
+    // khác trong catch, dọn dẹp sẽ không bao giờ chạy.
+}
+
+Console.WriteLine("Nếu cần dọn dẹp bảo đảm luôn chạy, phải dùng finally, không đặt code dọn dẹp sau khối try/catch.");
+```
+
+```text title="Kết quả"
+100 / 10 = 10
+Bỏ qua: không chia được cho 0
+Nếu cần dọn dẹp bảo đảm luôn chạy, phải dùng finally, không đặt code dọn dẹp sau khối try/catch.
+```
+
+**`DivideByZeroException`**: ném ra khi chia một số nguyên cho 0.
+
+```csharp title="C#"
+// test:run
+try
+{
+    int divisor = 0;
+    int result = 100 / divisor;
+    Console.WriteLine(result);
+}
+catch (DivideByZeroException e)
+{
+    Console.WriteLine($"Bắt DivideByZeroException: {e.Message}");
+}
+```
+
+```text title="Kết quả"
+Bắt DivideByZeroException: Attempted to divide by zero.
+```
+
+Giờ kết hợp cả ba — bắt loại cụ thể, dùng nhiều `catch`, và `finally` để dọn dẹp:
 
 ```csharp title="C#"
 // test:run
@@ -144,7 +412,126 @@ Bắt được: Trạng thái không hợp lệ
 Có stack trace
 ```
 
-**Guard hiện đại** — validate tham số gọn gàng bằng helper tĩnh của .NET {{ dotnet.current }}:
+**Bằng chứng `throw ex;` làm mất dấu vết** — so sánh trực tiếp số dòng trong stack trace giữa hai cách ném lại:
+
+```csharp title="C#"
+// test:run
+try
+{
+    RethrowWithThrow();
+}
+catch (Exception e)
+{
+    Console.WriteLine("=== throw; (giữ nguyên) ===");
+    Console.WriteLine(e.StackTrace);
+}
+
+try
+{
+    RethrowWithThrowEx();
+}
+catch (Exception e)
+{
+    Console.WriteLine("=== throw ex; (bị reset) ===");
+    Console.WriteLine(e.StackTrace);
+}
+
+static void RethrowWithThrow()
+{
+    try
+    {
+        FailDeep();
+    }
+    catch (InvalidOperationException)
+    {
+        throw; // giữ nguyên: stack trace vẫn trỏ tới FailDeep()
+    }
+}
+
+static void RethrowWithThrowEx()
+{
+    try
+    {
+        FailDeep();
+    }
+    catch (InvalidOperationException ex)
+    {
+        throw ex; // reset: stack trace bây giờ trỏ tới DÒNG NÀY, mất dấu vết FailDeep()
+    }
+}
+
+static void FailDeep() => throw new InvalidOperationException("Lỗi phát sinh sâu bên trong");
+```
+
+```text title="Kết quả (rút gọn — số dòng thực tế phụ thuộc file biên dịch)"
+=== throw; (giữ nguyên) ===
+   at Program.FailDeep()
+   at Program.RethrowWithThrow()
+   ...
+=== throw ex; (bị reset) ===
+   at Program.RethrowWithThrowEx()
+   ...
+```
+
+Với `throw;`, dòng đầu tiên trong stack trace vẫn là `FailDeep()` — nơi lỗi thật sự xảy ra. Với `throw ex;`, dòng đầu tiên đã đổi thành `RethrowWithThrowEx()` — dòng `throw ex;` — nên khi debug production, bạn sẽ **không còn thấy** `FailDeep()` bị mất khỏi stack trace nữa, dễ chẩn đoán sai nguyên nhân gốc.
+
+**`ArgumentNullException.ThrowIfNull`**: helper tĩnh của .NET {{ dotnet.current }} ném `ArgumentNullException` một dòng nếu tham số là null, thay vì bạn tự viết `if (x is null) throw ...`.
+
+```csharp title="C#"
+// test:run
+static string Greet(string? name)
+{
+    ArgumentNullException.ThrowIfNull(name);
+    return $"Xin chào, {name}";
+}
+
+Console.WriteLine(Greet("An"));
+
+try
+{
+    Greet(null);
+}
+catch (ArgumentNullException e)
+{
+    Console.WriteLine($"Chặn null ở tham số: {e.ParamName}");
+}
+```
+
+```text title="Kết quả"
+Xin chào, An
+Chặn null ở tham số: name
+```
+
+`ArgumentNullException.ThrowIfNull` tự lấy tên tham số qua `CallerArgumentExpression`, nên bạn không phải gõ chuỗi `"name"` thủ công.
+
+**`ArgumentException.ThrowIfNullOrEmpty`**: helper tĩnh tương tự, nhưng ném `ArgumentException` nếu chuỗi là null **hoặc** rỗng (`""`).
+
+```csharp title="C#"
+// test:run
+static string BuildMessage(string message)
+{
+    ArgumentException.ThrowIfNullOrEmpty(message);
+    return $"Nội dung: {message}";
+}
+
+Console.WriteLine(BuildMessage("Xin chào"));
+
+try
+{
+    BuildMessage("");
+}
+catch (ArgumentException e)
+{
+    Console.WriteLine($"Chặn chuỗi rỗng ở tham số: {e.ParamName}");
+}
+```
+
+```text title="Kết quả"
+Nội dung: Xin chào
+Chặn chuỗi rỗng ở tham số: message
+```
+
+Kết hợp cả hai guard trong cùng một hàm khi tham số vừa cần khác null vừa cần khác rỗng:
 
 ```csharp title="C#"
 // test:run
@@ -171,8 +558,6 @@ catch (ArgumentNullException e)
 An: Xin chào
 Chặn null ở tham số: name
 ```
-
-`ArgumentNullException.ThrowIfNull` tự lấy tên tham số qua `CallerArgumentExpression`, nên bạn không phải gõ chuỗi `"name"` thủ công.
 
 **Quản lý tài nguyên với `using` / `IDisposable`** — `using` đảm bảo `Dispose()` được gọi kể cả khi có exception:
 
@@ -203,6 +588,40 @@ Dùng db-connection
 Đã ra khỏi khối using
 ```
 
+**Đối chứng — không dùng `using`:** nếu chỉ gọi trực tiếp mà không có `using` (hay `try`/`finally`), một exception ném ra giữa chừng sẽ khiến `Dispose()` **không bao giờ được gọi**:
+
+```csharp title="C#"
+// test:run
+try
+{
+    var res = new RiskyResource("db-connection");
+    res.UseAndFail(); // ném exception TRƯỚC khi có cơ hội gọi Dispose()
+    res.Dispose(); // KHÔNG BAO GIỜ chạy tới đây
+}
+catch (InvalidOperationException e)
+{
+    Console.WriteLine($"Bắt lỗi: {e.Message}");
+}
+
+Console.WriteLine("Kết thúc chương trình — để ý không có dòng 'Đóng' nào được in ra ở trên");
+
+sealed class RiskyResource : IDisposable
+{
+    private readonly string _name;
+    public RiskyResource(string name) { _name = name; Console.WriteLine($"Mở {_name}"); }
+    public void UseAndFail() => throw new InvalidOperationException($"Lỗi khi dùng {_name}");
+    public void Dispose() => Console.WriteLine($"Đóng {_name}");
+}
+```
+
+```text title="Kết quả"
+Mở db-connection
+Bắt lỗi: Lỗi khi dùng db-connection
+Kết thúc chương trình — để ý không có dòng 'Đóng' nào được in ra ở trên
+```
+
+So với ví dụ dùng `using` ở trên (luôn có dòng `Đóng db-connection`), ở đây **không hề có** dòng `Đóng db-connection` nào — tài nguyên bị rò rỉ vì `Dispose()` không được gọi khi exception cắt ngang luồng thực thi.
+
 **Custom exception** — kế thừa `Exception`, cung cấp các constructor chuẩn:
 
 ```csharp title="C#"
@@ -230,6 +649,37 @@ sealed class InsufficientFundsException : Exception
         => Shortfall = shortfall;
 }
 ```
+
+**Hậu quả khi làm sai — quên gọi `base(message)`:** nếu constructor không truyền message lên lớp cha, `Message` sẽ rơi về thông điệp mặc định chung chung của .NET thay vì mô tả lỗi nghiệp vụ của bạn:
+
+```csharp title="C#"
+// test:run
+try
+{
+    throw new BrokenException(42);
+}
+catch (BrokenException e)
+{
+    Console.WriteLine($"Message thực tế: '{e.Message}'");
+    Console.WriteLine($"Code vẫn giữ được: {e.Code}");
+}
+
+sealed class BrokenException : Exception
+{
+    public int Code { get; }
+    // QUÊN gọi base(message) -> Message không phản ánh lỗi thật
+    public BrokenException(int code) => Code = code;
+}
+```
+
+```text title="Kết quả"
+Message thực tế: 'Exception of type 'BrokenException' was thrown.'
+Code vẫn giữ được: 42
+```
+
+So với ví dụ `InsufficientFundsException` ở trên (có `: base($"Số dư không đủ...")`) — `Message` ở đó mô tả đúng lỗi nghiệp vụ, còn ở `BrokenException` thì `Message` vô nghĩa với người đọc log, dù property `Code` vẫn hoạt động bình thường.
+
+Ngoài ra, như sơ đồ phân cấp ở mục 1 đã cảnh báo: **đừng kế thừa `ApplicationException`** — nó là lớp di sản, không có ý nghĩa đặc biệt trong .NET hiện đại và không được BCL dùng nhất quán; hãy luôn kế thừa trực tiếp `Exception`.
 
 ## 3. Bài tập có giàn giáo
 
@@ -283,8 +733,70 @@ static int ParseAge(string input)
 - **Bắt càng cụ thể càng tốt.** Đặt `catch` cụ thể trước, `catch (Exception)` (nếu cần) sau cùng.
 - **Đừng bắt lỗi bạn không xử lý được.** `OutOfMemoryException`, `StackOverflowException` thường không nên bắt.
 - **Chi phí:** ném exception thu thập stack trace — chậm hơn nhiều so với trả về `bool`. Đừng dùng trong vòng lặp nóng.
-- **`using` declaration** (không cần dấu ngoặc): `using var conn = ...;` — dọn dẹp khi ra khỏi scope, gọn hơn.
 - **Bọc lỗi gốc** khi ném lại loại mới: `throw new MyException("...", inner)` để giữ `InnerException`.
+
+**`using` declaration**: cú pháp `using var x = ...;` không cần dấu ngoặc `{ }` — `Dispose()` tự động chạy khi biến ra khỏi **scope hiện tại** (thường là cuối phương thức hoặc khối chứa nó), thay vì cuối một khối `using (...) { }` tường minh.
+
+```csharp title="C#"
+// test:run
+DoWork();
+
+static void DoWork()
+{
+    using var res = new FakeResource("cache");
+    res.Use();
+    Console.WriteLine("Vẫn còn trong scope của DoWork...");
+} // Dispose() tự động gọi ở đây, cuối scope của DoWork
+
+sealed class FakeResource : IDisposable
+{
+    private readonly string _name;
+    public FakeResource(string name) { _name = name; Console.WriteLine($"Mở {_name}"); }
+    public void Use() => Console.WriteLine($"Dùng {_name}");
+    public void Dispose() => Console.WriteLine($"Đóng {_name}");
+}
+```
+
+```text title="Kết quả"
+Mở cache
+Dùng cache
+Vẫn còn trong scope của DoWork...
+Đóng cache
+```
+
+**Dùng sai — đặt `using var` nhầm chỗ khiến scope quá rộng:** vì không có dấu ngoặc để giới hạn phạm vi, nếu bạn khai báo `using var` ở đầu một phương thức dài, tài nguyên sẽ bị giữ mở cho tới hết phương thức đó thay vì đóng ngay sau đoạn code thực sự cần nó:
+
+```csharp title="C#"
+// test:run
+DoWorkBad();
+
+static void DoWorkBad()
+{
+    using var res = new FakeResource2("cache");
+    res.Use();
+
+    Console.WriteLine("Đang làm việc khác không liên quan tới 'cache'...");
+    Console.WriteLine("...vẫn chưa Dispose, dù đã dùng xong 'res' từ lâu...");
+} // Dispose() chỉ chạy ở ĐÂY -> "cache" bị giữ mở lâu hơn cần thiết
+
+sealed class FakeResource2 : IDisposable
+{
+    private readonly string _name;
+    public FakeResource2(string name) { _name = name; Console.WriteLine($"Mở {_name}"); }
+    public void Use() => Console.WriteLine($"Dùng {_name}");
+    public void Dispose() => Console.WriteLine($"Đóng {_name}");
+}
+```
+
+```text title="Kết quả"
+Mở cache
+Dùng cache
+Đang làm việc khác không liên quan tới 'cache'...
+...vẫn chưa Dispose, dù đã dùng xong 'res' từ lâu...
+Đóng cache
+```
+
+So sánh với `using (...) { }` tường minh: nếu muốn đóng tài nguyên sớm hơn cuối phương thức, hãy dùng khối `using (...) { }` có dấu ngoặc để giới hạn scope hẹp lại, thay vì `using var`.
 
 ## Tự kiểm tra
 
@@ -322,8 +834,57 @@ static int ParseAge(string input)
 
     Bộ lọc `when` được đánh giá **trước** khi stack unwind, nên debugger thấy trạng thái gốc — tốt hơn bắt rồi `throw;` lại.
 
-    **AggregateException:** khi nhiều task song song lỗi (`Task.WhenAll`), .NET gộp các exception vào một `AggregateException` với `InnerExceptions`. Dùng `ex.Flatten()` để duyệt phẳng.
+    **`AggregateException`:** khi nhiều tác vụ song song lỗi cùng lúc (ví dụ chạy nhiều `Task` rồi gọi `.Wait()`), .NET gộp tất cả exception con vào một `AggregateException` duy nhất thay vì chỉ ném exception đầu tiên.
 
-    **Async:** với `async`/`await`, exception được lưu trong `Task` và ném lại tại điểm `await`. Tránh `async void` (trừ event handler) vì exception không bắt được — hãy dùng `async Task`.
+    ```csharp title="C#"
+    // test:run
+    var t1 = Task.Run(() => throw new InvalidOperationException("lỗi 1"));
+    var t2 = Task.Run(() => throw new FormatException("lỗi 2"));
+
+    try
+    {
+        Task.WaitAll(t1, t2);
+    }
+    catch (AggregateException ex)
+    {
+        Console.WriteLine($"Số lỗi con: {ex.InnerExceptions.Count}");
+        foreach (var inner in ex.InnerExceptions)
+            Console.WriteLine($"- {inner.GetType().Name}: {inner.Message}");
+    }
+    ```
+
+    ```text title="Kết quả (thứ tự lỗi con có thể thay đổi giữa các lần chạy)"
+    Số lỗi con: 2
+    - InvalidOperationException: lỗi 1
+    - FormatException: lỗi 2
+    ```
+
+    Nếu chỉ viết `catch (InvalidOperationException)` ở đây, nó sẽ **không bắt được gì cả** — loại thực sự ném ra ở cấp ngoài luôn là `AggregateException`, dù bên trong có `InnerExceptions` thuộc loại khác nhau. Khi các `AggregateException` bị lồng nhau (task cha chứa task con), gọi `ex.Flatten()` để gộp tất cả về một danh sách `InnerExceptions` phẳng, dễ duyệt hơn là tự đệ quy qua từng cấp lồng.
+
+    **`async void` vs `async Task`:** với phương thức `async Task`, exception ném bên trong được lưu vào đối tượng `Task` và chỉ ném lại khi ai đó `await` nó — nên bạn bắt được bình thường bằng `try`/`catch`. Với `async void`, không có `Task` nào để lưu exception, nên nó ném thẳng lên context gọi (thường làm crash ứng dụng) và **không thể bắt bằng `try`/`catch` bao quanh lời gọi**.
+
+    ```csharp title="C#"
+    // test:run
+    try
+    {
+        await FailAsyncTask();
+    }
+    catch (InvalidOperationException e)
+    {
+        Console.WriteLine($"Bắt được từ async Task: {e.Message}");
+    }
+
+    static async Task FailAsyncTask()
+    {
+        await Task.Delay(1);
+        throw new InvalidOperationException("Lỗi trong async Task");
+    }
+    ```
+
+    ```text title="Kết quả"
+    Bắt được từ async Task: Lỗi trong async Task
+    ```
+
+    Ngược lại, bọc `try`/`catch` quanh lời gọi một `async void` **không** bắt được exception ném ra bên trong nó — vì `async void` không trả `Task` để `await`, exception thoát ra ngay khi hàm đang chạy (không đồng bộ với điểm gọi), khiến `catch` xung quanh lời gọi vô dụng. Vì lý do này, chỉ dùng `async void` cho event handler (nơi buộc phải có chữ ký `void`); mọi trường hợp khác hãy dùng `async Task`.
 
 Tiếp theo -> generics và collections

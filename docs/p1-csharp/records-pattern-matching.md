@@ -75,7 +75,7 @@ public sealed class Money
     public override bool Equals(object? obj) =>
         obj is Money m && m.Amount == Amount && m.Currency == Currency;
 
-    public override int GetHashCode() => HashCode.Combine(Amount, Currency);
+    public override int GetHashCode() => HashCode.Combine(Amount, Currency); // HashCode.Combine: hàm tiện ích trộn nhiều giá trị thành một mã băm (hash) duy nhất
 
     public static bool operator ==(Money? a, Money? b) => Equals(a, b);
     public static bool operator !=(Money? a, Money? b) => !Equals(a, b);
@@ -128,6 +128,7 @@ Console.WriteLine(p1.Equals(p3));       // False
 Console.WriteLine(p1.GetHashCode() == p2.GetHashCode()); // True — hash cũng bằng
 
 // hệ quả trực tiếp: dùng làm key trong HashSet/Dictionary "just works"
+// HashSet<T>: tập hợp không cho phần tử trùng, kiểm tra "đã có chưa" bằng Equals/GetHashCode
 var set = new HashSet<Person> { p1 };
 Console.WriteLine(set.Contains(p2));    // True — dù p2 là object khác
 
@@ -144,9 +145,24 @@ True
 
 **Vì sao** value equality quan trọng: với `class` thường, `HashSet` dùng reference equality nên `set.Contains(p2)` sẽ ra `False` (p2 là object khác). Record làm value object hoạt động đúng trong mọi collection dựa trên hash.
 
+### 2.1b Kế thừa record — cú pháp tối thiểu (chi tiết ở mục 2.7)
+
+Một `record` có thể **dẫn xuất** từ `record` khác bằng cú pháp `record Con(...) : Cha(...)`, giống gọi base constructor. Mục 2.7 sẽ đào sâu ngữ nghĩa; ở đây chỉ cần biết cú pháp tối thiểu để đọc ví dụ tiếp theo.
+
+```csharp title="Kế thừa record: cú pháp tối thiểu"
+// test:run
+var cat = new Cat("Miu", 3);
+Console.WriteLine(cat); // Cat { Name = Miu, Age = 3 }
+
+record Animal(string Name, int Age);
+record Cat(string Name, int Age) : Animal(Name, Age);
+```
+
 ### 2.2 `EqualityContract` — vì sao record khác class không thể "bằng"
 
 Compiler sinh một property ẩn `protected virtual Type EqualityContract => typeof(T);`. `Equals` **so cả `EqualityContract`** trước khi so nội dung. Hệ quả: hai record **khác kiểu** không bao giờ bằng nhau, kể cả nội dung giống hệt.
+
+Ví dụ dưới đây dùng lại cú pháp kế thừa record vừa giới thiệu ở mục 2.1b (`Cat`, `Dog` đều kế thừa `Animal`) để minh hoạ `EqualityContract`.
 
 ```csharp title="EqualityContract chặn so sánh chéo kiểu"
 // test:run
@@ -259,7 +275,7 @@ record Point(int X, int Y);
 ```
 
 !!! danger "Nominal record KHÔNG tự sinh Deconstruct"
-    Chỉ **positional** record (có tham số trong ngoặc) mới có `Deconstruct`. Nếu bạn viết `record Foo { public int A {get;init;} }` (nominal), `var (a) = foo;` sẽ **lỗi biên dịch** vì không có `Deconstruct`. Muốn có, bạn tự viết `public void Deconstruct(out int a) => a = A;`.
+    Chỉ **positional** record (có tham số trong ngoặc) mới có `Deconstruct`. Nếu bạn viết `record Foo { public int A {get;init;} public int B {get;init;} }` (nominal), `var (a, b) = foo;` sẽ **lỗi biên dịch** (`CS8129`: "No suitable Deconstruct instance or extension method was found") vì không có `Deconstruct`. Muốn có, bạn tự viết `public void Deconstruct(out int a, out int b) => (a, b) = (A, B);`.
 
 ### 2.7 Kế thừa giữa các record
 
@@ -306,7 +322,7 @@ False
 True
 ```
 
-**Cách sửa:** override `Equals`/`GetHashCode` để so theo phần tử, hoặc dùng kiểu collection có value equality như `ImmutableArray<T>` kết hợp comparer, hoặc bọc bằng một record với `IStructuralEquatable`. Cách gọn nhất là tự viết:
+**Cách sửa:** override `Equals`/`GetHashCode` để so theo phần tử. Cũng có các hướng khác như dùng `ImmutableArray<T>` kết hợp comparer, hoặc `IStructuralEquatable` — cả hai **ngoài phạm vi chương này, tự tìm hiểu thêm nếu cần**. Cách gọn nhất trong tầm tay ngay bây giờ là tự viết:
 
 ```csharp title="Sửa: so sánh mảng theo phần tử"
 // test:run
@@ -354,18 +370,6 @@ Console.WriteLine(c);              // Coord { X = 1, Y = 9 }
 record struct Coord(int X, int Y);
 ```
 
-**Khác biệt then chốt so với `record class`:**
-
-| Khía cạnh | `record class` | `record struct` | `readonly record struct` |
-|---|---|---|---|
-| Loại kiểu | tham chiếu (heap) | giá trị (stack/inline) | giá trị (stack/inline) |
-| Property positional sinh ra | `{ get; init; }` (bất biến) | `{ get; set; }` (**mutable!**) | `{ get; init; }` (bất biến) |
-| Kế thừa | có (record ↔ record) | **không** (struct không kế thừa) | **không** |
-| `null` hợp lệ? | có (kiểu tham chiếu) | không (cần `Nullable<T>`) | không |
-| Equality | so thành viên + `EqualityContract` | so thành viên (không EqualityContract) | so thành viên |
-| Cấp phát | 1 lần trên heap | không cấp phát heap | không cấp phát heap |
-| Toàn bộ struct bất biến | — | không (field vẫn ghi được) | **có** (`readonly` toàn bộ) |
-
 !!! danger "BẪY ít ai để ý: record struct MẶC ĐỊNH mutable"
     `record struct Coord(int X, int Y)` sinh property **`set`**, không phải `init`. Nghĩa là `var c = new Coord(1,2); c.X = 5;` **hợp lệ**. Điều này ngược với `record class` (sinh `init`). Nếu bạn muốn value object bất biến thật sự, dùng **`readonly record struct`** — nó ép mọi field `readonly` và property thành `init`.
 
@@ -382,6 +386,18 @@ Console.WriteLine(r.X);    // 1
 record struct MCoord(int X, int Y);
 readonly record struct RCoord(int X, int Y);
 ```
+
+**Khác biệt then chốt so với `record class`:**
+
+| Khía cạnh | `record class` | `record struct` | `readonly record struct` |
+|---|---|---|---|
+| Loại kiểu | tham chiếu (heap) | giá trị (stack/inline) | giá trị (stack/inline) |
+| Property positional sinh ra | `{ get; init; }` (bất biến) | `{ get; set; }` (**mutable!**) | `{ get; init; }` (bất biến) |
+| Kế thừa | có (record ↔ record) | **không** (struct không kế thừa) | **không** |
+| `null` hợp lệ? | có (kiểu tham chiếu) | không (cần `Nullable<T>`) | không |
+| Equality | so thành viên + `EqualityContract` | so thành viên (không EqualityContract) | so thành viên |
+| Cấp phát | 1 lần trên heap | không cấp phát heap | không cấp phát heap |
+| Toàn bộ struct bất biến | — | không (field vẫn ghi được) | **có** (`readonly` toàn bộ) |
 
 ### 3.2 positional vs nominal record
 
@@ -462,6 +478,8 @@ Console.WriteLine(Describe(3.14));     // một double nào đó
 
 `var x` khớp **mọi** giá trị (kể cả `null`) và gán vào `x` với kiểu suy luận. Hữu ích để "bắt" giá trị trung gian rồi dùng trong `when`.
 
+Ví dụ dưới dùng cú pháp **tuple** `(int a, int b)`: một kiểu dựng sẵn gộp nhiều giá trị có tên thành một "gói" nhẹ, không cần khai báo class/record riêng.
+
 ```csharp title="var pattern + when"
 // test:run
 static string Sign((int a, int b) t) => t switch
@@ -490,7 +508,7 @@ Console.WriteLine(y);         // 4
 
 static string Q(int n) => n switch
 {
-    > 0 => "dương",
+    > 0 => "dương",           // (cú pháp "> 0" là relational pattern, sẽ dạy đầy đủ ở mục 4.6 ngay sau)
     _ => "không dương"        // _ = default arm
 };
 Console.WriteLine(Q(-1));     // không dương
@@ -500,20 +518,54 @@ record Point(int X, int Y);
 
 ### 4.5 Property pattern (kể cả lồng)
 
-Khớp theo **giá trị property/field**. Có thể **lồng** để đào sâu vào object con.
+Khớp theo **giá trị property/field**. Trước tiên là dạng **phẳng** (đơn giản nhất): khớp trực tiếp một property của object đầu vào.
 
-```csharp title="Property pattern phẳng và LỒNG"
+```csharp title="Property pattern PHẲNG — khớp trực tiếp một property"
+// test:run
+var a = new Address("HN", "VN");
+
+static string Describe(Address addr) => addr switch
+{
+    { Country: "VN" } => "địa chỉ Việt Nam",
+    _ => "địa chỉ nước ngoài"
+};
+Console.WriteLine(Describe(a)); // địa chỉ Việt Nam
+
+record Address(string City, string Country);
+```
+
+Property pattern có thể **lồng** để đào sâu vào object con (property của property), thay vì phải viết `o.Customer.Address.Country == "VN"` bằng tay:
+
+```csharp title="Property pattern LỒNG"
 // test:run
 var order = new Order(new Customer("An", new Address("HN", "VN")), 500m);
 
 static string Ship(Order o) => o switch
 {
     // property pattern LỒNG: đào vào Customer.Address.Country
-    { Customer.Address.Country: "VN", Total: > 100m } => "nội địa, freeship",
     { Customer.Address.Country: "VN" } => "nội địa",
     _ => "quốc tế"
 };
-Console.WriteLine(Ship(order)); // nội địa, freeship
+Console.WriteLine(Ship(order)); // nội địa
+
+record Address(string City, string Country);
+record Customer(string Name, Address Address);
+record Order(Customer Customer, decimal Total);
+```
+
+Property pattern lồng cũng có thể kết hợp **nhiều property cùng lúc** trong một arm (mỗi property khớp một giá trị cụ thể):
+
+```csharp title="Property pattern LỒNG kết hợp nhiều property"
+// test:run
+var order = new Order(new Customer("An", new Address("HN", "VN")), 500m);
+
+static string Ship(Order o) => o switch
+{
+    { Customer.Address.Country: "VN", Customer.Address.City: "HN" } => "nội địa, Hà Nội",
+    { Customer.Address.Country: "VN" } => "nội địa",
+    _ => "quốc tế"
+};
+Console.WriteLine(Ship(order)); // nội địa, Hà Nội
 
 record Address(string City, string Country);
 record Customer(string Name, Address Address);
@@ -542,6 +594,25 @@ Console.WriteLine(Grade(72)); // C
 Console.WriteLine(Grade(40)); // F
 ```
 
+Relational pattern cũng **kết hợp được với property pattern lồng** ở mục 4.5, để vừa đào sâu vừa so khoảng giá trị trong cùng một arm:
+
+```csharp title="Property pattern LỒNG kết hợp relational pattern"
+// test:run
+var order = new Order(new Customer("An", new Address("HN", "VN")), 500m);
+
+static string Ship(Order o) => o switch
+{
+    { Customer.Address.Country: "VN", Total: > 100m } => "nội địa, freeship",
+    { Customer.Address.Country: "VN" } => "nội địa",
+    _ => "quốc tế"
+};
+Console.WriteLine(Ship(order)); // nội địa, freeship
+
+record Address(string City, string Country);
+record Customer(string Name, Address Address);
+record Order(Customer Customer, decimal Total);
+```
+
 ### 4.7 Positional pattern (deconstruct trong pattern)
 
 Khớp bằng cách **deconstruct** (từ record hoặc tuple hoặc kiểu có `Deconstruct`), rồi khớp từng vị trí.
@@ -566,15 +637,15 @@ record Point(int X, int Y);
 
 ### 4.8 Logical pattern: `and` / `or` / `not`
 
-Ghép các pattern con bằng logic. Độ ưu tiên: `not` > `and` > `or` (dùng ngoặc để rõ).
+Ghép các pattern con bằng logic. Độ ưu tiên: `not` > `and` > `or` (dùng ngoặc để rõ). Trước hết là `and`/`or` **đơn giản**, không lồng nhau:
 
-```csharp title="Logical pattern"
+```csharp title="Logical pattern and/or — đơn giản, chưa lồng"
 // test:run
 static string Temp(int c) => c switch
 {
-    < 0 or > 40 => "nguy hiểm",           // or
-    >= 18 and <= 26 => "dễ chịu",         // and — khoảng đóng
-    not (>= 18 and <= 26) => "chấp nhận được",
+    < 0 or > 40 => "nguy hiểm",           // or: một trong hai điều kiện
+    >= 18 and <= 26 => "dễ chịu",         // and: cả hai điều kiện — khoảng đóng
+    _ => "chấp nhận được"
 };
 Console.WriteLine(Temp(-5));  // nguy hiểm
 Console.WriteLine(Temp(22));  // dễ chịu
@@ -583,6 +654,21 @@ Console.WriteLine(Temp(35));  // chấp nhận được
 // not dùng thay cho != null rất gọn:
 object? o = "x";
 Console.WriteLine(o is not null); // True
+```
+
+`not` có thể **nhóm nhiều pattern con bằng ngoặc** — đây chính là **parenthesized pattern** (mục 4.10 sẽ dạy chi tiết cú pháp `( )`); ở đây tạm dùng để viết arm cuối tường minh thay cho `_`:
+
+```csharp title="Logical pattern: not kết hợp ngoặc (parenthesized pattern)"
+// test:run
+static string Temp2(int c) => c switch
+{
+    < 0 or > 40 => "nguy hiểm",
+    >= 18 and <= 26 => "dễ chịu",
+    not (>= 18 and <= 26) => "chấp nhận được", // not(...) thay cho _, rõ ý hơn
+};
+Console.WriteLine(Temp2(-5));  // nguy hiểm
+Console.WriteLine(Temp2(22));  // dễ chịu
+Console.WriteLine(Temp2(35));  // chấp nhận được
 ```
 
 !!! danger "`x is not null` an toàn hơn `x != null`"
@@ -650,6 +736,8 @@ Console.WriteLine(Weird(-1));  // True
 ### 5.1 Cú pháp arm, `when` guard, `_`
 
 `switch` **expression** trả về *giá trị* (khác `switch` *statement* cũ chỉ chạy lệnh). Mỗi **arm** là `pattern => biểu_thức`, phân tách bằng dấu phẩy. `when` thêm điều kiện boolean sau khi pattern khớp.
+
+Ví dụ dưới lại dùng **tuple** `(kind, age)` (đã giới thiệu ở mục 4.3) để gộp hai giá trị làm đầu vào cho `switch`.
 
 ```csharp title="switch expression đầy đủ arm + when + _"
 // test:run
@@ -750,6 +838,7 @@ Handle(1.5);     // khác
 
 ```csharp title="pattern trong while: lặp tới khi hết khớp"
 // test:run
+// Stack<T>: ngăn xếp vào-sau-ra-trước (LIFO) — Pop lấy phần tử vừa thêm gần nhất
 var stack = new Stack<int>(new[] { 1, 2, 3 });
 // TryPop trả (bool, out); nhưng minh hoạ pattern trong while bằng Count:
 while (stack is { Count: > 0 })          // property pattern trong điều kiện while
@@ -759,6 +848,8 @@ while (stack is { Count: > 0 })          // property pattern trong điều kiệ
 // in ra 3, 2, 1
 
 // ví dụ khác: đọc tới khi gặp null (giả lập)
+// Queue<T>: hàng đợi vào-trước-ra-trước (FIFO) — Dequeue lấy phần tử được thêm sớm nhất
+// Property pattern RỖNG "{ }" nghĩa là "khác null" (tương đương "is not null"), bất kể property nào bên trong:
 var queue = new Queue<string?>(new[] { "a", "b", null, "c" });
 while (queue.Count > 0 && queue.Dequeue() is { } item) // { } = "not null"
     Console.WriteLine(item);

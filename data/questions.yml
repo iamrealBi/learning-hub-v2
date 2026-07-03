@@ -100,8 +100,8 @@ questions:
 - id: oop-q6
   node: oop
   tier: fast
-  prompt: Interface có được chứa field lưu trữ dữ liệu không? Nếu class implement interface mà thiếu
-    một method thì chuyện gì xảy ra?
+  prompt: Interface có được chứa field lưu trữ dữ liệu không? Nếu class implement interface mà thiếu một
+    method thì chuyện gì xảy ra?
   answer: Không - interface chỉ khai báo chữ ký method/property, không có field lưu trữ. Nếu class thiếu
     implement một method, trình biên dịch báo lỗi CS0535 ngay lúc build.
 - id: oop-q7
@@ -677,9 +677,9 @@ questions:
   node: records-pattern-matching
   tier: fast
   prompt: Trong switch expression, đặt arm '> 0 =>' trước arm '> 100 =>' gây ra chuyện gì?
-  answer: Arm > 100 trở thành unreachable (không bao giờ chạy được) vì > 0 đã nuốt mọi số dương kể cả > 100.
-    Đây là LỖI BIÊN DỊCH CS8510 (không chỉ cảnh báo) - code sẽ không compile được. Phải xếp arm hẹp
-    (> 100) trước arm rộng (> 0).
+  answer: Arm > 100 trở thành unreachable (không bao giờ chạy được) vì > 0 đã nuốt mọi số dương kể cả
+    > 100. Đây là LỖI BIÊN DỊCH CS8510 (không chỉ cảnh báo) - code sẽ không compile được. Phải xếp arm
+    hẹp (> 100) trước arm rộng (> 0).
 - id: records-pattern-matching-q5
   node: records-pattern-matching
   tier: fast
@@ -844,3 +844,435 @@ questions:
   answer: IComparable<T> triển khai ngay trên kiểu để định nghĩa một thứ tự tự nhiên duy nhất. IComparer<T>
     là đối tượng so sánh tách biệt, truyền vào constructor của SortedSet/SortedDictionary/Sort, cho phép
     nhiều cách sắp xếp khác nhau. Bắt buộc dùng IComparer<T> khi kiểu khoá không do bạn viết (ví dụ string).
+- id: nen-tang-z01
+  node: nen-tang
+  tier: fast
+  prompt: Trong 'if (tuoi = 18) { ... }' với tuoi là int, điều gì xảy ra?
+  answer: 'Không biên dịch được — CS0029: không thể ngầm chuyển int (kết quả của phép gán ''='') sang
+    bool. Phải dùng ''=='' để so sánh.'
+- id: nen-tang-z02
+  node: nen-tang
+  tier: fast
+  prompt: Khác biệt cốt lõi giữa vòng lặp for và while là gì?
+  answer: for khai báo biến đếm, điều kiện, và bước cập nhật ngay trên một dòng (phù hợp khi biết trước
+    số lần lặp); while chỉ kiểm tra điều kiện trước mỗi vòng và người viết phải tự cập nhật biến điều
+    khiển bên trong thân vòng lặp (dễ quên, gây lặp vô hạn).
+- id: nen-tang-z03
+  node: nen-tang
+  tier: fast
+  prompt: out parameter dùng để làm gì, và tại sao 'int.TryParse("42", ketQua)' (thiếu out) không biên
+    dịch được?
+  answer: 'out cho phép method trả thêm giá trị ra ngoài qua tham số. Vì tham số đó được khai báo với
+    ''out'' trong chữ ký method, lời gọi bắt buộc phải lặp lại từ khoá ''out'' — thiếu nó gây lỗi CS1620:
+    Argument must be passed with the ''out'' keyword.'
+- id: nen-tang-z04
+  node: nen-tang
+  tier: fast
+  prompt: switch expression 'thu switch { 1 => "CN", 2 => "T2" }' (không có nhánh _) với thu là int có
+    biên dịch được không? Vì sao?
+  answer: Không — lỗi CS8509 (switch expression không exhaustive) vì hai nhánh liệt kê không bao phủ hết
+    mọi giá trị int có thể có. Cần thêm nhánh mặc định '_' để xử lý mọi giá trị còn lại.
+- id: nen-tang-z05
+  node: nen-tang
+  tier: fast
+  prompt: Console.WriteLine("Xin chào {ten}") (thiếu dấu $) in ra gì, và vì sao không phải là lỗi biên
+    dịch?
+  answer: In ra nguyên văn 'Xin chào {ten}' vì thiếu '$' nên chuỗi không được coi là interpolated string
+    — cặp {} chỉ là ký tự thường. Đây là lỗi hành vi (logic sai) chứ không phải lỗi biên dịch, vì cú pháp
+    chuỗi thường vẫn hợp lệ.
+- id: nen-tang-z06
+  node: nen-tang
+  tier: fast
+  prompt: Không dùng checked, 'int wrongSilently = int.MaxValue + 1;' cho kết quả gì, và khác gì so với
+    bọc trong checked(...)?
+  answer: Kết quả là -2147483648 (tràn số quấn vòng về âm) mà KHÔNG có bất kỳ lỗi hay cảnh báo nào lúc
+    chạy — vì mặc định C# dùng ngữ cảnh unchecked. Nếu bọc trong checked(int.MaxValue + 1), C# sẽ ném
+    OverflowException để bạn phát hiện tràn số ngay lập tức thay vì để nó âm thầm sai.
+- id: bo-nho-va-kieu-du-lieu-z01
+  node: bo-nho-va-kieu-du-lieu
+  tier: fast
+  prompt: struct và class khác nhau cơ bản ở điểm nào khi bạn gán một biến struct/class cho biến khác?
+  answer: struct là value type nên gán/truyền sẽ sao chép TOÀN BỘ giá trị (hai bản độc lập); class là
+    reference type nên gán/truyền chỉ sao chép THAM CHIẾU (hai tên cùng trỏ một object, sửa qua tên này
+    thấy ở tên kia).
+- id: bo-nho-va-kieu-du-lieu-z02
+  node: bo-nho-va-kieu-du-lieu
+  tier: fast
+  prompt: record struct Money(decimal Amount) khác gì so với một struct thường (vd struct Money { public
+    decimal Amount; }) về mặt so sánh bằng ==?
+  answer: record struct tự động sinh sẵn == (và Equals/GetHashCode) so sánh theo GIÁ TRỊ từng field, dùng
+    được ngay không cần code thêm. struct thường KHÔNG có sẵn == cho kiểu tự định nghĩa (viết p1 == p2
+    sẽ lỗi biên dịch), phải dùng .Equals() hoặc tự overload toán tử.
+- id: bo-nho-va-kieu-du-lieu-z03
+  node: bo-nho-va-kieu-du-lieu
+  tier: fast
+  prompt: Nếu một class cài đặt (implement) một interface nhưng thiếu một phương thức mà interface yêu
+    cầu, chuyện gì xảy ra và mã lỗi là gì?
+  answer: Trình biên dịch báo lỗi CS0535 ('does not implement interface member') ngay lúc build, không
+    đợi tới lúc chạy — vì interface là hợp đồng bắt buộc phải cài đặt đủ.
+- id: bo-nho-va-kieu-du-lieu-z04
+  node: bo-nho-va-kieu-du-lieu
+  tier: fast
+  prompt: Viết int x = null; (không có dấu ?) sẽ gây lỗi gì, và cách sửa là gì?
+  answer: 'Lỗi biên dịch CS0037 (''Cannot convert null to int because it is a non-nullable value type'')
+    vì int thường không được phép là null. Cách sửa: khai báo x là int? (Nullable<int>) thay vì int.'
+- id: bo-nho-va-kieu-du-lieu-z05
+  node: bo-nho-va-kieu-du-lieu
+  tier: fast
+  prompt: Tham số out dùng để làm gì, và nếu bên trong phương thức quên gán giá trị cho tham số out trước
+    khi kết thúc thì lỗi gì xảy ra?
+  answer: Tham số out cho phép phương thức 'trả thêm' một giá trị qua tham số đó (ngoài giá trị return
+    bình thường). Nếu quên gán giá trị cho nó trước khi hàm kết thúc, trình biên dịch báo lỗi CS0177 ('The
+    out parameter must be assigned before control leaves the current method').
+- id: bo-nho-va-kieu-du-lieu-z06
+  node: bo-nho-va-kieu-du-lieu
+  tier: fast
+  prompt: List<int> khác int[] (mảng) ở điểm nào khiến bạn chọn List<T> khi cần thêm phần tử dần dần?
+  answer: int[] có kích thước CỐ ĐỊNH ngay khi tạo, không thể Add thêm phần tử. List<T> là kiểu tham chiếu
+    trong thư viện chuẩn, tự động phình to khi gọi .Add(...), nên phù hợp khi số lượng phần tử chưa biết
+    trước hoặc thay đổi theo thời gian.
+- id: collections-linq-z01
+  node: collections-linq
+  tier: fast
+  prompt: LINQ là viết tắt của gì, và nó chạy được trên những kiểu nào?
+  answer: LINQ = Language Integrated Query, bộ toán tử chạy trên bất kỳ IEnumerable<T> nào (List<T>, Dictionary<K,V>,
+    HashSet<T>, mảng...) và cả IQueryable<T> (vd EF Core).
+- id: collections-linq-z02
+  node: collections-linq
+  tier: fast
+  prompt: Select khác Where ở điểm cốt lõi nào?
+  answer: Where lọc bớt phần tử (giữ số lượng <= nguồn) dựa trên điều kiện đúng/sai; Select biến đổi MỖI
+    phần tử thành giá trị mới nhưng giữ nguyên số lượng phần tử.
+- id: collections-linq-z03
+  node: collections-linq
+  tier: fast
+  prompt: GroupBy(x => x.Key) trả về gì cho mỗi nhóm, và làm sao lấy các phần tử trong một nhóm?
+  answer: Mỗi nhóm là một IGrouping có thuộc tính Key (giá trị khoá dùng để nhóm) và có thể duyệt (foreach/string.Join)
+    để lấy ra các phần tử thuộc nhóm đó.
+- id: collections-linq-z04
+  node: collections-linq
+  tier: fast
+  prompt: Aggregate (không seed) trên một mảng rỗng sẽ xảy ra chuyện gì, và vì sao?
+  answer: Ném InvalidOperationException, vì dạng không seed dùng phần tử đầu tiên của nguồn làm giá trị
+    tích luỹ khởi đầu — mảng rỗng không có phần tử nào để bắt đầu.
+- id: collections-linq-z05
+  node: collections-linq
+  tier: fast
+  prompt: Anonymous type (new { ... }) thường được dùng khi nào trong pipeline LINQ?
+  answer: Khi cần gom vài giá trị tạm thời (ví dụ trong Select sau GroupBy) mà không muốn định nghĩa hẳn
+    một class/record riêng cho việc đó.
+- id: collections-linq-z06
+  node: collections-linq
+  tier: fast
+  prompt: Vì sao gọi một hàm C# tuỳ ý (không dịch được sang SQL) bên trong lambda của một IQueryable<T>
+    lại gây lỗi lúc chạy?
+  answer: Vì lambda trên IQueryable được lưu dưới dạng expression tree để provider (vd EF Core) dịch sang
+    SQL; nếu hàm đó không có cách dịch tương ứng, provider ném NotSupportedException khi thực thi query.
+- id: async-await-z01
+  node: async-await
+  tier: fast
+  prompt: Sự khác biệt cốt lõi giữa Task và Task<T> là gì?
+  answer: Task đại diện cho một công việc bất đồng bộ sẽ hoàn tất nhưng không mang giá trị kết quả; Task<T>
+    cũng là một công việc bất đồng bộ nhưng khi hoàn tất sẽ mang theo một giá trị kiểu T, lấy được bằng
+    await.
+- id: async-await-z02
+  node: async-await
+  tier: fast
+  prompt: Đoạn code `Task<int> tuoi = LayTuoi(); int namSau = tuoi + 5;` bị lỗi biên dịch gì, và vì sao?
+  answer: Lỗi CS0029 (Cannot implicitly convert type 'Task<int>' to 'int'). Vì tuoi là đối tượng Task<int>
+    (cái 'lời hứa'), không phải giá trị int bên trong nó — phải await để lấy ra giá trị thật.
+- id: async-await-z03
+  node: async-await
+  tier: fast
+  prompt: Tại sao dùng await bên trong một method không đánh dấu async lại gây lỗi biên dịch, và mã lỗi
+    là gì?
+  answer: 'Vì await chỉ hợp lệ trong method async — trình biên dịch cần method đó là một state machine
+    bất đồng bộ để có thể tạm dừng/tiếp tục. Lỗi là CS4032: ''The await operator can only be used within
+    an async method''.'
+- id: async-await-z04
+  node: async-await
+  tier: fast
+  prompt: CancellationToken là gì, và tại sao gọi Cancel() trên CancellationTokenSource không tự động
+    dừng một Task.Delay nếu bạn quên truyền token vào?
+  answer: CancellationToken là tín hiệu hợp tác báo 'hãy dừng sớm'. Việc huỷ chỉ có tác dụng với các lời
+    gọi async NHẬN token đó làm tham số; nếu Task.Delay được gọi không kèm token, nó không hề biết token
+    đã bị huỷ nên vẫn chạy hết thời gian như bình thường — runtime không tự ép dừng code không được truyền
+    token.
+- id: async-await-z05
+  node: async-await
+  tier: fast
+  prompt: Vì sao viết await bên trong vòng foreach để gọi nhiều task I/O độc lập lại chậm hơn dùng Task.WhenAll,
+    dù cả hai đều không có lỗi biên dịch?
+  answer: Vì await trong foreach khiến mỗi vòng lặp phải chờ task hiện tại xong hẳn rồi mới khởi động
+    task cho phần tử kế tiếp (tuần tự, tổng thời gian cộng dồn). Trong khi đó, khởi động tất cả các task
+    trước (ví dụ qua Select) rồi mới await Task.WhenAll cho phép chúng chạy chồng thời gian song song,
+    nên tổng thời gian chỉ bằng thời gian của task lâu nhất.
+- id: async-await-z06
+  node: async-await
+  tier: fast
+  prompt: LINQ Select trong biểu thức `ids.Select(id => LayTrang(id))` trả về kiểu gì, và vì sao các task
+    bên trong đã 'chạy' ngay cả khi chưa await?
+  answer: Trả về IEnumerable<Task<string>> — một dãy các đối tượng Task, mỗi phần tử là một task ĐÃ được
+    khởi động. Điều này xảy ra vì gọi LayTrang(id) khiến method async đó chạy ngay lập tức tới điểm await
+    đầu tiên bên trong nó rồi trả về một Task đại diện cho phần còn lại, chứ không phải đợi Select mới
+    bắt đầu chạy.
+- id: generics-z01
+  node: generics
+  tier: fast
+  prompt: 'Khác biệt giữa `where T : class` và `where T : class?` là gì?'
+  answer: 'Cả hai đều buộc T là reference type. `class` coi T là non-nullable mặc định (gán null trực
+    tiếp cho tham số kiểu T sẽ phát sinh warning nullability trong ngữ cảnh #nullable enable). `class?`
+    nới lỏng để T có thể được xem là nullable reference (string?) ngay từ đầu, cho phép API generic nhận
+    cả string lẫn string? mà không bị cảnh báo.'
+- id: generics-z02
+  node: generics
+  tier: fast
+  prompt: Tại sao trước C# 13 không thể viết `static T Identity<T>(T value) => value;` rồi gọi `Identity(mySpan)`
+    với `mySpan` là `Span<int>`? Lỗi gì xảy ra?
+  answer: 'Vì ref struct (như Span<int>) trước C# 13 hoàn toàn bị cấm dùng làm đối số kiểu (type argument)
+    cho một tham số kiểu generic thông thường. Trình biên dịch báo lỗi CS0306 (''The type may not be used
+    as a type argument''). Phải thêm ràng buộc `where T : allows ref struct` để cho phép.'
+- id: generics-z03
+  node: generics
+  tier: fast
+  prompt: '`where T : allows ref struct` có tự động cho phép bạn gọi các member cụ thể của Span<T> (như
+    .Length) bên trong thân method generic không?'
+  answer: Không. `allows ref struct` chỉ gỡ bỏ lệnh cấm dùng ref struct làm T — nó không mở khoá member
+    nào. Muốn gọi member cụ thể của Span<T>, phải thiết kế API nhận thẳng Span<T> thay vì T chung chung,
+    hoặc thêm ràng buộc khác phù hợp.
+- id: generics-z04
+  node: generics
+  tier: fast
+  prompt: Trong bảng tổng kết ràng buộc ở mục 4.10, 4 dòng cuối (class?, Enum, Delegate, allows ref struct)
+    có vai trò gì, và bạn nên đọc phần nào tiếp theo nếu chưa từng gặp chúng?
+  answer: Bảng 4.10 chỉ đóng vai trò tra cứu nhanh / mục lục xem trước, không phải nơi dạy khái niệm lần
+    đầu. Nếu chưa từng gặp 4 ràng buộc đó, cần đọc mục 4.11 ngay sau — nơi mỗi ràng buộc có định nghĩa
+    và ví dụ chạy được đầy đủ.
+- id: generics-z05
+  node: generics
+  tier: fast
+  prompt: Nếu một lớp Order không implement IComparable<Order>, gọi `orders.Sort()` (không tham số) trên
+    `List<Order>` sẽ xảy ra chuyện gì — lỗi biên dịch hay lỗi runtime? Loại exception nào?
+  answer: Biên dịch OK (vì List<T>.Sort() không tham số không đòi hỏi ràng buộc IComparable<T> tại compile-time).
+    Lúc chạy, Comparer<T>.Default cố tìm IComparable<T>/IComparable trên T, không thấy sẽ ném InvalidOperationException.
+- id: generics-z06
+  node: generics
+  tier: fast
+  prompt: Nếu Person không implement IComparable<Person>, làm sao vẫn sắp xếp được một List<Person> mà
+    không phải sửa lớp Person?
+  answer: Truyền một IComparer<Person> riêng vào List<Person>.Sort(IComparer<T>), ví dụ một lớp ByNameComparer
+    implement IComparer<Person> với logic Compare tuỳ ý — không cần động vào định nghĩa lớp Person.
+- id: delegates-events-z01
+  node: delegates-events
+  tier: fast
+  prompt: Vì sao method `static string MakeString() => "x";` gán được vào biến `Func<object> makeObj =
+    MakeString;` dù kiểu trả về khai báo trên delegate là `object` còn method trả `string`? Đây gọi là
+    gì?
+  answer: 'Vì đây là return-type covariance: method được phép trả về một kiểu con (string) cụ thể hơn
+    kiểu trả về khai báo trên delegate (object), vì mọi string đều là một object hợp lệ nên luôn an toàn
+    kiểu khi dùng thay.'
+- id: delegates-events-z02
+  node: delegates-events
+  tier: fast
+  prompt: Đoạn code `Func<object> fObject = () => new object(); Func<string> fString = fObject;` có biên
+    dịch được không? Vì sao?
+  answer: Không biên dịch được (lỗi CS0029). Covariance của Func<out TResult> chỉ cho phép gán theo chiều
+    con sang cha (Func<string> gán được cho Func<object>), không được chiều ngược lại, vì một object bất
+    kỳ do fObject trả về không chắc chắn là string.
+- id: delegates-events-z03
+  node: delegates-events
+  tier: fast
+  prompt: Anonymous method là gì, và nó khác lambda ở điểm cú pháp nào?
+  answer: Anonymous method là một hàm không tên được định nghĩa ngay tại chỗ dùng bằng từ khoá delegate
+    kèm thân {}, ra đời ở C# 2.0 (ví dụ delegate (int x) { return x*x; }). Lambda (C# 3.0) làm cùng việc
+    nhưng gọn hơn, dùng cú pháp x => x*x, không cần từ khoá delegate.
+- id: delegates-events-z04
+  node: delegates-events
+  tier: fast
+  prompt: Lambda `(int x, int y = 10) => x + y` gọi bằng `withDefault(5)` cho kết quả gì, và tính năng
+    này có từ phiên bản C# nào?
+  answer: Kết quả là 15 (x=5, y dùng giá trị mặc định 10). Default parameter trong lambda là tính năng
+    của C# 12+.
+- id: delegates-events-z05
+  node: delegates-events
+  tier: fast
+  prompt: Viết một lambda dùng params để tính tổng số lượng tuỳ ý số nguyên, và cho biết gọi `sum()` không
+    truyền gì thì trả về bao nhiêu?
+  answer: var sum = (params int[] xs) => xs.Sum(); Gọi sum() (không truyền đối số) trả về 0 vì mảng xs
+    rỗng và Sum() của mảng rỗng là 0.
+- id: delegates-events-z06
+  node: delegates-events
+  tier: fast
+  prompt: Vì sao `var bad = (int x = 10, int y) => x + y;` không biên dịch được?
+  answer: Vì tham số có giá trị mặc định (x = 10) phải đứng sau mọi tham số bắt buộc, ở đây x có default
+    lại đứng trước y không có default nên trình biên dịch báo lỗi CS1737.
+- id: delegates-events-z07
+  node: delegates-events
+  tier: fast
+  prompt: init là gì, và điều gì xảy ra nếu bạn cố gán lại một property khai báo `{ get; init; }` sau
+    khi đối tượng đã được khởi tạo xong?
+  answer: init là một setter chỉ cho phép gán trong lúc khởi tạo đối tượng (object-initializer hoặc constructor),
+    có từ C# 9+. Nếu gán lại property đó sau khi đối tượng đã khởi tạo xong (ví dụ e.Attempted = 300m
+    sau khi e đã được new), trình biên dịch báo lỗi CS8852 (init-only property chỉ gán được lúc khởi tạo).
+- id: delegates-events-z08
+  node: delegates-events
+  tier: fast
+  prompt: Sau đoạn code `pipeline += A; pipeline += B; pipeline += C; pipeline -= null;`, GetInvocationList().Length
+    của pipeline là bao nhiêu? Giải thích vì sao.
+  answer: Vẫn là 3. -= chỉ gỡ một mục khớp hệt (cùng Target và Method) với toán hạng bên phải; null không
+    khớp với A, B hay C nào trong invocation list nên phép trừ không tìm thấy gì để gỡ, delegate giữ nguyên
+    cả 3 handler và không ném exception.
+- id: records-pattern-matching-z01
+  node: records-pattern-matching
+  tier: fast
+  prompt: HashSet<T> quyết định một phần tử "đã có trong tập hợp chưa" bằng cách nào, và tại sao điều
+    này khiến record hoạt động "just works" như key/phần tử trong HashSet nhưng class thường thì không?
+  answer: HashSet<T> dùng Equals/GetHashCode của phần tử để kiểm tra trùng lặp. Record tự sinh value equality
+    (so theo giá trị thành viên) nên hai record cùng nội dung được xem là trùng dù là hai object khác
+    nhau trên heap. Class thường mặc định dùng reference equality nên hai object khác địa chỉ luôn được
+    coi là khác nhau, dù nội dung giống hệt, khiến Contains trả về False một cách bất ngờ.
+- id: records-pattern-matching-z02
+  node: records-pattern-matching
+  tier: fast
+  prompt: 'Trong ví dụ mục 2.2, cú pháp `record Cat(string Name, int Age) : Animal(Name, Age)` thể hiện
+    điều gì, và mục nào trong chương sẽ dạy chi tiết cơ chế này?'
+  answer: 'Đây là cú pháp kế thừa record: Cat là một record dẫn xuất, kế thừa từ record Animal, và gọi
+    constructor của Animal với Name, Age. Mục 2.7 (Kế thừa giữa các record) dạy chi tiết cơ chế này, bao
+    gồm cách Equals/GetHashCode/PrintMembers được nối theo chuỗi kế thừa.'
+- id: records-pattern-matching-z03
+  node: records-pattern-matching
+  tier: fast
+  prompt: Cú pháp `(int a, int b)` làm tham số kiểu trong `static string Sign((int a, int b) t)` là gì,
+    và nó khác một record hay class ở điểm nào về mục đích sử dụng?
+  answer: Đó là kiểu tuple dựng sẵn của C#, gộp nhiều giá trị có tên (a, b) thành một "gói" nhẹ mà không
+    cần khai báo class/record riêng. Khác với record — vốn dùng để mô hình hoá một khái niệm nghiệp vụ
+    có tên riêng, có thể mở rộng property/method — tuple thường dùng cho nhóm giá trị tạm thời, cục bộ,
+    không cần định danh kiểu riêng.
+- id: records-pattern-matching-z04
+  node: records-pattern-matching
+  tier: fast
+  prompt: Theo chương này, nếu cần so sánh mảng theo phần tử trong record một cách "chuẩn thư viện" thay
+    vì tự viết Equals/GetHashCode, hai hướng nào được nhắc tới, và chúng có được dạy chi tiết trong chương
+    này không?
+  answer: Hai hướng được nhắc tới là dùng ImmutableArray<T> kết hợp comparer, hoặc bọc bằng IStructuralEquatable.
+    Cả hai được chương này gắn nhãn rõ là NGOÀI PHẠM VI chương — chỉ nêu tên để biết hướng tồn tại, người
+    học cần tự tìm hiểu thêm nếu muốn dùng; chương chỉ dạy chi tiết cách tự viết Equals/GetHashCode so
+    theo phần tử.
+- id: records-pattern-matching-z05
+  node: records-pattern-matching
+  tier: fast
+  prompt: Stack<T> và Queue<T> khác nhau ở thứ tự lấy phần tử ra như thế nào? Với `Stack<int>` chứa lần
+    lượt 1, 2, 3 (theo thứ tự thêm vào), gọi Pop ba lần sẽ ra thứ tự nào?
+  answer: 'Stack<T> là LIFO (vào sau ra trước): phần tử thêm vào gần nhất được lấy ra đầu tiên. Queue<T>
+    là FIFO (vào trước ra trước): phần tử thêm vào sớm nhất được lấy ra đầu tiên. Với Stack chứa 1, 2,
+    3 theo thứ tự đó, ba lần gọi Pop sẽ cho ra 3, 2, 1.'
+- id: records-pattern-matching-z06
+  node: records-pattern-matching
+  tier: fast
+  prompt: HashCode.Combine(Amount, Currency) trong ví dụ Money viết-tay dùng để làm gì, và tại sao nó
+    phải được giữ đồng bộ với Equals?
+  answer: 'HashCode.Combine là hàm tiện ích trộn nhiều giá trị (ở đây là Amount và Currency) thành một
+    mã băm (hash code) duy nhất cho object. Nó phải đồng bộ với Equals vì quy tắc bắt buộc của .NET: hai
+    object được Equals coi là bằng nhau thì PHẢI có cùng GetHashCode; nếu lệch, các cấu trúc dựa trên
+    hash như Dictionary/HashSet sẽ hoạt động sai (ví dụ không tìm thấy phần tử dù nó tồn tại).'
+- id: collections-z13
+  node: collections
+  tier: fast
+  prompt: Vì sao hàm chỉ cần đếm số phần tử của một collection (không sửa, không cần chỉ số) nên nhận
+    tham số kiểu IReadOnlyCollection<T> thay vì List<T>?
+  answer: IReadOnlyCollection<T> chỉ đòi hỏi caller cung cấp thứ gì đó có Count và duyệt được — rộng hơn
+    List<T> nhiều (nhận cả mảng, HashSet, ReadOnlyCollection...) và tự tài liệu hoá cam kết 'hàm không
+    sửa collection của caller'. Nhận List<T> khoá cứng kiểu cụ thể và ngầm cho phép hàm gọi Add/Remove/Clear
+    phá vỡ dữ liệu của caller.
+- id: collections-z14
+  node: collections
+  tier: fast
+  prompt: Trong 8 interface collection, interface nào cho phép đọc/ghi qua this[int] và interface nào
+    chỉ cho phép đọc qua this[int]? Nêu tên cụ thể.
+  answer: IList<T> cho phép đọc/ghi qua this[int] (đặt lại phần tử tại chỉ số). IReadOnlyList<T> chỉ cho
+    phép đọc qua this[int] — gán qua interface này (vd xs[0] = 9) sẽ không biên dịch vì indexer chỉ có
+    getter.
+- id: collections-z15
+  node: collections
+  tier: fast
+  prompt: Cho một Dictionary<SanPham,int> dùng comparer tự viết chỉ so theo trường Ma (không phân biệt
+    hoa/thường), tại sao GetHashCode(SanPham obj) phải băm theo Ma.ToUpperInvariant() chứ không phải băm
+    toàn bộ đối tượng?
+  answer: 'Vì phải tôn trọng hợp đồng Equals/GetHashCode: nếu Equals(a,b) trả true (hai Ma giống nhau
+    không phân biệt hoa/thường) thì GetHashCode(a) phải bằng GetHashCode(b). Nếu băm theo Ten hoặc toàn
+    bộ đối tượng, hai SanPham có Ma bằng nhau nhưng Ten khác nhau sẽ cho hash khác nhau, vi phạm hợp đồng
+    và làm ContainsKey/TryGetValue có thể trả sai (không tìm thấy phần tử dù Equals coi là bằng nhau).'
+- id: collections-z16
+  node: collections
+  tier: fast
+  prompt: Dùng SortedList<K,V> làm khoá với một class không cài IComparable<T> và không truyền IComparer<T>,
+    thêm phần tử thứ hai sẽ ném exception gì, và exception đó ở lớp SortedDictionary<K,V>/SortedSet<T>
+    có giống hệt không?
+  answer: 'SortedList<K,V> ném InvalidOperationException với message ''Failed to compare two elements
+    in the array'' (vì bên trong dùng Array.Sort/Array.BinarySearch). SortedDictionary<K,V> và SortedSet<T>
+    gặp cùng nguyên nhân (khoá không so sánh được) nhưng ném ArgumentException (''At least one object
+    must implement IComparable'') vì cây đỏ-đen bên trong gọi thẳng Comparer<T>.Default.Compare. Cách
+    sửa ở cả ba giống nhau: cài IComparable<T> lên khoá hoặc truyền IComparer<T>.'
+- id: collections-z17
+  node: collections
+  tier: fast
+  prompt: ConcurrentQueue<T>.TryDequeue và ConcurrentStack<T>.TryPop khác Queue<T>.Dequeue/Stack<T>.Pop
+    ở điểm nào khi collection rỗng?
+  answer: Queue<T>.Dequeue và Stack<T>.Pop ném InvalidOperationException khi rỗng. ConcurrentQueue<T>.TryDequeue
+    và ConcurrentStack<T>.TryPop không ném — chúng trả về bool (false nếu rỗng) và giá trị ra qua tham
+    số out, phù hợp với ngữ cảnh đa luồng nơi trạng thái rỗng/không-rỗng có thể đổi giữa lúc kiểm tra
+    và lúc lấy phần tử.
+- id: collections-z18
+  node: collections
+  tier: fast
+  prompt: SortedList<K,V> hỗ trợ truy cập theo index qua Keys[i] và Values[i] — SortedDictionary<K,V>
+    có hỗ trợ tương tự không? Vì sao?
+  answer: Không. SortedDictionary<K,V> bên trong là cây đỏ-đen (node liên kết qua con trỏ), không có mảng
+    liền khối để truy cập O(1) theo chỉ số như SortedList<K,V> (hai mảng song song khoá/giá trị). Muốn
+    lấy phần tử theo vị trí thứ i trong SortedDictionary phải duyệt O(n) hoặc chuyển sang cấu trúc khác.
+- id: exceptions-z01
+  node: exceptions
+  tier: fast
+  prompt: Nếu khối catch khai báo sai loại exception (không khớp loại thực sự được ném và cũng không phải
+    lớp cha của nó), điều gì xảy ra?
+  answer: Khối catch đó không chạy — exception tiếp tục bay lên (unwind) tìm catch phù hợp ở ngoài, nếu
+    không có catch nào phù hợp thì chương trình crash.
+- id: exceptions-z02
+  node: exceptions
+  tier: fast
+  prompt: 'So sánh stack trace: dùng throw; thì stack trace vẫn trỏ tới đâu, còn throw ex; thì trỏ tới
+    đâu?'
+  answer: throw; giữ nguyên stack trace, dòng đầu tiên vẫn là nơi lỗi thật sự phát sinh (ví dụ FailDeep()).
+    throw ex; reset stack trace, dòng đầu tiên trở thành chính dòng throw ex; đó, làm mất dấu vết nơi
+    lỗi gốc xảy ra.
+- id: exceptions-z03
+  node: exceptions
+  tier: fast
+  prompt: using var res = new X(); khác gì so với using (var res = new X()) { ... } về phạm vi (scope)
+    mà Dispose() được gọi?
+  answer: using var không có dấu ngoặc giới hạn — Dispose() chỉ chạy khi biến ra khỏi scope hiện tại (thường
+    là cuối phương thức/khối chứa nó), có thể giữ tài nguyên mở lâu hơn cần thiết. using (...) { } tường
+    minh cho phép giới hạn scope hẹp, đóng tài nguyên ngay khi ra khỏi khối.
+- id: exceptions-z04
+  node: exceptions
+  tier: fast
+  prompt: Khi nhiều Task chạy song song đều lỗi và bạn gọi Task.WaitAll(...), loại exception nào thực
+    sự được ném ra ở ngoài, và làm sao lấy được từng lỗi con?
+  answer: AggregateException được ném ra (không phải loại lỗi gốc của từng task). Dùng thuộc tính InnerExceptions
+    để lấy danh sách các exception con; nếu có AggregateException lồng nhau thì gọi ex.Flatten() để gộp
+    về danh sách phẳng.
+- id: exceptions-z05
+  node: exceptions
+  tier: fast
+  prompt: Vì sao try/catch bao quanh lời gọi một phương thức async void không bắt được exception ném ra
+    bên trong nó, trong khi async Task thì bắt được?
+  answer: Với async Task, exception được lưu vào đối tượng Task và chỉ ném lại khi có await, nên try/catch
+    quanh await bắt được bình thường. Với async void, không có Task nào lưu exception, lỗi ném thẳng ra
+    context gọi ngay khi hàm đang chạy (không đồng bộ với điểm gọi), nên try/catch bao quanh lời gọi không
+    có tác dụng.
+- id: exceptions-z06
+  node: exceptions
+  tier: fast
+  prompt: Nếu constructor của custom exception quên gọi base(message), thuộc tính Message sẽ trả về gì?
+  answer: Message sẽ rơi về thông điệp mặc định chung chung của .NET (dạng "Exception of type '...' was
+    thrown.") thay vì mô tả lỗi nghiệp vụ cụ thể mà bạn muốn truyền vào.

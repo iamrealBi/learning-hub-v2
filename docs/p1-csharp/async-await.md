@@ -5,7 +5,7 @@ owner: core-team
 verified_on: "2026-07-01"
 dotnet_version: "10.0"
 bloom: "Apply"
-requires: [p1-memory]
+requires: [p1-memory, p1-linq]
 est_minutes_fast: 30
 ---
 
@@ -36,21 +36,166 @@ B:  await Task.WhenAll(Delay1s, Delay1s, Delay1s);
 
 ---
 
-## 1. Ý niệm cốt lõi
+## 1. `Task`: lời hứa về một việc sẽ xong
 
-`Task` là **lời hứa (promise) về một kết quả sẽ có trong tương lai**. `Task` không trả giá trị; `Task<T>` hứa trả một `T`. Từ khoá `await` nói với runtime: *"tạm dừng phương thức này ở đây, trả thread về pool, và khi task xong thì tiếp tục từ đúng chỗ này."*
+**Định nghĩa:** `Task` là một đối tượng đại diện cho *một công việc đang chạy (hoặc sẽ chạy) và sẽ hoàn tất trong tương lai*, không mang theo giá trị kết quả.
 
-Điều quan trọng nhất: với I/O (đọc file, gọi HTTP, truy vấn DB), **không có thread nào đứng chờ**. Trong lúc chờ mạng/đĩa, thread được trả lại thread pool để phục vụ request khác. Đây là lý do async giúp server chịu tải cao — chứ không phải vì nó chạy nhanh hơn một tác vụ đơn lẻ.
+> Ghi chú: ví dụ dưới đây mượn tạm cú pháp `async`/`await` để minh hoạ `Task` — hai từ khoá này được dạy đầy đủ ở mục 3 và mục 4, tạm chấp nhận dùng trước.
 
-| Khái niệm | Ý nghĩa | Khi nào dùng |
-|---|---|---|
-| `Task` | Hứa "sẽ xong", không có kết quả | tác vụ async không trả giá trị |
-| `Task<T>` | Hứa "sẽ xong và trả về `T`" | tác vụ async trả giá trị |
-| `async` | Đánh dấu method có thể chứa `await` | mọi method chờ I/O |
-| `await` | Tạm dừng, trả thread, tiếp tục khi xong | điểm chờ trong method async |
-| `Task.WhenAll` | Chờ *tất cả* task xong | fan-out nhiều I/O độc lập |
-| `Task.WhenAny` | Chờ task *đầu tiên* xong | timeout, đua (race), lấy nhanh nhất |
-| `CancellationToken` | Tín hiệu "hãy dừng sớm" | huỷ khi timeout/user rời trang |
+```csharp title="task_toi_thieu.cs"
+// test:run
+async Task ChaoSauMotGiay()
+{
+    await Task.Delay(1000);
+    Console.WriteLine("Xong việc!");
+}
+
+await ChaoSauMotGiay();
+```
+
+Nếu bạn quên `await` và chỉ gọi `ChaoSauMotGiay();` suông, chương trình **không báo lỗi biên dịch** nhưng có thể kết thúc trước khi dòng "Xong việc!" kịp in ra — vì method tiếp tục chạy nền trong khi phần code sau nó đã chạy tiếp (đây là lỗi hành vi "fire-and-forget", không phải lỗi biên dịch).
+
+---
+
+## 2. `Task<T>`: lời hứa kèm theo một giá trị
+
+**Định nghĩa:** `Task<T>` là một `Task` nhưng khi hoàn tất sẽ mang theo một giá trị kiểu `T`, lấy được bằng `await`.
+
+> Ghi chú: ví dụ dưới đây vẫn mượn tạm `async`/`await` (dạy đầy đủ ở mục 3-4) để minh hoạ `Task<T>` — tạm chấp nhận dùng trước.
+
+```csharp title="task_generic_toi_thieu.cs"
+// test:run
+async Task<int> LayTuoi()
+{
+    await Task.Delay(500);
+    return 25;
+}
+
+int tuoi = await LayTuoi();
+Console.WriteLine($"Tuổi: {tuoi}");
+```
+
+**Dùng sai — quên `await`:** nếu viết `Task<int> tuoi = LayTuoi();` rồi đem `tuoi` đi cộng trừ như một `int`, trình biên dịch báo lỗi vì `Task<int>` không phải `int`:
+
+```csharp title="quen_await.cs"
+// test:skip minh hoạ lỗi biên dịch CS0019
+async Task<int> LayTuoi()
+{
+    await Task.Delay(500);
+    return 25;
+}
+
+Task<int> tuoi = LayTuoi();
+int namSau = tuoi + 5; // CS0019: Operator '+' cannot be applied to operands of type 'Task<int>' and 'int'
+```
+
+Bạn nhận được *đối tượng `Task<int>`* (cái "hứa"), không phải giá trị `25` (cái "kết quả") — phải `await` để mở lời hứa ra lấy giá trị bên trong.
+
+---
+
+## 3. `async`: đánh dấu method được phép chứa `await`
+
+**Định nghĩa:** `async` là từ khoá đặt trước method để cho phép method đó dùng `await` bên trong, và bảo trình biên dịch tự tạo ra một state machine chạy bất đồng bộ.
+
+```csharp title="async_toi_thieu.cs"
+// test:run
+async Task ChayViDu()
+{
+    await Task.Delay(300);
+    Console.WriteLine("Đã đợi 300ms rồi in ra dòng này");
+}
+
+await ChayViDu();
+```
+
+Một method không có `async` thì không được phép chứa `await` — xem mục 4 để thấy lỗi biên dịch cụ thể.
+
+**Dùng sai — `async void` khi nơi gọi cần `await` kết quả:** nếu method `async` trả `void` thay vì `Task`, nơi gọi **không thể `await`** nó — trình biên dịch báo lỗi vì `void` không có gì để chờ:
+
+```csharp title="async_void_khong_await_duoc.cs"
+// test:skip minh hoạ lỗi biên dịch CS4008 (không thể await kiểu void)
+async void ChayViDuSai() // SAI: nên trả Task, không phải void
+{
+    await Task.Delay(300);
+    Console.WriteLine("Đã đợi 300ms rồi in ra dòng này");
+}
+
+await ChayViDuSai(); // CS4008: Cannot await 'void'
+```
+
+Chỉ trả `Task`/`Task<T>` thì nơi gọi mới `await` được để biết khi nào việc xong (và bắt được exception nếu có — xem thêm hậu quả nghiêm trọng hơn của `async void` ở mục Cạm bẫy).
+
+---
+
+## 4. `await`: điểm tạm dừng chờ Task hoàn tất
+
+**Định nghĩa:** `await` là từ khoá đặt trước một `Task`/`Task<T>` để tạm dừng method tại đó, trả thread về pool, và tiếp tục chạy phần còn lại khi task xong.
+
+```csharp title="await_toi_thieu.cs"
+// test:run
+async Task InLoiChao()
+{
+    await Task.Delay(200);
+    Console.WriteLine("Chào bạn, sau 200ms");
+}
+
+await InLoiChao();
+```
+
+**Dùng sai — `await` trong method không `async`:** trình biên dịch báo lỗi **CS4033**.
+
+```csharp title="await_khong_async.cs"
+// test:skip minh hoạ lỗi biên dịch CS4033
+void ChayViDu()
+{
+    await Task.Delay(200); // CS4033: The 'await' operator can only be used within an async method. Consider marking this method with the 'async' modifier and changing its return type to 'Task'.
+    Console.WriteLine("Sẽ không bao giờ tới đây vì lỗi biên dịch");
+}
+```
+
+Muốn dùng `await`, method chứa nó bắt buộc phải có `async` (và trả `Task`, `Task<T>`, hoặc — chỉ cho event handler UI — `void`, xem mục Cạm bẫy).
+
+---
+
+## 5. `CancellationToken`: tín hiệu hợp tác để dừng sớm
+
+**Định nghĩa:** `CancellationToken` là một đối tượng đại diện cho tín hiệu "hãy dừng sớm", được truyền vào các API async để chúng biết khi nào nên huỷ giữa chừng.
+
+```csharp title="cancellationtoken_toi_thieu.cs"
+// test:run
+using var cts = new CancellationTokenSource();
+cts.CancelAfter(300); // sau 300ms, phát tín hiệu huỷ
+
+try
+{
+    await Task.Delay(2000, cts.Token); // truyền token vào đây
+    Console.WriteLine("Chạy xong bình thường");
+}
+catch (OperationCanceledException)
+{
+    Console.WriteLine("Đã bị huỷ trước khi kịp xong");
+}
+```
+
+**Dùng sai — quên truyền `ct` khiến `Cancel()` vô tác dụng:** nếu bạn tạo `CancellationTokenSource`, gọi `Cancel()`, nhưng *không* đưa `token` vào lời gọi async bên trong, task vẫn chạy tới cùng như chưa có gì xảy ra:
+
+```csharp title="quen_truyen_token.cs"
+// test:run
+using var cts = new CancellationTokenSource();
+cts.CancelAfter(100);
+
+// SAI: Task.Delay không nhận token, nên Cancel() không có tác dụng gì lên nó
+await Task.Delay(500); // KHÔNG truyền cts.Token
+Console.WriteLine("Vẫn chạy đủ 500ms dù đã Cancel ở 100ms — token bị 'nuốt'");
+```
+
+"Hợp tác" nghĩa là chính code async phải *chủ động* nhận và truyền `token` xuống — runtime không tự động ép dừng bất kỳ đoạn code nào chỉ vì token đã bị huỷ.
+
+---
+
+## 6. Ý niệm cốt lõi: vì sao `await` không tốn thread mới
+
+Với I/O (đọc file, gọi HTTP, truy vấn DB), **không có thread nào đứng chờ**. Trong lúc chờ mạng/đĩa, thread được trả lại thread pool để phục vụ request khác; khi I/O xong, hệ điều hành báo bằng callback và một thread (có thể khác thread ban đầu) được mượn lại để chạy tiếp phần sau `await`. Đây là lý do async giúp server chịu tải cao — chứ không phải vì nó chạy nhanh hơn một tác vụ đơn lẻ.
 
 ```mermaid
 sequenceDiagram
@@ -69,7 +214,60 @@ sequenceDiagram
 
 ---
 
-## 2. Ví dụ mẫu: tuần tự so với WhenAll
+## 7. `Task.WhenAll`: chờ nhiều Task cùng lúc
+
+**Định nghĩa:** `Task.WhenAll` nhận nhiều `Task`/`Task<T>` *đã được khởi động* và trả về một `Task` duy nhất, hoàn tất khi **tất cả** chúng hoàn tất.
+
+```csharp title="whenall_toi_thieu.cs"
+// test:run
+Task d1 = Task.Delay(300);
+Task d2 = Task.Delay(300);
+
+await Task.WhenAll(d1, d2); // chờ cả hai, chồng thời gian ~300ms chứ không phải ~600ms
+Console.WriteLine("Cả hai đã xong");
+```
+
+**Dùng sai — `await` tuần tự trong `foreach` làm mất tính song song:** đo bằng `Stopwatch` để thấy rõ chênh lệch.
+
+```csharp title="foreach_sai_vs_whenall_dung.cs"
+// test:run
+using System.Diagnostics;
+
+async Task<int> LayDuLieu(int id, int msTre)
+{
+    await Task.Delay(msTre);   // giả lập I/O (gọi mạng/DB), KHÔNG chiếm thread
+    return id * 10;
+}
+
+int[] ids = { 1, 2, 3 };
+
+// SAI: await bên trong foreach → mỗi vòng lặp CHỜ XONG rồi mới sang id kế tiếp (tuần tự)
+var swSai = Stopwatch.StartNew();
+var ketQuaSai = new List<int>();
+foreach (int id in ids)
+{
+    int kq = await LayDuLieu(id, 300); // khởi động rồi await ngay, không chồng thời gian được
+    ketQuaSai.Add(kq);
+}
+swSai.Stop();
+Console.WriteLine($"foreach + await tuần tự: tổng={ketQuaSai.Sum()}, ~{swSai.ElapsedMilliseconds / 100 * 100}ms");
+
+// ĐÚNG: khởi động cả ba TRƯỚC (chưa await), rồi mới WhenAll
+var swDung = Stopwatch.StartNew();
+Task<int>[] cacTask = ids.Select(id => LayDuLieu(id, 300)).ToArray();
+int[] ketQuaDung = await Task.WhenAll(cacTask);
+swDung.Stop();
+Console.WriteLine($"WhenAll song song: tổng={ketQuaDung.Sum()}, ~{swDung.ElapsedMilliseconds / 100 * 100}ms");
+```
+
+```text title="Kết quả"
+foreach + await tuần tự: tổng=60, ~900ms
+WhenAll song song: tổng=60, ~300ms
+```
+
+Lỗi ở đây không phải lỗi biên dịch — code `foreach` chạy đúng, chỉ **chậm gấp 3** một cách âm thầm vì mỗi `await id` chờ xong hẳn mới tạo task cho `id` kế tiếp.
+
+### 7.1. Ví dụ thực chiến: tuần tự so với WhenAll (A/B đầy đủ)
 
 ```csharp title="async_demo.cs"
 // test:run
@@ -110,7 +308,7 @@ Cùng một khối lượng việc: tuần tự tốn ~900ms (300×3), còn `Whe
 
 ---
 
-## 3. Bài tập có giàn giáo
+## 8. Bài tập có giàn giáo
 
 Viết hàm `TaiTatCa` nhận danh sách id, gọi `LayTrang(id)` (mỗi lần `await Task.Delay(200)` rồi trả `$"trang-{id}"`) cho *tất cả* id **song song thời gian**, và trả về mảng kết quả theo đúng thứ tự đầu vào.
 
@@ -126,6 +324,8 @@ async Task<string[]> TaiTatCa(int[] ids)
 ```
 
 ??? success "Lời giải + giải thích"
+    **`ids.Select(id => LayTrang(id))` là LINQ `Select`, trả về một `IEnumerable<Task<string>>`**: mỗi phần tử của dãy là *một `Task<string>` đã được khởi động* (không phải một chuỗi kết quả), vì `LayTrang` chạy ngay tới `await` đầu tiên rồi trả `Task` về cho `Select`.
+
     ```csharp title="loi_giai.cs"
     // test:run
     async Task<string> LayTrang(int id)
@@ -147,20 +347,13 @@ async Task<string[]> TaiTatCa(int[] ids)
     // In ra: trang-1, trang-2, trang-3   (mất ~200ms, không phải 600ms)
     ```
 
-    **Vì sao đúng:** `Select` khởi động cả ba task ngay khi duyệt (do `LayTrang` chạy tới `await` đầu tiên rồi trả `Task`). `WhenAll` chờ tất cả và **bảo toàn thứ tự** theo mảng task đầu vào, nên kết quả khớp thứ tự id. Nếu bạn `await` bên trong vòng `foreach` thay vì gom task, nó sẽ trở thành tuần tự (~600ms).
+    **Vì sao đúng:** `Select` khởi động cả ba task ngay khi duyệt (do `LayTrang` chạy tới `await` đầu tiên rồi trả `Task`). `WhenAll` chờ tất cả và **bảo toàn thứ tự** theo mảng task đầu vào, nên kết quả khớp thứ tự id. Nếu bạn `await` bên trong vòng `foreach` thay vì gom task (xem mục 7), nó sẽ trở thành tuần tự (~600ms).
 
 ---
 
-## 4. Cạm bẫy phải tránh
+## 9. `Task.WhenAny` — chờ task đầu tiên xong (mẫu timeout)
 
-!!! danger "Ba lỗi làm hỏng ứng dụng thật"
-    - **`async void`**: exception ném ra *không thể bắt* bằng `try/catch` ở nơi gọi → crash tiến trình. Chỉ dùng cho event handler UI. Mọi trường hợp khác: trả `Task` hoặc `Task<T>`.
-    - **`.Result` / `.Wait()`**: chặn (block) thread hiện tại để chờ task. Trong web/UI có SynchronizationContext, việc này gây **deadlock**; trong mọi ngữ cảnh nó gây **thread-pool starvation** (thread bị giam để chờ, pool cạn thread). Luôn `await`, đừng block.
-    - **Nuốt `CancellationToken`**: nhận token nhưng không truyền xuống lớp dưới → tác vụ không bao giờ huỷ được khi request bị huỷ.
-
-Quy tắc thực dụng: **"async cả đường" (async all the way)** — một khi có `await`, hãy để `Task` lan lên tận đỉnh; đừng cắt ngang bằng `.Result`.
-
-**CancellationToken (khái niệm):** một `CancellationToken` là *tín hiệu hợp tác* để yêu cầu dừng sớm. Bạn nhận nó làm tham số cuối và truyền vào các lời gọi async (`await Task.Delay(1000, ct)`, `httpClient.GetAsync(url, ct)`). Khi token bị huỷ, các API đó ném `OperationCanceledException`. "Hợp tác" nghĩa là code phải *chủ động* kiểm tra/truyền token — runtime không tự ép dừng.
+**Định nghĩa:** `Task.WhenAny` nhận nhiều `Task` và trả về một `Task` hoàn tất ngay khi **task đầu tiên** trong số đó hoàn tất, không chờ các task còn lại.
 
 ```csharp title="whenany_timeout.cs"
 // test:run
@@ -175,6 +368,83 @@ Console.WriteLine(xongTruoc == viec ? "Có kết quả" : "Timeout: quá 500ms")
 ```
 
 `WhenAny` trả về *task đầu tiên hoàn tất*, là mẫu kinh điển để làm timeout mà không block thread.
+
+**Dùng sai — quên xử lý các task còn lại sau khi `WhenAny` trả về:** `WhenAny` **không huỷ** các task chưa xong; chúng vẫn tiếp tục chạy nền. Nếu một trong số đó ném exception sau khi bạn đã "bỏ qua" nó, exception đó trở thành *unobserved task exception* — không ai `await` để bắt, và trong một số phiên bản .NET có thể làm sập tiến trình khi finalizer chạy:
+
+```csharp title="whenany_quen_xu_ly_task_con_lai.cs"
+// test:run
+async Task<string> GoiApiCoTheLoi()
+{
+    await Task.Delay(1000);
+    throw new InvalidOperationException("API lỗi sau 1 giây");
+}
+
+Task<string> viec = GoiApiCoTheLoi();
+Task hetGio = Task.Delay(300);
+
+Task xongTruoc = await Task.WhenAny(viec, hetGio);
+Console.WriteLine("Timeout: quá 300ms, bỏ qua 'viec' luôn");
+// SAI: "viec" vẫn chạy nền, sau 1s sẽ throw — không ai await nó để bắt exception
+// → unobserved task exception, khó debug vì không thấy log ngay tại đây
+
+await Task.Delay(1500); // chờ đủ lâu để thấy "viec" đã lỗi âm thầm phía sau
+```
+
+Cách sửa đúng: nếu không cần kết quả của task thua cuộc, vẫn nên `await` hoặc `ContinueWith` nó (kèm xử lý lỗi) để "quan sát" exception thay vì bỏ mặc, hoặc dùng `CancellationToken` để huỷ hẳn task đó khi đã hết giờ (xem mục 5).
+
+---
+
+## 10. Cạm bẫy phải tránh
+
+!!! danger "Ba lỗi làm hỏng ứng dụng thật"
+    - **`async void`**: exception ném ra *không thể bắt* bằng `try/catch` ở nơi gọi → crash tiến trình. Chỉ dùng cho event handler UI. Mọi trường hợp khác: trả `Task` hoặc `Task<T>`.
+    - **`.Result` / `.Wait()`**: chặn (block) thread hiện tại để chờ task. Trong web/UI có SynchronizationContext, việc này gây **deadlock**; trong mọi ngữ cảnh nó gây **thread-pool starvation** (thread bị giam để chờ, pool cạn thread). Luôn `await`, đừng block.
+    - **Nuốt `CancellationToken`**: nhận token nhưng không truyền xuống lớp dưới → tác vụ không bao giờ huỷ được khi request bị huỷ (xem ví dụ mục 5).
+
+**Minh hoạ `async void` nuốt exception:** `try/catch` bọc quanh lời gọi **không bắt được gì cả**, vì `async void` không trả `Task` để nơi gọi theo dõi — exception bay thẳng lên `SynchronizationContext`/thread pool và làm crash tiến trình thay vì nhảy vào `catch`:
+
+```csharp title="async_void_nuot_exception.cs"
+// test:skip minh hoạ hành vi crash tiến trình, không phù hợp chạy trong môi trường test tự động
+async void LamViecSai()
+{
+    await Task.Delay(100);
+    throw new InvalidOperationException("Lỗi bên trong async void");
+}
+
+try
+{
+    LamViecSai();
+    await Task.Delay(500); // đợi đủ lâu để thấy exception "trồi lên" ngoài try/catch
+    Console.WriteLine("Dòng này chạy được, nhưng exception ở trên KHÔNG bị bắt");
+}
+catch (Exception ex)
+{
+    // KHÔNG BAO GIỜ chạy tới đây: exception từ async void không đi qua catch này
+    Console.WriteLine($"Bắt được: {ex.Message}");
+}
+```
+
+**Minh hoạ `.Result` gây deadlock:** trong ngữ cảnh có `SynchronizationContext` (ví dụ ASP.NET (Framework) cũ, ứng dụng UI), gọi `.Result` từ thread đó trên một `Task` mà bên trong cũng cần quay lại đúng context ấy sẽ tự khoá nhau — thread chờ `.Result` xong, nhưng continuation sau `await` lại cần chính thread đó rảnh mới chạy được:
+
+```csharp title="result_deadlock_minh_hoa.cs"
+// test:skip minh hoạ deadlock chỉ xảy ra khi có SynchronizationContext (ASP.NET cũ/UI); môi trường console/test:run hiện đại không có context nên không treo, không minh hoạ được đúng hiện tượng
+// Giả định: đang chạy trong ngữ cảnh CÓ SynchronizationContext (vd. ASP.NET Framework, WinForms/WPF)
+async Task<string> LayDuLieuAsync()
+{
+    await Task.Delay(100); // sau khi await xong, cần quay lại SynchronizationContext ban đầu để chạy tiếp
+    return "dữ liệu";
+}
+
+// Gọi .Result trên chính thread sở hữu SynchronizationContext:
+string ketQua = LayDuLieuAsync().Result; // TREO VĨNH VIỄN (deadlock)
+// Lý do: .Result CHẶN thread hiện tại để chờ Task xong.
+// Nhưng phần code SAU "await Task.Delay(100)" cần được lập lịch CHẠY LẠI
+// trên chính thread đó (context ban đầu) — mà thread đó đang bị .Result giam giữ.
+// Hai bên chờ nhau vô thời hạn → deadlock.
+Console.WriteLine(ketQua); // không bao giờ tới được đây
+```
+
+Quy tắc thực dụng: **"async cả đường" (async all the way)** — một khi có `await`, hãy để `Task` lan lên tận đỉnh; đừng cắt ngang bằng `.Result`.
 
 ---
 
@@ -193,7 +463,7 @@ Console.WriteLine(xongTruoc == viec ? "Có kết quả" : "Timeout: quá 500ms")
 3. Vì sao nên tránh `task.Result` trong web app?
 
     ??? note "Đáp án"
-        Nó block thread để chờ, gây deadlock (khi có SynchronizationContext) hoặc thread-pool starvation. Dùng `await`.
+        `.Result` chặn (block) thread hiện tại để chờ Task xong. Nếu ngữ cảnh có `SynchronizationContext` (vd. ASP.NET Framework cũ, UI), phần code sau `await` bên trong Task cần quay lại đúng thread đó để chạy tiếp — nhưng thread đó đang bị `.Result` giam giữ → hai bên chờ nhau vô thời hạn (deadlock). Ở ngữ cảnh khác thì gây thread-pool starvation. Luôn dùng `await`.
 
 4. Khi nào dùng `WhenAny` thay vì `WhenAll`?
 
@@ -203,7 +473,7 @@ Console.WriteLine(xongTruoc == viec ? "Có kết quả" : "Timeout: quá 500ms")
 5. `async void` sai ở chỗ nào, ngoại lệ duy nhất được phép là gì?
 
     ??? note "Đáp án"
-        Exception từ `async void` không bắt được ở nơi gọi → crash. Chỉ chấp nhận cho event handler UI; mọi chỗ khác trả `Task`/`Task<T>`.
+        `async void` không trả `Task`, nên nơi gọi không có gì để `await` hay theo dõi — kể cả bọc `try/catch` quanh lời gọi cũng **không bắt được** exception ném ra bên trong, vì nó bay thẳng ra ngoài luồng thực thi bình thường và làm crash tiến trình. Chỉ chấp nhận cho event handler UI (framework tự xử lý exception dạng đó); mọi chỗ khác trả `Task`/`Task<T>`.
 
 ---
 

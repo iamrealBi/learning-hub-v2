@@ -69,7 +69,7 @@ phases:
           requires: [p1-collections] }
       - { id: p1-async, file: p1-csharp/async-await.md, tier: fast, status: core, owner: core-team,
           objective: "Giải thích async/await qua state machine; tránh async void & deadlock",
-          requires: [p1-memory] }
+          requires: [p1-memory, p1-linq] }
       - { id: p1-exceptions, file: p1-csharp/exceptions.md, tier: fast, status: core, owner: core-team,
           objective: "Xử lý ngoại lệ đúng chỗ; phân biệt throw vs throw ex; tránh dùng exception cho control-flow",
           requires: [p1-nen-tang] }
