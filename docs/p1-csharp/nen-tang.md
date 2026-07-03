@@ -20,6 +20,40 @@ est_minutes_fast: 30
 
 ---
 
+## Bối cảnh: .NET và C# đến từ đâu?
+
+Trước khi học cú pháp, biết **vì sao** nền tảng này tồn tại giúp các quyết định thiết kế (vì sao có cả .NET Framework lẫn .NET, vì sao version nhảy từ 4 lên 5...) trở nên có lý do, không phải học vẹt.
+
+**2000-2002 — Khởi đầu:** Microsoft công bố .NET tại hội nghị PDC năm 2000, rồi phát hành **.NET Framework 1.0** cùng **C# 1.0** vào năm 2002. Kiến trúc sư trưởng của C# là **Anders Hejlsberg** — trước đó ông đã tạo ra Turbo Pascal và là kiến trúc sư trưởng của Delphi tại Borland (sau này ông cũng dẫn dắt TypeScript). .NET Framework ban đầu **chỉ chạy trên Windows** và **không mã nguồn mở**.
+
+**2005-2012 — C# trưởng thành dần:** C# 2.0 (2005) thêm generic; C# 3.0 (2007) thêm LINQ và lambda — thay đổi lớn nhất giai đoạn này; C# 4.0 (2010) thêm `dynamic`; C# 5.0 (2012) thêm `async`/`await`.
+
+**2014-2016 — Bước ngoặt: mở mã nguồn và đa nền tảng.** Dưới thời CEO mới Satya Nadella, Microsoft đổi chiến lược sang mã nguồn mở. Năm 2014, .NET được mở mã nguồn. Năm 2016, Microsoft phát hành **.NET Core 1.0** — viết lại gần như từ đầu, chạy được trên Windows, Linux, macOS. Lý do: cạnh tranh với Java (vốn đa nền tảng từ đầu) và nhu cầu chạy .NET trên server Linux/cloud ngày càng lớn.
+
+**2016-2020 — Hai nhánh song song:** .NET Framework (Windows-only) và .NET Core (đa nền tảng) tồn tại **song song** nhiều năm. .NET Framework dừng lại ở bản **4.8** (2019) — đây là bản cuối cùng, giờ chỉ bảo trì, không thêm tính năng mới.
+
+**2020 — Hợp nhất:** Microsoft phát hành **.NET 5**, hợp nhất .NET Core, .NET Framework, Xamarin, Mono thành **một .NET duy nhất**, bỏ chữ "Core" khỏi tên. Version **nhảy từ 3.1 (.NET Core) thẳng lên 5** — cố tình bỏ qua số 4 để không gây nhầm với .NET Framework 4.x. C# 9 (records) ra mắt cùng đợt này.
+
+**Từ 2020 đến nay — nhịp phát hành hằng năm (tháng 11):** phiên bản **chẵn** là LTS (hỗ trợ dài hạn, 3 năm): .NET 6 (2021), .NET 8 (2023), .NET {{ dotnet.current }} (bản LTS hiện hành). Phiên bản **lẻ** là STS (hỗ trợ ngắn hơn, ~18 tháng): .NET 7 (2022), .NET 9 (2024). C# đi cùng nhịp: C# 10 (2021), C# 11 (2022, raw string, generic math), C# 12 (2023, primary constructor, collection expression), C# 13 (2024), **C# {{ csharp.version }}** (hiện hành).
+
+```mermaid
+timeline
+    title Dòng thời gian .NET
+    2002 : .NET Framework 1.0 + C# 1.0 (chỉ Windows)
+    2007 : C# 3.0 — LINQ, lambda
+    2012 : C# 5.0 — async/await
+    2014 : Mở mã nguồn
+    2016 : .NET Core 1.0 — đa nền tảng
+    2019 : .NET Framework 4.8 (bản cuối)
+    2020 : .NET 5 — hợp nhất, bỏ chữ "Core"
+    2026 : .NET {{ dotnet.current }} — LTS hiện hành
+```
+
+!!! tip "Vì sao nên biết chuyện này"
+    Khi gặp code cũ hoặc tài liệu nói ".NET Framework", giờ bạn biết đó là nhánh Windows-only cũ (dừng ở 4.8), khác với ".NET" hiện tại (đa nền tảng, phát hành hằng năm). Đây cũng là lý do các tài liệu lỗi thời hay nhầm ".NET Core" với ".NET" — từ .NET 5 trở đi, chúng là **một**.
+
+---
+
 ## 0. Kiểm tra trước (30 giây) — bạn đoán output là gì?
 
 Đọc đoạn dưới và **tự đoán** in ra gì *trước khi* chạy. Sai lúc này giúp nhớ lâu hơn (desirable difficulty). Đoạn này chỉ dùng phép gán và `Console.WriteLine` — chưa cần biết gì thêm.
