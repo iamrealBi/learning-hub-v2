@@ -77,10 +77,39 @@ phases:
   - id: P2
     title: "Dữ liệu — SQL & EF Core"
     nodes:
-      - { id: p2-sql, file: p2-du-lieu/sql-nen-tang.md, tier: fast, status: draft, owner: core-team,
-          objective: "Viết truy vấn JOIN/GROUP BY đúng trên PostgreSQL", requires: [p1-memory] }
-      - { id: p2-ef, file: p2-du-lieu/ef-core-truy-van.md, tier: fast, status: draft, owner: core-team,
-          objective: "Map domain sang EF Core, tránh N+1", requires: [p2-sql] }
+      - { id: p2-sql, file: p2-du-lieu/sql-nen-tang.md, tier: fast, status: core, owner: core-team,
+          objective: "Viết đúng SELECT/WHERE/ORDER BY/LIMIT, chọn đúng kiểu PostgreSQL, hiểu NULL ba-trị",
+          requires: [p1-nen-tang] }
+      - { id: p2-loc-nang-cao, file: p2-du-lieu/loc-nang-cao.md, tier: fast, status: core, owner: core-team,
+          objective: "Dùng đúng LIKE/ILIKE, IN/NOT IN (và bẫy NULL), CASE, COALESCE/NULLIF",
+          requires: [p2-sql] }
+      - { id: p2-constraints, file: p2-du-lieu/constraints.md, tier: fast, status: core, owner: core-team,
+          objective: "Áp dụng đúng PK/FK/UNIQUE/CHECK, hiểu B-tree (không phải Hash) cho PK",
+          requires: [p2-sql] }
+      - { id: p2-thiet-ke-schema, file: p2-du-lieu/thiet-ke-schema.md, tier: fast, status: core, owner: core-team,
+          objective: "Chuẩn hoá 1NF-3NF, chọn đúng loại khoá, thiết kế quan hệ 1-1/1-N/N-N",
+          requires: [p2-constraints] }
+      - { id: p2-index-transaction, file: p2-du-lieu/index-transaction.md, tier: fast, status: core, owner: core-team,
+          objective: "Giải thích index B-tree, dùng transaction đúng, phân biệt mức isolation",
+          requires: [p2-thiet-ke-schema] }
+      - { id: p2-joins-aggregation, file: p2-du-lieu/joins-aggregation.md, tier: fast, status: core, owner: core-team,
+          objective: "Viết đúng INNER/LEFT/RIGHT/FULL JOIN, GROUP BY/HAVING, anti-join",
+          requires: [p2-loc-nang-cao] }
+      - { id: p2-subquery-cte, file: p2-du-lieu/subquery-cte.md, tier: fast, status: core, owner: core-team,
+          objective: "Viết subquery/CTE đúng, phân biệt EXISTS vs IN, recursive CTE",
+          requires: [p2-joins-aggregation] }
+      - { id: p2-window-functions, file: p2-du-lieu/window-functions.md, tier: fast, status: core, owner: core-team,
+          objective: "Dùng ROW_NUMBER/RANK/LAG/LEAD với OVER/PARTITION BY",
+          requires: [p2-subquery-cte] }
+      - { id: p2-ef, file: p2-du-lieu/ef-core.md, tier: fast, status: core, owner: core-team,
+          objective: "Map domain sang EF Core qua DbContext/DbSet, truy vấn LINQ dịch sang SQL",
+          requires: [p2-index-transaction, p2-window-functions] }
+      - { id: p2-ef-quan-he, file: p2-du-lieu/ef-core-quan-he.md, tier: fast, status: core, owner: core-team,
+          objective: "Cấu hình navigation property, nhận diện và tránh N+1 query",
+          requires: [p2-ef] }
+      - { id: p2-ef-migration, file: p2-du-lieu/ef-core-migration.md, tier: fast, status: core, owner: core-team,
+          objective: "Quản lý schema qua migration, seed dữ liệu, rollback an toàn",
+          requires: [p2-ef-quan-he] }
 
   - id: P3
     title: "ASP.NET Core Web API"

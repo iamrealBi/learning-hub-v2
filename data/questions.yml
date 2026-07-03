@@ -168,29 +168,50 @@ questions:
 - id: sql-nen-tang-q1
   node: sql-nen-tang
   tier: fast
+  prompt: Vì sao SQL được gọi là ngôn ngữ khai báo (declarative)?
+  answer: Bạn chỉ mô tả muốn dữ liệu gì, không mô tả cách lấy từng bước; PostgreSQL (query planner) tự
+    quyết định cách thực thi tối ưu.
+- id: sql-nen-tang-q2
+  node: sql-nen-tang
+  tier: fast
   prompt: Trong câu SELECT price * 2 AS gia_doi FROM products WHERE gia_doi > 100 — câu này lỗi. Vì sao?
   answer: Alias gia_doi tạo ở bước SELECT nhưng WHERE chạy trước SELECT nên alias chưa tồn tại; phải viết
     WHERE price * 2 > 100.
-- id: sql-nen-tang-q2
+- id: sql-nen-tang-q3
   node: sql-nen-tang
   tier: fast
   prompt: SELECT count(*) FROM users WHERE age <> 30 với An=30, Bình=NULL, Cường=25 trả về mấy?
   answer: 1 (chỉ Cường); dòng Bình có age NULL nên NULL <> 30 là UNKNOWN, bị loại.
-- id: sql-nen-tang-q3
-  node: sql-nen-tang
-  tier: fast
-  prompt: Nên dùng gì thay cho serial khi tạo cột khoá chính tự tăng, và tại sao?
-  answer: GENERATED ALWAYS AS IDENTITY — theo chuẩn SQL, chống ghi đè id vô ý, quản lý sequence gọn hơn.
 - id: sql-nen-tang-q4
   node: sql-nen-tang
   tier: fast
-  prompt: Kiểu nào phù hợp lưu số tiền 450000.00 để tránh sai số?
-  answer: numeric(p,s) ví dụ numeric(10,2); không dùng float/double vì làm tròn nhị phân.
+  prompt: Kiểu nào phù hợp lưu số tiền 450000.50, và tại sao không dùng float/double precision?
+  answer: numeric(p,s) ví dụ numeric(10,2); float/double là dấu phẩy động nhị phân, không chính xác tuyệt
+    đối nên gây sai số tích luỹ với tiền tệ.
 - id: sql-nen-tang-q5
   node: sql-nen-tang
   tier: fast
-  prompt: Thứ tự thực thi logic đúng của FROM, WHERE, GROUP BY, HAVING, SELECT, ORDER BY, LIMIT là gì?
-  answer: FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT/OFFSET.
+  prompt: Khác nhau giữa serial và GENERATED ALWAYS AS IDENTITY, vì sao nên ưu tiên cái sau?
+  answer: serial cho phép ghi đè giá trị khoá chính âm thầm; GENERATED ALWAYS AS IDENTITY là identity
+    column chuẩn SQL, chặn ghi đè vô ý trừ khi dùng OVERRIDING SYSTEM VALUE.
+- id: sql-nen-tang-q6
+  node: sql-nen-tang
+  tier: fast
+  prompt: Câu UPDATE products SET price = 0; (không có WHERE) có báo lỗi không, điều gì xảy ra?
+  answer: Không báo lỗi; sửa giá của toàn bộ dòng trong bảng thành 0 vì thiếu WHERE nghĩa là áp dụng cho
+    mọi dòng — lỗi logic chứ không phải lỗi cú pháp.
+- id: sql-nen-tang-q7
+  node: sql-nen-tang
+  tier: fast
+  prompt: Thứ tự thực thi logic của FROM, WHERE, SELECT, ORDER BY, LIMIT (chưa tính GROUP BY/HAVING) là
+    gì?
+  answer: FROM → WHERE → SELECT → ORDER BY → LIMIT/OFFSET.
+- id: sql-nen-tang-q8
+  node: sql-nen-tang
+  tier: fast
+  prompt: Vì sao SELECT * FROM demo_null WHERE stock = NULL; luôn trả về 0 dòng, cách viết đúng là gì?
+  answer: stock = NULL luôn cho UNKNOWN chứ không bao giờ TRUE, kể cả khi stock thực sự NULL; phải dùng
+    WHERE stock IS NULL.
 - id: joins-aggregation-q1
   node: joins-aggregation
   tier: fast
@@ -1276,3 +1297,514 @@ questions:
   prompt: Nếu constructor của custom exception quên gọi base(message), thuộc tính Message sẽ trả về gì?
   answer: Message sẽ rơi về thông điệp mặc định chung chung của .NET (dạng "Exception of type '...' was
     thrown.") thay vì mô tả lỗi nghiệp vụ cụ thể mà bạn muốn truyền vào.
+- id: loc-nang-cao-q1
+  node: loc-nang-cao
+  tier: fast
+  prompt: SELECT * FROM t WHERE col NOT IN (1, 2, NULL); trả về bao nhiêu dòng bất kể col là gì?
+  answer: 0 dòng. NOT IN giãn thành col<>1 AND col<>2 AND col<>NULL; vế cuối luôn UNKNOWN, và UNKNOWN
+    lan trong AND khiến toàn bộ biểu thức không bao giờ TRUE.
+- id: loc-nang-cao-q2
+  node: loc-nang-cao
+  tier: fast
+  prompt: Khác biệt giữa LIKE và ILIKE là gì?
+  answer: LIKE phân biệt hoa/thường; ILIKE (chỉ có ở PostgreSQL) không phân biệt hoa/thường. Cả hai dùng
+    % (0+ ký tự) và _ (đúng 1 ký tự) làm đại diện.
+- id: loc-nang-cao-q3
+  node: loc-nang-cao
+  tier: fast
+  prompt: SELECT price BETWEEN 300 AND 200; có báo lỗi cú pháp không? Kết quả là gì?
+  answer: Không báo lỗi cú pháp. BETWEEN a AND b giãn thành x>=a AND x<=b; với a=300,b=200 không giá trị
+    nào thoả cả hai nên kết quả luôn FALSE (0 dòng) — lỗi logic âm thầm.
+- id: loc-nang-cao-q4
+  node: loc-nang-cao
+  tier: fast
+  prompt: COALESCE và NULLIF khác nhau ở điểm nào?
+  answer: COALESCE(v1,...,vn) trả giá trị khác NULL đầu tiên (thay NULL bằng giá trị khác). NULLIF(a,b)
+    trả NULL nếu a=b, ngược lại trả a (biến một giá trị cụ thể thành NULL, ví dụ tránh chia cho 0).
+- id: loc-nang-cao-q5
+  node: loc-nang-cao
+  tier: fast
+  prompt: Vì sao SELECT total / count_ FROM stats; có thể ném lỗi runtime, và cách phòng tránh?
+  answer: Nếu count_ = 0, phép chia ném lỗi division by zero lúc thực thi. Phòng tránh bằng total / NULLIF(count_,
+    0) — khi count_=0, NULLIF trả NULL và chia cho NULL cho kết quả NULL thay vì lỗi.
+- id: loc-nang-cao-q6
+  node: loc-nang-cao
+  tier: fast
+  prompt: SELECT DISTINCT city, country FROM visits; loại trùng theo cột nào?
+  answer: Theo tổ hợp cả hai cột (city, country) — hai dòng chỉ coi là trùng khi cả city VÀ country giống
+    hệt nhau, không lọc trùng riêng từng cột.
+- id: loc-nang-cao-q7
+  node: loc-nang-cao
+  tier: fast
+  prompt: Toán tử ~ khác LIKE ở điểm cốt lõi nào, và khi nào nên chọn ~?
+  answer: ~ khớp theo biểu thức chính quy (regex), mạnh hơn nhiều so với %/_ của LIKE (hỗ trợ lớp ký tự,
+    số lần lặp, neo đầu/cuối chuỗi). Nên chọn ~ khi cần ràng buộc định dạng chính xác như 'đúng N chữ
+    số'.
+- id: joins-aggregation-q6
+  node: joins-aggregation
+  tier: fast
+  prompt: Vì sao NOT IN (SELECT khach_hang_id FROM don_hang) có thể trả về rỗng một cách sai lệch, còn
+    NOT EXISTS thì không?
+  answer: NOT IN (list) tương đương chuỗi <> nối bằng AND với từng phần tử; nếu list chứa một NULL, so
+    sánh <> NULL cho UNKNOWN khiến cả AND không bao giờ TRUE, nên toàn bộ kết quả rỗng. NOT EXISTS không
+    so sánh giá trị trực tiếp mà chỉ kiểm tra sự tồn tại, nên không bị ảnh hưởng bởi NULL.
+- id: joins-aggregation-q7
+  node: joins-aggregation
+  tier: fast
+  prompt: Đặt d.so_tien > 50 trong ON của một LEFT JOIN khác gì so với đặt trong WHERE sau LEFT JOIN đó?
+  answer: 'Đặt trong ON: dòng trái không khớp vẫn được giữ (đúng bản chất LEFT JOIN). Đặt trong WHERE
+    sau LEFT JOIN: vì NULL > 50 là UNKNOWN, dòng trái không khớp bị loại — LEFT JOIN bị biến thành INNER
+    JOIN trên thực tế.'
+- id: subquery-cte-q1
+  node: subquery-cte
+  tier: fast
+  prompt: Subquery trong WHERE khác subquery trong FROM (derived table) ở điểm nào về vai trò trong câu
+    lệnh?
+  answer: Subquery trong WHERE trả về một giá trị hoặc một tập giá trị dùng để lọc dòng của truy vấn ngoài;
+    subquery trong FROM (derived table) đóng vai trò một bảng nguồn để truy vấn ngoài SELECT/JOIN tiếp
+    lên trên, không dùng để so sánh trực tiếp.
+- id: subquery-cte-q2
+  node: subquery-cte
+  tier: fast
+  prompt: Vì sao scalar subquery trong SELECT bắt buộc phải trả về đúng một dòng, một cột — và điều gì
+    xảy ra nếu nó không khớp dòng nào (khác với khớp nhiều dòng)?
+  answer: Vì kết quả phải đặt vừa vào một ô của hàng kết quả ngoài — SQL không biểu diễn được nhiều giá
+    trị trong một ô. Nếu subquery trả nhiều dòng, PostgreSQL báo lỗi runtime 'more than one row returned
+    by a subquery used as an expression'; nếu không khớp dòng nào, subquery trả về NULL một cách hợp lệ,
+    không phải lỗi.
+- id: subquery-cte-q3
+  node: subquery-cte
+  tier: fast
+  prompt: Correlated subquery khác subquery thường (không tương quan) ở điểm nào, và vì sao correlated
+    subquery thường chạy chậm hơn với bảng lớn?
+  answer: Correlated subquery tham chiếu cột của truy vấn ngoài nên phải đánh giá lại cho từng dòng ngoài;
+    subquery thường độc lập, chỉ tính một lần. Vì chạy lại nhiều lần (tối đa bằng số dòng ngoài), correlated
+    subquery dễ chậm hơn khi bảng lớn, đặc biệt nếu bên trong nó quét toàn bảng mỗi lần.
+- id: subquery-cte-q4
+  node: subquery-cte
+  tier: fast
+  prompt: Vì sao NOT IN (subquery) có thể trả về kết quả rỗng một cách sai lệch, còn NOT EXISTS thì không
+    bị vấn đề này?
+  answer: Nếu subquery của NOT IN trả về tập chứa NULL, so sánh giá trị với NULL cho UNKNOWN, và phép
+    phủ định/AND ẩn bên trong NOT IN khiến toàn bộ điều kiện thành UNKNOWN (coi như FALSE) cho mọi dòng
+    — dẫn tới kết quả rỗng bất ngờ. NOT EXISTS không so sánh giá trị trực tiếp, chỉ hỏi 'có dòng khớp
+    hay không', nên không bị NULL trong subquery ảnh hưởng.
+- id: subquery-cte-q5
+  node: subquery-cte
+  tier: fast
+  prompt: CTE (WITH) có phải luôn nhanh hơn subquery lồng trực tiếp không? Giải thích ngắn gọn.
+  answer: Không. Từ PostgreSQL 12, CTE không đệ quy có thể được trình tối ưu inline (nhúng) như một subquery
+    thường, trừ khi ép MATERIALIZED, dùng đệ quy, hoặc được tham chiếu nhiều lần. Hiệu năng thực tế cần
+    kiểm chứng bằng EXPLAIN ANALYZE, không nên giả định.
+- id: subquery-cte-q6
+  node: subquery-cte
+  tier: fast
+  prompt: Recursive CTE gồm hai phần nào, nối với nhau bằng từ khoá gì, và điều kiện gì khiến nó dừng
+    đệ quy?
+  answer: Gồm anchor member (truy vấn khởi tạo, không tham chiếu tên CTE) và recursive member (truy vấn
+    tham chiếu lại chính tên CTE), nối bằng UNION hoặc UNION ALL. Nó dừng khi recursive member, chạy trên
+    tập kết quả mới nhất, không còn sinh ra dòng nào nữa.
+- id: subquery-cte-q7
+  node: subquery-cte
+  tier: fast
+  prompt: Vì sao nên ưu tiên UNION ALL hơn UNION trong hầu hết recursive CTE thực chiến?
+  answer: Vì UNION khử trùng lặp bằng cách so sánh toàn bộ cột sau mỗi vòng lặp, tốn chi phí hơn UNION
+    ALL; đồng thời nếu CTE có cột luôn tăng dần (như cấp độ), mỗi dòng luôn khác nhau nên UNION không
+    loại được vòng lặp — điều kiện dừng tường minh (WHERE cap < N) mới thực sự đáng tin cậy.
+- id: subquery-cte-q8
+  node: subquery-cte
+  tier: fast
+  prompt: Viết truy vấn dùng EXISTS (không dùng IN) để tìm khách hàng có ít nhất một đơn hàng, cho bảng
+    customers(id) và orders(id, customer_id).
+  answer: SELECT c.id FROM customers c WHERE EXISTS (SELECT 1 FROM orders o WHERE o.customer_id = c.id);
+- id: window-functions-q1
+  node: window-functions
+  tier: fast
+  prompt: OVER() khác GROUP BY ở điểm cốt lõi nào về số dòng trả về?
+  answer: GROUP BY gộp N dòng đầu vào thành ít dòng hơn (mỗi nhóm một dòng), mất chi tiết dòng gốc; OVER()
+    giữ nguyên toàn bộ N dòng gốc trong kết quả, chỉ thêm một cột tính từ cửa sổ (window) mà dòng đó thuộc
+    về — không gộp dòng.
+- id: window-functions-q2
+  node: window-functions
+  tier: fast
+  prompt: PARTITION BY trong OVER(...) có tác dụng gì, và nó khác GROUP BY ở đâu dù ý tưởng "chia nhóm"
+    giống nhau?
+  answer: 'PARTITION BY chia các dòng thành nhiều nhóm con theo giá trị cột, và window function tính riêng
+    cho từng nhóm — giống ý tưởng GROUP BY. Khác biệt: PARTITION BY KHÔNG gộp dòng, mỗi dòng gốc vẫn xuất
+    hiện trong kết quả kèm giá trị tổng hợp của nhóm nó thuộc về, trong khi GROUP BY thay N dòng bằng
+    một dòng đại diện mỗi nhóm.'
+- id: window-functions-q3
+  node: window-functions
+  tier: fast
+  prompt: Cho hai dòng đồng hạng nhất theo ORDER BY, dòng thứ ba sẽ nhận hạng bao nhiêu với RANK(), và
+    bao nhiêu với DENSE_RANK()?
+  answer: RANK() cho hạng 3 (nhảy số, bỏ qua hạng 2 vì đã có 2 dòng chiếm hạng 1). DENSE_RANK() cho hạng
+    2 (không nhảy số, hạng luôn liên tục theo số mức giá trị khác nhau đã xuất hiện).
+- id: window-functions-q4
+  node: window-functions
+  tier: fast
+  prompt: Vì sao không thể viết WHERE ROW_NUMBER() OVER (...) = 1 trực tiếp trong cùng một câu SELECT?
+    Cách khắc phục là gì?
+  answer: 'Vì window function được tính SAU giai đoạn WHERE trong thứ tự thực thi logic của PostgreSQL
+    (FROM -> WHERE -> GROUP BY -> HAVING -> window function -> SELECT -> ORDER BY) — tại thời điểm WHERE
+    chạy, giá trị window function chưa tồn tại. Khắc phục: bọc câu lệnh có window function trong một CTE
+    (WITH ... AS (...)) hoặc subquery ở FROM, rồi lọc bằng WHERE ở câu lệnh bên ngoài.'
+- id: window-functions-q5
+  node: window-functions
+  tier: fast
+  prompt: SUM(x) OVER (ORDER BY y) khác SUM(x) OVER () (không có ORDER BY) như thế nào về kết quả?
+  answer: SUM(x) OVER (ORDER BY y) tính tổng LUỸ KẾ (cộng dồn từ dòng đầu cửa sổ đến dòng hiện tại theo
+    thứ tự y, vì frame mặc định là RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW). SUM(x) OVER ()
+    không có ORDER BY tính tổng TOÀN BỘ cửa sổ và lặp lại đúng giá trị đó ở mọi dòng.
+- id: window-functions-q6
+  node: window-functions
+  tier: fast
+  prompt: LAG(cot) ở dòng đầu tiên của một cửa sổ trả về giá trị gì, và vì sao?
+  answer: Trả về NULL, vì không có dòng nào đứng trước dòng đầu tiên trong cửa sổ (theo ORDER BY) để LAG
+    lấy giá trị.
+- id: window-functions-q7
+  node: window-functions
+  tier: fast
+  prompt: Muốn tính "so với tháng trước, chỉ trong cùng một vùng" mà không bị lẫn dữ liệu vùng khác khi
+    dùng LAG(), cần thêm điều gì vào OVER(...)?
+  answer: Thêm PARTITION BY <cột vùng> vào OVER(...) của LAG(), để nó chỉ tìm dòng trước đó TRONG CÙNG
+    PARTITION (cùng vùng) thay vì tìm trên toàn bộ tập dữ liệu bất kể vùng.
+- id: window-functions-q8
+  node: window-functions
+  tier: fast
+  prompt: LAST_VALUE() với frame mặc định của OVER() có tự động trả về dòng cuối cùng thật sự của cả partition
+    không? Vì sao đây là cạm bẫy nguy hiểm?
+  answer: Không. Frame mặc định khi có ORDER BY là RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW,
+    nên LAST_VALUE() chỉ "thấy" đến dòng hiện tại, không thấy toàn bộ partition — kết quả thường trùng
+    với giá trị của chính dòng đang xét. Đây là cạm bẫy nguy hiểm vì câu lệnh chạy không lỗi và kết quả
+    trông hợp lý, nhưng sai về nghiệp vụ; phải tự mở rộng frame bằng ROWS BETWEEN UNBOUNDED PRECEDING
+    AND UNBOUNDED FOLLOWING để lấy đúng dòng cuối của cả partition.
+- id: constraints-q1
+  node: constraints
+  tier: fast
+  prompt: Vì sao PRIMARY KEY có thể coi là UNIQUE + NOT NULL gộp lại? Cho ví dụ lỗi minh hoạ từng phần.
+  answer: Vì khai báo PRIMARY KEY tự động tạo một unique index (B-tree) trên cột đó và bắt buộc cột không
+    được NULL. Vi phạm phần UNIQUE cho lỗi 'duplicate key value violates unique constraint'; vi phạm phần
+    NOT NULL cho lỗi 'null value in column ... violates not-null constraint'.
+- id: constraints-q2
+  node: constraints
+  tier: fast
+  prompt: Loại index nào được PostgreSQL dùng để ép ràng buộc PRIMARY KEY? Vì sao loại đó phù hợp hơn
+    loại còn lại cho khoá chính?
+  answer: B-tree, không phải Hash. B-tree hỗ trợ cả so sánh bằng lẫn so sánh khoảng/sắp xếp (<, >, BETWEEN,
+    ORDER BY), phù hợp với cách khoá chính thường được dùng để tra cứu và sắp xếp. Hash index chỉ hỗ trợ
+    so sánh bằng.
+- id: constraints-q3
+  node: constraints
+  tier: fast
+  prompt: Bảng books(id PK, author_id FK REFERENCES authors(id) ON DELETE CASCADE). Xoá một tác giả đang
+    có 3 cuốn sách thì điều gì xảy ra?
+  answer: Cả 3 dòng trong books tham chiếu tới tác giả đó cũng bị xoá theo, vì ON DELETE CASCADE lan truyền
+    việc xoá từ bảng cha sang bảng con.
+- id: constraints-q4
+  node: constraints
+  tier: fast
+  prompt: Cho bảng emails(id PK, email text UNIQUE) đã có 2 dòng với email = NULL. Việc chèn dòng thứ
+    3 cũng có email = NULL có bị chặn bởi UNIQUE không? Vì sao?
+  answer: Không bị chặn. UNIQUE không coi hai giá trị NULL là 'trùng nhau' (vì NULL nghĩa là không xác
+    định), nên có thể chèn bao nhiêu dòng NULL tuỳ ý. Đây là bẫy UNIQUE/NULL kinh điển.
+- id: constraints-q5
+  node: constraints
+  tier: fast
+  prompt: Cột price numeric(10,2) DEFAULT 0 (không có NOT NULL). Câu INSERT INTO t (price) VALUES (NULL)
+    sẽ lưu giá trị gì cho price? Vì sao không phải 0?
+  answer: Lưu NULL. DEFAULT chỉ áp dụng khi câu INSERT không cung cấp giá trị cho cột; ở đây giá trị NULL
+    được truyền tường minh, nên PostgreSQL ghi đúng những gì được truyền, không thay bằng giá trị mặc
+    định.
+- id: constraints-q6
+  node: constraints
+  tier: fast
+  prompt: Muốn thêm CHECK (age >= 18) vào bảng users đã có 10000 dòng, trong đó có 5 dòng age = 15. Lệnh
+    ALTER TABLE users ADD CONSTRAINT ... CHECK (age >= 18); sẽ thành công hay lỗi?
+  answer: 'Lỗi: ''check constraint ... is violated by some row''. PostgreSQL quét toàn bộ dữ liệu hiện
+    có trước khi chấp nhận constraint mới; phải sửa/xoá 5 dòng vi phạm trước, rồi mới ADD CONSTRAINT lại
+    được.'
+- id: constraints-q7
+  node: constraints
+  tier: fast
+  prompt: Khác biệt cú pháp giữa việc thêm NOT NULL và thêm CHECK/UNIQUE/FOREIGN KEY vào một bảng đã tồn
+    tại là gì?
+  answer: NOT NULL dùng ALTER TABLE ... ALTER COLUMN <cot> SET NOT NULL (và gỡ bằng DROP NOT NULL), vì
+    nó là thuộc tính của cột chứ không phải named constraint độc lập. Các loại còn lại (CHECK, UNIQUE,
+    FOREIGN KEY, PRIMARY KEY) dùng chung cú pháp ALTER TABLE ... ADD CONSTRAINT <ten> <loai> (...).
+- id: thiet-ke-schema-q1
+  node: thiet-ke-schema
+  tier: fast
+  prompt: Phân biệt "candidate key" và "primary key" bằng một câu.
+  answer: Candidate key là mọi cột (hoặc tổ hợp cột) đủ điều kiện làm khoá chính (duy nhất, không NULL);
+    primary key là một candidate key được chọn làm khoá chính chính thức — một bảng có thể có nhiều candidate
+    key nhưng chỉ một primary key.
+- id: thiet-ke-schema-q2
+  node: thiet-ke-schema
+  tier: fast
+  prompt: Vì sao nên ưu tiên surrogate key (id tự tăng) hơn natural key (như email) làm PRIMARY KEY khi
+    khoá đó sẽ bị bảng khác tham chiếu?
+  answer: Vì natural key có thể đổi giá trị theo thời gian; nếu đã bị FOREIGN KEY tham chiếu, đổi giá
+    trị sẽ bị PostgreSQL từ chối trừ khi có ON UPDATE CASCADE ở mọi nơi tham chiếu (dễ sót). Surrogate
+    key không mang ý nghĩa nghiệp vụ nên không bao giờ cần đổi.
+- id: thiet-ke-schema-q3
+  node: thiet-ke-schema
+  tier: fast
+  prompt: Bảng A(id PK, x, y) có khoá chính một cột và đã đạt 1NF. Bảng này có tự động đạt 2NF không?
+    Vì sao?
+  answer: Có. Vi phạm 2NF chỉ xảy ra khi khoá chính là composite và có cột không-khoá phụ thuộc một phần
+    khoá. Với khoá một cột, mọi cột không-khoá đương nhiên phụ thuộc toàn bộ khoá, nên tự động đạt 2NF.
+- id: thiet-ke-schema-q4
+  node: thiet-ke-schema
+  tier: fast
+  prompt: Cho bảng orders(id PK, customer_id FK, customer_city) trong đó customer_city suy ra được từ
+    bảng customers. Đây là vi phạm chuẩn hoá dạng nào?
+  answer: 'Vi phạm 3NF — phụ thuộc bắc cầu: customer_city phụ thuộc vào customer_id (cột không-khoá khác),
+    không phụ thuộc trực tiếp vào khoá chính id.'
+- id: thiet-ke-schema-q5
+  node: thiet-ke-schema
+  tier: fast
+  prompt: Tại sao quan hệ N-N không thể hiện thực bằng cách thêm một cột khoá ngoại vào bảng A trỏ sang
+    bảng B?
+  answer: Vì một cột chỉ lưu được một giá trị mỗi dòng nên chỉ trỏ được tới đúng một dòng bên kia. Cần
+    bảng trung gian, mỗi dòng đại diện một cặp liên kết cụ thể, cho phép cả A và B lặp lại ở nhiều dòng
+    trung gian khác nhau.
+- id: thiet-ke-schema-q6
+  node: thiet-ke-schema
+  tier: fast
+  prompt: Bảng trung gian enrollments(student_id FK, course_id FK) không có PRIMARY KEY. Hậu quả cụ thể
+    là gì, và PostgreSQL có tự báo lỗi không?
+  answer: Có thể chèn trùng lặp cùng một cặp (student_id, course_id) nhiều lần (ghi danh trùng). PostgreSQL
+    không tự báo lỗi vì không có ràng buộc nào bị vi phạm — đây là lỗi logic âm thầm; sửa bằng cách thêm
+    PRIMARY KEY (student_id, course_id).
+- id: thiet-ke-schema-q7
+  node: thiet-ke-schema
+  tier: fast
+  prompt: Nêu một tình huống cụ thể (có số liệu) mà denormalize là quyết định hợp lý, và điều kiện bắt
+    buộc đi kèm là gì?
+  answer: 'Ví dụ: tỷ lệ đọc:ghi 500:1, JOIN+SUM mất 40ms so với đọc cột lưu sẵn dưới 1ms, endpoint gọi
+    hàng nghìn lần/phút. Điều kiện bắt buộc: phải có cơ chế đồng bộ rõ ràng (cập nhật trong cùng transaction
+    hoặc trigger), nếu không dữ liệu sẽ lệch âm thầm.'
+- id: index-transaction-q1
+  node: index-transaction
+  tier: fast
+  prompt: Vì sao B-tree index giúp WHERE email = '...' nhanh hơn nhưng thường không giúp WHERE email LIKE
+    '%example.com'?
+  answer: B-tree lưu giá trị đã sắp xếp theo thứ tự từ đầu chuỗi, nên tra cứu theo tiền tố hoặc so sánh
+    bằng rất nhanh. Mẫu LIKE '%...' bắt đầu bằng ký tự đại diện ở đầu khiến B-tree không thể loại trừ
+    nhanh phần nào của cây — PostgreSQL thường phải quét toàn bảng thay vì dùng index.
+- id: index-transaction-q2
+  node: index-transaction
+  tier: fast
+  prompt: Trong output EXPLAIN ANALYZE, con số nào phản ánh thời gian thực tế (mili-giây), và con số nào
+    chỉ là ước lượng chi phí nội bộ?
+  answer: actual time=... và Execution Time là thời gian thực tế tính bằng mili-giây (chỉ xuất hiện khi
+    dùng ANALYZE). cost=0.00..1791.00 là đơn vị chi phí ước lượng nội bộ của PostgreSQL, không phải thời
+    gian.
+- id: index-transaction-q3
+  node: index-transaction
+  tier: fast
+  prompt: Vì sao thêm nhiều index vào một bảng lại làm INSERT chậm hơn?
+  answer: Vì mỗi INSERT không chỉ ghi một dòng vào bảng chính mà còn phải cập nhật (chèn và cân bằng lại)
+    từng cấu trúc B-tree của mọi index liên quan tới bảng đó — càng nhiều index, càng nhiều cấu trúc phải
+    cập nhật đồng thời.
+- id: index-transaction-q4
+  node: index-transaction
+  tier: fast
+  prompt: Sau khi một câu lệnh bên trong BEGIN...COMMIT bị lỗi (ví dụ vi phạm CHECK), việc gọi tiếp một
+    câu SELECT vô hại trong cùng transaction có chạy được không? Vì sao?
+  answer: Không chạy được — PostgreSQL trả lỗi 'current transaction is aborted, commands ignored until
+    end of transaction block'. Sau khi một lệnh lỗi, toàn bộ transaction bị đánh dấu aborted; phải ROLLBACK
+    trước khi thực hiện bất kỳ câu lệnh nào khác.
+- id: index-transaction-q5
+  node: index-transaction
+  tier: fast
+  prompt: Trong bốn chữ cái ACID, chữ nào đảm bảo dữ liệu đã COMMIT không bị mất dù server mất điện ngay
+    sau đó?
+  answer: Durability — PostgreSQL ghi thay đổi vào write-ahead log trên đĩa trước khi báo COMMIT thành
+    công cho ứng dụng, nên dữ liệu đã commit tồn tại vĩnh viễn dù có sự cố ngay sau đó.
+- id: index-transaction-q6
+  node: index-transaction
+  tier: fast
+  prompt: Mức isolation mặc định của PostgreSQL là gì? Ở mức đó, đọc cùng một dòng hai lần trong cùng
+    transaction có đảm bảo ra cùng kết quả không?
+  answer: Read Committed là mặc định. Không đảm bảo — nếu một transaction khác commit thay đổi ở giữa
+    hai lần đọc, lần đọc sau có thể thấy giá trị mới hơn (anomaly non-repeatable read), chỉ được ngăn
+    ở mức REPEATABLE READ trở lên.
+- id: index-transaction-q7
+  node: index-transaction
+  tier: fast
+  prompt: Write skew là gì, và tại sao REPEATABLE READ không ngăn được nó nhưng SERIALIZABLE thì ngăn
+    được?
+  answer: Write skew là khi hai transaction đồng thời đọc dữ liệu chồng lấn rồi mỗi bên ghi vào một dòng
+    khác nhau dựa trên điều kiện đọc được, dẫn tới kết quả tổng thể sai dù mỗi UPDATE riêng lẻ hợp lệ.
+    REPEATABLE READ chỉ phát hiện xung đột khi hai transaction ghi đè cùng một dòng vật lý, nên không
+    bắt được write skew. SERIALIZABLE phân tích cả phụ thuộc đọc-ghi chéo giữa các transaction nên phát
+    hiện và từ chối một bên.
+- id: index-transaction-q8
+  node: index-transaction
+  tier: fast
+  prompt: Nếu ứng dụng dùng isolation level SERIALIZABLE và thỉnh thoảng nhận lỗi could not serialize
+    access, đây có phải là bug cần sửa ở tầng SQL không? Ứng dụng nên xử lý thế nào?
+  answer: Không phải bug SQL — đây là hành vi được kỳ vọng của SERIALIZABLE dưới tải đồng thời, đảm bảo
+    tính đúng đắn thay vì để lọt anomaly. Ứng dụng phải bắt lỗi này (SQLSTATE 40001) và tự động thử lại
+    toàn bộ transaction từ đầu.
+- id: ef-core-q1
+  node: ef-core
+  tier: fast
+  prompt: DbContext có phải là bản thân kết nối TCP tới database không? Nó thật sự đại diện cho điều gì?
+  answer: Không. DbContext là một phiên làm việc (session) — nó quản lý cấu hình kết nối, tập hợp các
+    DbSet<T>, và change tracker; kết nối TCP thật do Npgsql mở/đóng bên dưới khi cần, không phải là chính
+    DbContext.
+- id: ef-core-q2
+  node: ef-core
+  tier: fast
+  prompt: DbSet<Order> Orders dùng để làm gì, và khi nào dữ liệu thật sự được đọc từ database?
+  answer: DbSet<Order> là điểm bắt đầu để viết truy vấn LINQ (và gọi Add/Remove) trên bảng Orders. Dữ
+    liệu chỉ thật sự được đọc khi thực thi (materialize) truy vấn, ví dụ ToListAsync(), FirstOrDefaultAsync(),
+    hay foreach — không phải ngay khi khai báo DbSet hay viết Where.
+- id: ef-core-q3
+  node: ef-core
+  tier: fast
+  prompt: Điều gì xảy ra nếu một entity không có thuộc tính nào khớp quy ước đặt tên khoá chính?
+  answer: 'EF Core ném InvalidOperationException: "The entity type ''...'' requires a primary key to be
+    defined" khi build model, vì nó không tự suy luận được đâu là khoá chính; phải cấu hình tường minh
+    bằng [Key] hoặc Fluent API HasKey.'
+- id: ef-core-q4
+  node: ef-core
+  tier: fast
+  prompt: AsNoTracking() khác gì so với hành vi mặc định của EF Core, và nên dùng khi nào?
+  answer: AsNoTracking() tắt việc giữ snapshot theo dõi thay đổi cho truy vấn đó; mặc định EF Core luôn
+    giữ snapshot để so sánh khi SaveChanges. Nên dùng AsNoTracking() khi truy vấn chỉ để đọc/hiển thị,
+    không có ý định sửa rồi gọi SaveChanges() trên các entity đó.
+- id: ef-core-q5
+  node: ef-core
+  tier: fast
+  prompt: Điều gì xảy ra (có báo lỗi không) nếu bạn sửa thuộc tính của một entity đọc bằng AsNoTracking()
+    rồi gọi SaveChangesAsync()?
+  answer: Không có lỗi/exception nào cả, nhưng thay đổi bị bỏ qua hoàn toàn một cách âm thầm — vì entity
+    đó không nằm trong change tracker của DbContext, SaveChangesAsync() không biết để sinh UPDATE.
+- id: ef-core-q6
+  node: ef-core
+  tier: fast
+  prompt: FirstOrDefaultAsync khác FirstAsync ở điểm nào khi không tìm thấy phần tử khớp?
+  answer: FirstOrDefaultAsync trả về null nếu không tìm thấy phần tử khớp; FirstAsync ném InvalidOperationException
+    ("Sequence contains no elements") trong cùng tình huống.
+- id: ef-core-q7
+  node: ef-core
+  tier: fast
+  prompt: Add() trên DbSet<T> có ngay lập tức ghi dữ liệu xuống database không? Vì sao?
+  answer: Không. Add() chỉ chuyển trạng thái của entity trong change tracker thành Added (hoàn toàn trong
+    bộ nhớ); phải gọi SaveChanges()/SaveChangesAsync() thì EF Core mới sinh và gửi câu lệnh INSERT xuống
+    database.
+- id: ef-core-q8
+  node: ef-core
+  tier: fast
+  prompt: Vì sao AddDbContext<T> thường đăng ký DbContext với vòng đời scoped thay vì singleton?
+  answer: DbContext được thiết kế để sống ngắn hạn và giữ trạng thái (change tracker) đặc thù cho một
+    đơn vị công việc; singleton sẽ khiến change tracker phình to không giới hạn và không an toàn khi nhiều
+    request/luồng dùng chung một DbContext cùng lúc (EF Core không thread-safe cho một instance dùng đồng
+    thời). Scoped tạo instance mới, sạch, cho mỗi HTTP request.
+- id: ef-core-quan-he-q1
+  node: ef-core-quan-he
+  tier: fast
+  prompt: Navigation property có ánh xạ tới một cột trong database không? Nếu không, quan hệ thật sự được
+    lưu bằng gì?
+  answer: Không. Navigation property là thuộc tính C# dùng để điều hướng giữa các entity liên quan trong
+    code; quan hệ thật sự được lưu trong database bằng cột khoá ngoại (foreign key) trên bảng phía "nhiều"
+    (ví dụ Book.AuthorId).
+- id: ef-core-quan-he-q2
+  node: ef-core-quan-he
+  tier: fast
+  prompt: Nếu không Include() và không bật lazy loading, việc truy cập một navigation property tập hợp
+    (ví dụ author.Books) trả về gì?
+  answer: Null hoặc một tập hợp rỗng (tuỳ có khởi tạo = new() sẵn hay không) — không có exception, chỉ
+    là dữ liệu chưa được nạp, dễ gây hiểu nhầm là 'không có dữ liệu con'.
+- id: ef-core-quan-he-q3
+  node: ef-core-quan-he
+  tier: fast
+  prompt: Vấn đề N+1 query là gì — mô tả bằng số lượng truy vấn cụ thể với N bản ghi cha?
+  answer: 1 truy vấn ban đầu để lấy danh sách cha, cộng thêm N truy vấn riêng biệt (mỗi cha một truy vấn)
+    để lấy dữ liệu con — tổng cộng N+1 lượt truy vấn.
+- id: ef-core-quan-he-q4
+  node: ef-core-quan-he
+  tier: fast
+  prompt: Vì sao Include() giúp tránh được N+1, xét về số lượt round-trip tới database?
+  answer: Include() gộp việc nạp dữ liệu con vào cùng một truy vấn (thường dùng JOIN) với truy vấn lấy
+    danh sách cha, nên chỉ tốn 1 lượt round-trip bất kể có bao nhiêu bản ghi cha.
+- id: ef-core-quan-he-q5
+  node: ef-core-quan-he
+  tier: fast
+  prompt: ThenInclude() nạp tiếp navigation property của entity nào — entity gốc hay kết quả của bước
+    Include/ThenInclude liền trước?
+  answer: Của kết quả bước Include/ThenInclude liền trước nó, không phải của entity gốc ban đầu.
+- id: ef-core-quan-he-q6
+  node: ef-core-quan-he
+  tier: fast
+  prompt: Vì sao lazy loading dễ khiến N+1 trở nên khó phát hiện hơn so với việc thiếu Include() (không
+    bật lazy loading)?
+  answer: Vì với lazy loading, dòng code truy cập navigation property trông giống hệt một phép đọc thuộc
+    tính bình thường trong bộ nhớ — không có dấu hiệu nào cho thấy nó âm thầm kích hoạt một truy vấn SQL
+    mới.
+- id: ef-core-quan-he-q7
+  node: ef-core-quan-he
+  tier: fast
+  prompt: Explicit loading khác eager loading ở điểm nào về thời điểm và cách gọi?
+  answer: Eager loading (Include) nạp dữ liệu con tường minh ngay trong truy vấn ban đầu; explicit loading
+    nạp bằng một lệnh riêng (Entry(...).Collection(...).LoadAsync()), gọi sau khi đã có entity cha, chỉ
+    khi thật sự cần.
+- id: ef-core-quan-he-q8
+  node: ef-core-quan-he
+  tier: fast
+  prompt: Khai báo navigation property tập hợp chỉ ở một phía của quan hệ N-N gây ra hậu quả gì?
+  answer: EF Core hiểu đây là quan hệ N-N một chiều thay vì hai chiều; phía không khai báo sẽ không có
+    cách truy cập chiều ngược lại qua code C#, cố dùng sẽ gặp lỗi biên dịch CS1061.
+- id: ef-core-migration-q1
+  node: ef-core-migration
+  tier: fast
+  prompt: dotnet ef migrations add có làm thay đổi gì trên database thật không? Nếu không, nó làm gì?
+  answer: Không. Nó chỉ so sánh model C# với ModelSnapshot gần nhất rồi sinh ra file code C# mới trên
+    ổ đĩa (chứa Up/Down); phải chạy dotnet ef database update thì thay đổi mới thật sự được áp xuống database.
+- id: ef-core-migration-q2
+  node: ef-core-migration
+  tier: fast
+  prompt: Method Down trong file migration dùng để làm gì, và khi nào nó được chạy?
+  answer: Down chứa các thao tác hoàn tác đúng những gì Up của migration đó đã làm; nó được chạy khi rollback
+    (dotnet ef database update <tên-migration-trước>) lùi qua migration này.
+- id: ef-core-migration-q3
+  node: ef-core-migration
+  tier: fast
+  prompt: HasData khác seeding thủ công ở điểm nào về thời điểm chạy và yêu cầu dữ liệu biết trước?
+  answer: HasData chạy một lần duy nhất khi migration chứa nó được áp dụng, và yêu cầu dữ liệu (kể cả
+    khoá chính) phải cố định biết trước lúc viết code. Seeding thủ công chạy mỗi lần ứng dụng khởi động,
+    tự kiểm tra điều kiện, và có thể dùng dữ liệu tính toán lúc chạy (ví dụ đọc biến môi trường).
+- id: ef-core-migration-q4
+  node: ef-core-migration
+  tier: fast
+  prompt: Sau khi rollback qua một migration có DropColumn trên một cột từng có dữ liệu thật, dữ liệu
+    cũ của cột đó có được khôi phục lại không?
+  answer: Không. Down chỉ khôi phục lại cấu trúc (thêm lại cột/bảng), không khôi phục dữ liệu đã bị DROP
+    — dữ liệu thật đã mất vĩnh viễn từ lúc Up chạy DROP COLUMN/DROP TABLE.
+- id: ef-core-migration-q5
+  node: ef-core-migration
+  tier: fast
+  prompt: dotnet ef migrations remove có xoá được một migration đã chạy database update thành công trên
+    database dev của chính bạn không?
+  answer: Không. EF Core từ chối với thông báo yêu cầu revert trước. Phải rollback bằng dotnet ef database
+    update <tên-migration-trước> để gỡ migration khỏi __EFMigrationsHistory trước, rồi mới migrations
+    remove được.
+- id: ef-core-migration-q6
+  node: ef-core-migration
+  tier: fast
+  prompt: Nếu đổi tên thuộc tính Name thành FullName qua hai lần migrations add riêng biệt thay vì sửa
+    cùng lúc, migration sinh ra dùng RenameColumn hay DropColumn/AddColumn? Hậu quả là gì?
+  answer: 'Dùng cặp DropColumn/AddColumn, vì EF Core không biết đó là cùng một phép đổi tên. Hậu quả:
+    DropColumn xoá vĩnh viễn dữ liệu cột Name, AddColumn tạo cột FullName trống — mất dữ liệu âm thầm
+    không có exception cảnh báo.'
+- id: ef-core-migration-q7
+  node: ef-core-migration
+  tier: fast
+  prompt: Sửa Name của một dòng HasData đã tồn tại (giữ nguyên Id) rồi migrations add lại sinh ra thao
+    tác gì?
+  answer: UpdateData — EF Core so sánh theo khoá chính không đổi, nhận ra là sửa dòng đã có chứ không
+    phải thêm mới.

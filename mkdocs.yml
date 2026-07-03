@@ -101,8 +101,16 @@ nav:
     - "10 — Xử lý ngoại lệ": p1-csharp/exceptions.md
   - "P2 · Dữ liệu (SQL & EF Core)":
     - "01 — SQL nền tảng": p2-du-lieu/sql-nen-tang.md
-    - "02 — JOIN, GROUP BY & Subquery": p2-du-lieu/joins-aggregation.md
-    - "03 — EF Core": p2-du-lieu/ef-core.md
+    - "02 — Lọc & Biểu thức nâng cao": p2-du-lieu/loc-nang-cao.md
+    - "03 — Ràng buộc dữ liệu (Constraints)": p2-du-lieu/constraints.md
+    - "04 — Thiết kế CSDL & Chuẩn hoá": p2-du-lieu/thiet-ke-schema.md
+    - "05 — Index, Transaction & ACID": p2-du-lieu/index-transaction.md
+    - "06 — JOIN, GROUP BY & Subquery": p2-du-lieu/joins-aggregation.md
+    - "07 — Subquery & CTE (WITH)": p2-du-lieu/subquery-cte.md
+    - "08 — Window Functions": p2-du-lieu/window-functions.md
+    - "09 — EF Core": p2-du-lieu/ef-core.md
+    - "10 — EF Core: Quan hệ & N+1": p2-du-lieu/ef-core-quan-he.md
+    - "11 — EF Core: Migration & Seeding": p2-du-lieu/ef-core-migration.md
   - "P3 · Web API":
     - "01 — Minimal API & REST": p3-web-api/minimal-api.md
     - "02 — Dependency Injection": p3-web-api/dependency-injection.md
