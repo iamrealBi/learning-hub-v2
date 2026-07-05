@@ -82,7 +82,7 @@ Về mặt công cụ thực tế (chỉ để bạn có hình dung, không cầ
 
 Hai công cụ này thường đi cùng nhau nhưng đóng vai trò khác nhau: một cái **lưu trữ và truy vấn** số liệu theo thời gian, một cái **trình bày** số liệu đó thành hình ảnh dễ đọc cho con người. Bạn không cần biết cách cài đặt hay cấu hình Prometheus/Grafana ở mức chương này — chỉ cần hiểu rằng "dashboard" trong thực tế thường không phải một trang web bạn tự viết từ đầu, mà là kết quả của việc nối dữ liệu Metrics (đã có từ P8, qua OpenTelemetry) vào một công cụ hiển thị chuyên dụng có sẵn.
 
-Một điểm cần làm rõ ngay từ đầu, để tránh một hiểu nhầm thường gặp: Monitoring không đồng nghĩa với "xem log". Log (đã học ở P8) ghi lại **từng sự kiện rời rạc** — Monitoring theo đúng định nghĩa ở chương này tập trung vào **chỉ số tổng hợp theo thời gian** (Metrics), hiển thị dưới dạng biểu đồ xu hướng, không phải một danh sách dòng log để đọc từng dòng.
+Một điểm cần làm rõ ngay từ đầu, để tránh một hiểu nhầm thường gặp: Monitoring không đồng nghĩa với "xem log". Log (đã học ở P4) ghi lại **từng sự kiện rời rạc** — Monitoring theo đúng định nghĩa ở chương này tập trung vào **chỉ số tổng hợp theo thời gian** (Metrics), hiển thị dưới dạng biểu đồ xu hướng, không phải một danh sách dòng log để đọc từng dòng.
 
 Một người vận hành có thể "monitor" hệ thống mà không cần đọc một dòng log nào — chỉ cần nhìn biểu đồ CPU/RAM/tỷ lệ lỗi đang đi lên hay đi xuống. Khi cần hiểu **chi tiết vì sao** một chỉ số bất thường, họ mới chuyển sang đọc log — đó là bước tiếp theo, không phải một phần của Monitoring theo nghĩa hẹp.
 

@@ -12,7 +12,7 @@ est_minutes_fast: 75
 # System Design cơ bản & Behavioral Interview
 
 !!! info "Bạn đang ở đây · P10 → node `p10-systemdesign`"
-    **Cần trước:** design patterns (Singleton, Factory, Repository — xem chương patterns).
+    **Cần trước:** Interview Patterns (Two Pointers & Sliding Window — chương ngay trước, node `p10-patterns`). Kiến trúc/design pattern (Singleton, Factory, Repository ở P6) là kiến thức nền hữu ích khi trả lời câu hỏi thiết kế hệ thống, nhưng không phải điều kiện bắt buộc của chương này.
     **Mở khoá:** trả lời câu hỏi "thiết kế hệ thống X" trong phỏng vấn .NET senior, và trả lời câu hỏi hành vi (behavioral) một cách có cấu trúc thay vì kể chuyện lan man.
     ⏱️ Fast path ~75 phút.
 

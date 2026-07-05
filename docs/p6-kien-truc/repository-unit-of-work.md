@@ -193,62 +193,7 @@ Nếu `dich.SoDu += soTien` không được lưu (ví dụ ràng buộc database
 
 ## 4. CẢNH BÁO QUAN TRỌNG — với EF Core, viết Repository riêng thường là THỪA
 
-Đây là điểm dễ nhầm nhất khi học hai pattern này cùng lúc: **`DbContext` của EF Core đã LÀ một Unit of Work, và mỗi `DbSet<T>` đã LÀ một Repository-like abstraction có sẵn.**
-
-So sánh cụ thể — Repository generic tự viết vs. dùng trực tiếp `DbSet<T>`:
-
-```csharp title="GenericRepository.cs (THUA - vi du minh hoa van de)"
-// test:skip minh hoa van de - AppDbContext chua dinh nghia day du
-public interface IGenericRepository<T> where T : class
-{
-    Task<T?> GetById(int id);
-    Task<List<T>> GetAll();
-    void Add(T entity);
-    void Update(T entity);
-    void Delete(T entity);
-}
-
-public sealed class GenericRepository<T>(AppDbContext db) : IGenericRepository<T> where T : class
-{
-    public async Task<T?> GetById(int id) => await db.Set<T>().FindAsync(id);
-    public async Task<List<T>> GetAll() => await db.Set<T>().ToListAsync();
-    public void Add(T entity) => db.Set<T>().Add(entity);
-    public void Update(T entity) => db.Set<T>().Update(entity);
-    public void Delete(T entity) => db.Set<T>().Remove(entity);
-}
-```
-
-**Vấn đề cụ thể với cách này:** giả sử bạn cần lấy danh sách `Order` **kèm** `Product` liên quan (tránh N+1 query), dùng thẳng `DbSet<T>` bạn viết:
-
-```csharp title="So sanh - DbSet truc tiep vs Generic Repository che tinh nang"
-// test:skip minh hoa - AppDbContext/Order/Product chua dinh nghia day du
-// Dùng thẳng DbSet<T> — Include() và projection hoạt động bình thường:
-var orders = await db.Orders
-    .Include(o => o.Product)
-    .Where(o => o.TongTien > 100)
-    .Select(o => new { o.Id, o.Product!.Ten })
-    .ToListAsync();
-
-// Với IGenericRepository<T> ở trên — KHÔNG CÓ CÁCH nào gọi Include() hay
-// Select() projection, vì interface chỉ có GetById/GetAll trả về T nguyên vẹn.
-// Muốn hỗ trợ, bạn phải thêm phương thức mới cho MỖI truy vấn phức tạp:
-//   Task<List<Order>> GetOrdersWithProduct();
-//   Task<List<OrderDto>> GetOrdersAboveAmount(decimal min);
-// ... rồi interface phình to dần, và bạn đang VIẾT LẠI những gì
-// IQueryable<T> của EF Core đã làm được sẵn, chỉ để "có Repository".
-```
-
-Đây chính là cái giá của Repository generic bọc quanh `DbSet<T>`: bạn **mất khả năng dùng `Include`, `Select` projection, `AsNoTracking`, phân trang linh hoạt** — những tính năng cốt lõi làm EF Core hiệu quả — trừ khi thêm ngày càng nhiều phương thức đặc thù vào interface, cuối cùng interface đó dần trở thành một bản sao chép vụng về của chính `IQueryable<T>`.
-
-| | `DbSet<T>` trực tiếp (qua `DbContext`) | Generic Repository tự viết bọc `DbSet<T>` |
-|---|---|---|
-| Đã có Unit of Work? | Có sẵn — `SaveChangesAsync()` | Vẫn phải gọi `SaveChangesAsync()` của `DbContext` bên trong — không thêm gì mới |
-| `Include`/projection phức tạp | Dùng tự nhiên qua `IQueryable<T>` | Bị che, phải thêm phương thức riêng cho từng truy vấn |
-| Test không cần database | Khó (`DbContext` khó mock tự nhiên) | Khó tương tự — vẫn phải mock `AppDbContext` bên trong hoặc dùng InMemory |
-| Giá trị trừu tượng hoá thật? | Thấp nếu chỉ CRUD generic — code vẫn "biết" đây là EF Core | Thấp — chỉ đổi tên gọi, chưa tách được nghiệp vụ khỏi EF Core |
-| Lượng code phải viết/duy trì | Không thêm gì | Thêm 1 interface + 1 class cho mỗi entity, phình dần theo nhu cầu truy vấn |
-
-**Kết luận thực dụng:** nếu Repository riêng của bạn chỉ có `Add`/`Get`/`Update`/`Delete` gọi thẳng `DbSet<T>` — không thêm logic gì — nó **không** đạt được mục tiêu trừu tượng hoá thật (code nghiệp vụ vẫn ràng buộc chặt với hình dạng bảng EF Core, chỉ đổi tên lớp gọi), mà **lại mất** những tính năng mạnh nhất của EF Core. Đây là ví dụ kinh điển của over-engineering: áp dụng một pattern vì "sách dạy vậy" mà không xét lợi ích thực tế so với chi phí.
+Đây là điểm dễ nhầm nhất khi học hai pattern này cùng lúc: **`DbContext` của EF Core đã LÀ một Unit of Work, và mỗi `DbSet<T>` đã LÀ một Repository-like abstraction có sẵn.** Chương [kiến trúc phân lớp](kien-truc-phan-lop.md) mục 6 đã đi qua ví dụ đầy đủ cho đúng cảnh báo này (Repository generic bọc `DbSet<T>` làm mất `Include`/projection mà không thêm giá trị trừu tượng hoá thật) — không lặp lại ở đây, chỉ tóm tắt kết luận thực dụng: nếu Repository riêng của bạn chỉ có `Add`/`Get`/`Update`/`Delete` gọi thẳng `DbSet<T>` mà không thêm logic gì, nó **không** đạt mục tiêu trừu tượng hoá thật mà **lại mất** những tính năng mạnh nhất của EF Core — over-engineering kinh điển.
 
 !!! warning "Vậy khi nào Repository riêng THẬT SỰ hữu ích?"
     Hai trường hợp cụ thể:

@@ -710,7 +710,7 @@ Thiết kế một component `BookingForm.razor` với model gồm: `GuestName` 
     }
     ```
 
-    Cơ chế này hoạt động vì mỗi lần `EditContext` phát sự kiện đổi trạng thái, `Input*` tự tính lại class CSS và Blazor tự re-render đúng phần DOM cần đổi (nhờ diffing render tree đã học ở bài binding) — không phải tự bạn `@onclick` gán class thủ công.
+    Cơ chế này hoạt động vì mỗi lần `EditContext` phát sự kiện đổi trạng thái, `Input*` tự tính lại class CSS và Blazor tự re-render đúng phần DOM cần đổi (nhờ render tree diffing đã học ở chương tổng quan) — không phải tự bạn `@onclick` gán class thủ công.
 
     **So sánh nhanh với validate phía Web API (P3):** cả hai tầng (`AddValidation()` ở Web API, `DataAnnotationsValidator` ở Blazor) đọc **chung** một bộ attribute Data Annotations trên model — đây là điểm mạnh thiết kế: nếu model DTO dùng lại được ở cả client Blazor và server Web API (ví dụ trong solution full-stack .NET dùng chung project "Shared"), bạn chỉ viết attribute **một lần**, cả UI và API đều tôn trọng cùng rule. Tuy vậy, **không được bỏ qua validate phía server** dù UI đã chặn — lý do giống hệt nguyên tắc "không tin frontend" ở P3: với Blazor Server, request vẫn có thể tới từ kết nối SignalR bị can thiệp; với Blazor WebAssembly, code C# chạy ngay trong browser của người dùng nên **hoàn toàn có thể bị bypass** bằng devtools hoặc gọi API trực tiếp — validate ở Blazor chỉ là trải nghiệm mượt cho người dùng thật, không phải hàng rào bảo mật, giống hệt vai trò của validate JavaScript ở P3.
 

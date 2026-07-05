@@ -471,7 +471,7 @@ Nếu debug một app Blazor WebAssembly bị "trang trắng" hoặc tải chậ
 
 Mục này quay lại đúng vấn đề đã nêu ở mục 1 (chi phí chuyển ngữ cảnh), nhưng đặt cạnh cụ thể các framework JS phổ biến để bạn hình dung rõ hơn Blazor **thay thế vai trò gì**, không phải để học cách viết code bằng các framework đó.
 
-**Vai trò tương đương — mọi framework này đều giải quyết cùng một vấn đề chung (hiển thị UI động, cập nhật khi dữ liệu đổi), chỉ khác ngôn ngữ và cách triển khai:**
+**Vai trò tương đương — mọi framework này đều giải quyết cùng một vấn đề chung (hiển thị UI động, cập nhật khi dữ liệu đổi), chỉ khác ngôn ngữ và cách triển khai.** Mỗi framework có tên riêng cho kỹ thuật cập nhật UI của nó — trước khi vào bảng, định nghĩa ngắn từng cái: **Virtual DOM diffing** (React tự dựng một bản sao nhẹ của DOM trong bộ nhớ, so sánh bản cũ/mới rồi chỉ áp thay đổi thật vào DOM); **Reactive data binding** (Vue theo dõi trực tiếp việc đọc/ghi trên object dữ liệu, tự biết ngay khi nào cần vẽ lại UI liên quan); **Change detection** (Angular quét lại cây component theo định kỳ để tìm phần dữ liệu đã đổi, rồi cập nhật UI tương ứng). Cả ba đều là biến thể của cùng ý tưởng với "render tree diffing" của Blazor đã học ở mục 1 — chỉ khác cơ chế phát hiện thay đổi.
 
 | Framework | Ngôn ngữ chính | Chạy trên | Cách cập nhật UI khi dữ liệu đổi |
 |-----------|------------------|-----------|-------------------------------------|
