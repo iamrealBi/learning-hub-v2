@@ -23,3 +23,107 @@
 .md-typeset .highlight { scroll-margin-top: 4rem; }
 
 html { scroll-behavior: smooth; }
+
+/* Quiz tự chấm (docs/on-tap.md) */
+.quiz-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .6rem;
+  margin: 1rem 0;
+}
+.quiz-controls select {
+  padding: .3rem .5rem;
+  border-radius: 6px;
+  border: 1px solid var(--md-default-fg-color--lighter);
+  background: var(--md-default-bg-color);
+  color: var(--md-default-fg-color);
+}
+.quiz-controls button,
+.quiz-reveal-btn {
+  padding: .4rem .9rem;
+  border-radius: 6px;
+  border: 1px solid var(--md-primary-fg-color);
+  background: var(--md-primary-fg-color);
+  color: var(--md-primary-bg-color);
+  cursor: pointer;
+  font-weight: 600;
+}
+.quiz-controls button:hover,
+.quiz-reveal-btn:hover {
+  background: var(--md-accent-fg-color);
+  border-color: var(--md-accent-fg-color);
+}
+.quiz-card {
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 10px;
+  padding: .9rem 1.1rem;
+  margin: .8rem 0;
+  background: var(--md-code-bg-color);
+}
+.quiz-prompt { font-weight: 600; margin: 0 0 .6rem; }
+.quiz-answer {
+  margin: .6rem 0 0;
+  padding: .6rem .8rem;
+  border-left: 3px solid var(--md-accent-fg-color);
+  background: color-mix(in srgb, var(--md-accent-fg-color) 8%, transparent);
+}
+
+/* SQL Playground (docs/sql-playground.md) */
+.sql-playground {
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 10px;
+  padding: 1rem;
+  margin: 1rem 0;
+  background: var(--md-code-bg-color);
+}
+.sql-playground textarea {
+  width: 100%;
+  min-height: 6rem;
+  font-family: var(--md-code-font, monospace);
+  font-size: .85rem;
+  padding: .6rem;
+  border-radius: 6px;
+  border: 1px solid var(--md-default-fg-color--lighter);
+  background: var(--md-default-bg-color);
+  color: var(--md-default-fg-color);
+  resize: vertical;
+  box-sizing: border-box;
+}
+.sql-playground-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin: .6rem 0;
+}
+.sql-playground-toolbar button {
+  padding: .4rem .9rem;
+  border-radius: 6px;
+  border: 1px solid var(--md-primary-fg-color);
+  background: var(--md-primary-fg-color);
+  color: var(--md-primary-bg-color);
+  cursor: pointer;
+  font-weight: 600;
+}
+.sql-playground-toolbar button.secondary {
+  background: transparent;
+  color: var(--md-primary-fg-color);
+}
+.sql-playground-toolbar button:hover { opacity: .85; }
+.sql-playground-result { margin-top: .8rem; overflow-x: auto; }
+.sql-playground-result table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .85rem;
+}
+.sql-playground-result th, .sql-playground-result td {
+  border: 1px solid var(--md-default-fg-color--lightest);
+  padding: .3rem .6rem;
+  text-align: left;
+}
+.sql-playground-result th { background: var(--md-default-bg-color); }
+.sql-playground-error {
+  color: var(--md-typeset-mark-color, #c0392b);
+  font-family: var(--md-code-font, monospace);
+  white-space: pre-wrap;
+}

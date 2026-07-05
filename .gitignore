@@ -4,6 +4,9 @@ site/
 # Sản phẩm trung gian của gate compile C#
 verify/
 
+# Sinh tự động từ data/questions.yml qua scripts/build_quiz_data.py (hook on_pre_build)
+docs/assets/quiz-data.json
+
 # Python
 __pycache__/
 *.pyc

@@ -71,6 +71,12 @@ markdown_extensions:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
 
+# Hooks: chạy code Python tại các event build của MkDocs.
+# build_quiz_data sinh docs/assets/quiz-data.json tu data/questions.yml (event on_pre_build)
+# — luôn đồng bộ với questions.yml, và nếu file hỏng thì build --strict (đã chạy trong CI) fail ngay.
+hooks:
+  - scripts/build_quiz_data.py
+
 plugins:
   - search:
       lang: [vi, en]
@@ -86,6 +92,9 @@ plugins:
 nav:
   - "Trang chủ": index.md
   - "🚀 Fast Path 2 ngày": FAST-PATH-2-NGAY.md
+  - "🧪 Luyện tập":
+    - "SQL Playground": sql-playground.md
+    - "Quiz tự chấm": on-tap.md
   - "P0 · Thiết lập":
     - "Zero → bài tập xanh đầu tiên": 00-thiet-lap/index.md
   - "P1 · C#":
