@@ -242,3 +242,23 @@ phases:
           objective: "Phân biệt declarative/imperative, đọc hiểu Terraform/Bicep, plan vs apply", requires: [p9-k8s] }
       - { id: p9-monitoring, file: p9-devops/monitoring-alerting.md, tier: fast, status: core, owner: core-team,
           objective: "Phân biệt Monitoring/Alerting, dùng đúng SLI/SLO/SLA và runbook", requires: [p9-iac] }
+
+  - id: P10
+    title: "CS Foundations & Interview Prep"
+    nodes:
+      - { id: p10-bigo, file: p10-cs-foundations/big-o-complexity.md, tier: fast, status: core, owner: core-team,
+          objective: "Phân tích Big-O đúng (best/average/worst-case), không dựa vào đo giờ chạy", requires: [p9-monitoring] }
+      - { id: p10-ds, file: p10-cs-foundations/cau-truc-du-lieu-nang-cao.md, tier: fast, status: core, owner: core-team,
+          objective: "Tự cài đặt Linked List/Stack/Queue/BST/Heap để hiểu cơ chế bên trong BCL", requires: [p10-bigo] }
+      - { id: p10-graph, file: p10-cs-foundations/graph-bfs-dfs.md, tier: fast, status: core, owner: core-team,
+          objective: "Biểu diễn Graph đúng cách, chọn đúng BFS vs DFS theo bài toán", requires: [p10-ds] }
+      - { id: p10-sort, file: p10-cs-foundations/sorting-algorithms.md, tier: fast, status: core, owner: core-team,
+          objective: "So sánh đúng time/space complexity và tính stable của các thuật toán sort", requires: [p10-graph] }
+      - { id: p10-recursion, file: p10-cs-foundations/recursion-binary-search.md, tier: fast, status: core, owner: core-team,
+          objective: "Viết đệ quy đúng base case, hiểu call stack và giới hạn Binary Search", requires: [p10-sort] }
+      - { id: p10-dp, file: p10-cs-foundations/dynamic-programming-co-ban.md, tier: fast, status: core, owner: core-team,
+          objective: "Nhận diện đúng 2 điều kiện áp dụng DP, phân biệt memoization vs tabulation", requires: [p10-recursion] }
+      - { id: p10-patterns, file: p10-cs-foundations/interview-patterns.md, tier: fast, status: core, owner: core-team,
+          objective: "Nhận diện và áp dụng đúng Two Pointers / Sliding Window theo dấu hiệu đề bài", requires: [p10-dp] }
+      - { id: p10-systemdesign, file: p10-cs-foundations/system-design-behavioral.md, tier: fast, status: core, owner: core-team,
+          objective: "Áp dụng quy trình 4 bước System Design và STAR method cho behavioral interview", requires: [p10-patterns] }

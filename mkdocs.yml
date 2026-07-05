@@ -165,5 +165,14 @@ nav:
     - "03 — Container Orchestration: Kubernetes cơ bản": p9-devops/container-orchestration.md
     - "04 — Infrastructure as Code: Terraform & Bicep": p9-devops/infrastructure-as-code.md
     - "05 — Monitoring & Alerting Production": p9-devops/monitoring-alerting.md
+  - "P10 · CS Foundations & Interview Prep":
+    - "01 — Big-O & Độ phức tạp thuật toán": p10-cs-foundations/big-o-complexity.md
+    - "02 — Cấu trúc dữ liệu nâng cao": p10-cs-foundations/cau-truc-du-lieu-nang-cao.md
+    - "03 — Graph & BFS/DFS": p10-cs-foundations/graph-bfs-dfs.md
+    - "04 — Sorting Algorithms": p10-cs-foundations/sorting-algorithms.md
+    - "05 — Recursion & Binary Search": p10-cs-foundations/recursion-binary-search.md
+    - "06 — Dynamic Programming cơ bản": p10-cs-foundations/dynamic-programming-co-ban.md
+    - "07 — Interview Patterns: Two Pointers & Sliding Window": p10-cs-foundations/interview-patterns.md
+    - "08 — System Design cơ bản & Behavioral Interview": p10-cs-foundations/system-design-behavioral.md
   - "Về hệ thống":
     - "Kiến trúc sư phạm": PEDAGOGY.md

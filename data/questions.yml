@@ -4075,3 +4075,420 @@ questions:
     đây vẫn là một bước hợp lệ?
   answer: Vì mục tiêu runbook không phải luôn tự sửa được mọi thứ ngay, mà là loại bỏ nhu cầu suy nghĩ
     từ đầu cho người trực ban — xác nhận đúng nguyên nhân và biết hành động đúng vẫn có ích.
+- id: big-o-complexity-q1
+  node: big-o-complexity
+  tier: fast
+  prompt: Big-O đo cái gì — thời gian chạy tuyệt đối (giây/ms) hay tốc độ tăng của thời gian chạy?
+  answer: Tốc độ tăng (growth rate) của thời gian/bộ nhớ khi kích thước đầu vào n tiến về vô cùng — không
+    phải thời gian tuyệt đối, không phụ thuộc máy chạy hay ngôn ngữ.
+- id: big-o-complexity-q2
+  node: big-o-complexity
+  tier: fast
+  prompt: Vì sao O(3n + 5) được viết gọn thành O(n)?
+  answer: Vì Big-O bỏ hằng số nhân (3) và thành phần bậc thấp hơn (5) — khi n tiến ra vô cùng, 3n+5 và
+    n có cùng tốc độ tăng, Big-O chỉ quan tâm dạng tăng, không quan tâm hệ số.
+- id: big-o-complexity-q3
+  node: big-o-complexity
+  tier: fast
+  prompt: Binary search có điều kiện tiên quyết gì để hoạt động đúng, và nếu vi phạm thì xảy ra chuyện
+    gì?
+  answer: Dữ liệu phải đã được sắp xếp. Nếu chạy trên mảng chưa sắp xếp, thuật toán không ném lỗi mà cho
+    kết quả sai âm thầm.
+- id: big-o-complexity-q4
+  node: big-o-complexity
+  tier: fast
+  prompt: QuickSort worst-case và average-case khác nhau ở Big-O nào, và worst-case xảy ra khi nào?
+  answer: Worst-case O(n^2) khi pivot luôn là giá trị nhỏ nhất hoặc lớn nhất. Average-case O(n log n)
+    khi dữ liệu ngẫu nhiên khiến pivot chia mảng thành hai phần cỡ tương đương.
+- id: big-o-complexity-q5
+  node: big-o-complexity
+  tier: fast
+  prompt: MergeSort và QuickSort (average) cùng O(n log n) thời gian — khác biệt quan trọng về không gian
+    là gì?
+  answer: MergeSort cần thêm O(n) bộ nhớ phụ (mảng tạm), không in-place. QuickSort in-place chỉ cần khoảng
+    O(log n) bộ nhớ phụ cho ngăn xếp đệ quy.
+- id: big-o-complexity-q6
+  node: big-o-complexity
+  tier: fast
+  prompt: Một đoạn code có 2 vòng lặp for KHÔNG lồng nhau (chạy nối tiếp, mỗi vòng qua n phần tử) có Big-O
+    là bao nhiêu?
+  answer: O(n). Hai vòng nối tiếp cho tổng n+n=2n thao tác, bỏ hằng số nhân thành O(n) — O(n^2) chỉ xảy
+    ra khi lồng nhau.
+- id: big-o-complexity-q7
+  node: big-o-complexity
+  tier: fast
+  prompt: Vì sao đo giờ chạy bằng Stopwatch trên một máy cụ thể không đủ để kết luận thuật toán A tốt
+    hơn B một cách khoa học?
+  answer: Vì thời gian đo bị nhiễu bởi tốc độ CPU, tải hệ thống, JIT warm-up. Kết luận khoa học cần dựa
+    trên phân tích Big-O hoặc benchmark có kiểm soát với nhiều giá trị n.
+- id: big-o-complexity-q8
+  node: big-o-complexity
+  tier: fast
+  prompt: O(2^n) và O(n!) thường xuất hiện trong loại bài toán nào?
+  answer: O(2^n) khi xét mọi tập con của n phần tử; O(n!) khi xét mọi hoán vị. Cả hai tăng nhanh đến mức
+    n khoảng 30-40 đã vượt khả năng tính toán hợp lý.
+- id: big-o-complexity-q9
+  node: big-o-complexity
+  tier: fast
+  prompt: Cho hàm chạy hai giai đoạn nối tiếp O(n log n) và O(n). Big-O tổng thể là gì?
+  answer: O(n log n). Khi cộng nhiều giai đoạn nối tiếp, Big-O tổng thể bằng giai đoạn tăng nhanh nhất.
+- id: big-o-complexity-q10
+  node: big-o-complexity
+  tier: fast
+  prompt: Vì sao nói Big-O của linear search là O(n) thực chất là đang nói về worst-case?
+  answer: Vì quy ước khi không chỉ rõ trường hợp, mặc định nói worst-case (target ở cuối/không tồn tại).
+    Best-case là O(1) nhưng không đại diện cho hành vi đảm bảo.
+- id: cau-truc-du-lieu-nang-cao-q1
+  node: cau-truc-du-lieu-nang-cao
+  tier: fast
+  prompt: Vì sao chèn vào đầu Linked List là O(1) nhưng chèn vào đầu List<T> là O(n)?
+  answer: Linked List chỉ tạo 1 node và đổi 1 con trỏ. List<T> lưu liên tục trong mảng, chèn đầu buộc
+    dịch mọi phần tử hiện có sang phải.
+- id: cau-truc-du-lieu-nang-cao-q2
+  node: cau-truc-du-lieu-nang-cao
+  tier: fast
+  prompt: Vì sao Dequeue trực tiếp từ đầu array thô là O(n), và circular buffer giải quyết thế nào?
+  answer: Cách ngây thơ phải dịch mọi phần tử còn lại sang trái sau khi lấy phần tử đầu. Circular buffer
+    dùng 2 chỉ số head/tail quay vòng, Dequeue chỉ tăng head — O(1).
+- id: cau-truc-du-lieu-nang-cao-q3
+  node: cau-truc-du-lieu-nang-cao
+  tier: fast
+  prompt: Big-O trung bình và worst-case của Insert/Search trên BST là gì, và điều gì gây worst-case?
+  answer: Trung bình O(log n) khi cây cân đối. Worst-case O(n) khi cây lệch hẳn thành chuỗi thẳng — xảy
+    ra khi dữ liệu chèn theo thứ tự đã sắp xếp.
+- id: cau-truc-du-lieu-nang-cao-q4
+  node: cau-truc-du-lieu-nang-cao
+  tier: fast
+  prompt: Min-heap và max-heap khác nhau ở tính chất nào?
+  answer: 'Min-heap: mọi node cha ≤ hai con (gốc nhỏ nhất). Max-heap: mọi node cha ≥ hai con (gốc lớn
+    nhất).'
+- id: cau-truc-du-lieu-nang-cao-q5
+  node: cau-truc-du-lieu-nang-cao
+  tier: fast
+  prompt: Vì sao Heap lưu bằng mảng phẳng mà không cần con trỏ Left/Right/Parent?
+  answer: Chỉ số con trái/phải/cha tính trực tiếp từ chỉ số hiện tại bằng công thức cố định (2i+1, 2i+2,
+    (i-1)/2) — không cần lưu tham chiếu.
+- id: cau-truc-du-lieu-nang-cao-q6
+  node: cau-truc-du-lieu-nang-cao
+  tier: fast
+  prompt: Tại sao SiftUp khi Insert vào heap chỉ cần tối đa O(log n) bước?
+  answer: Vì heap luôn là cây cân đối (lưu tuần tự theo tầng), chiều cao luôn ≈ log2 n. SiftUp di chuyển
+    tối đa tới gốc, tức tối đa 'chiều cao' bước.
+- id: cau-truc-du-lieu-nang-cao-q7
+  node: cau-truc-du-lieu-nang-cao
+  tier: fast
+  prompt: Chương P1 (collections.md) đã dạy gì về List/Dictionary/Queue/Stack, và chương này khác ở điểm
+    nào?
+  answer: P1 dạy dùng collection có sẵn của BCL và Big-O của thao tác. Chương này dạy cách cài đặt bên
+    trong từ đầu để hiểu vì sao Big-O đó đúng.
+- id: cau-truc-du-lieu-nang-cao-q8
+  node: cau-truc-du-lieu-nang-cao
+  tier: fast
+  prompt: Vì sao Linked List thường chậm hơn List<T> trong thực tế dù cùng O(n) khi duyệt?
+  answer: List<T> lưu liên tục, CPU đọc theo cache line hiệu quả. Linked List rải node khắp heap, mỗi
+    bước di chuyển có thể là cache-miss.
+- id: graph-bfs-dfs-q1
+  node: graph-bfs-dfs
+  tier: fast
+  prompt: Big-O của BFS và DFS trên graph có V đỉnh, E cạnh là gì, và vì sao giống nhau?
+  answer: Cả hai O(V + E). Cả hai ghé mỗi đỉnh một lần (O(V)) và quét hết danh sách kề (tổng O(E)) — chỉ
+    khác thứ tự thăm, không khác tổng công việc.
+- id: graph-bfs-dfs-q2
+  node: graph-bfs-dfs
+  tier: fast
+  prompt: Vì sao BFS đảm bảo tìm đường đi ngắn nhất theo số cạnh, còn DFS thì không?
+  answer: BFS thăm theo từng lớp — mọi đỉnh ở lớp k đã xác nhận cách xuất phát đúng k cạnh. DFS đi sâu
+    một nhánh trước, có thể lạc vào đường dài trước khi chạm đích.
+- id: graph-bfs-dfs-q3
+  node: graph-bfs-dfs
+  tier: fast
+  prompt: Adjacency list và adjacency matrix khác nhau ở điểm nào về bộ nhớ và tốc độ tra cạnh?
+  answer: List dùng O(V+E) bộ nhớ, tra cạnh O(deg(u)). Matrix dùng O(V^2) bộ nhớ cố định, tra cạnh O(1).
+    List phù hợp graph thưa, matrix phù hợp graph dày đặc.
+- id: graph-bfs-dfs-q4
+  node: graph-bfs-dfs
+  tier: fast
+  prompt: Undirected graph khác directed graph ở đâu khi cài bằng adjacency list?
+  answer: 'Directed: cạnh u->v chỉ thêm một chiều. Undirected: mỗi cạnh phải thêm cả hai chiều thủ công
+    — quên một chiều làm nó biến thành directed âm thầm.'
+- id: graph-bfs-dfs-q5
+  node: graph-bfs-dfs
+  tier: fast
+  prompt: Vì sao dùng HashSet daThay là bắt buộc trong BFS/DFS, kể cả khi graph không có cycle?
+  answer: Vì một đỉnh có thể được tới từ nhiều hàng xóm khác nhau. Không chặn đỉnh đã thăm sẽ enqueue/push
+    trùng lặp, tăng số lần xử lý vượt O(V+E).
+- id: graph-bfs-dfs-q6
+  node: graph-bfs-dfs
+  tier: fast
+  prompt: DFS phát hiện cycle trong directed graph cần theo dõi mấy tập đỉnh, và vì sao không dùng một
+    tập duy nhất?
+  answer: 'Cần hai tập: đỉnh trên nhánh hiện tại và đỉnh đã xử lý xong. Dùng một tập duy nhất sẽ báo nhầm
+    cycle khi một đỉnh được tới từ hai nhánh khác nhau.'
+- id: graph-bfs-dfs-q7
+  node: graph-bfs-dfs
+  tier: fast
+  prompt: Kiểm tra tồn tại đường đi từ A tới B, không quan tâm độ dài — nên chọn BFS hay DFS?
+  answer: Cả hai đúng với cùng Big-O O(V+E). Nếu chỉ cần biết có tồn tại hay không, DFS đệ quy thường
+    viết ngắn gọn hơn, không cần cấp Queue tường minh.
+- id: sorting-algorithms-q1
+  node: sorting-algorithms
+  tier: fast
+  prompt: Big-O worst-case của Bubble/Selection/Insertion Sort là gì? Vì sao giống nhau?
+  answer: Cả ba O(n²) worst-case vì cả ba dùng 2 vòng lặp lồng nhau, mỗi vòng chạy khoảng n lần trong
+    trường hợp xấu nhất.
+- id: sorting-algorithms-q2
+  node: sorting-algorithms
+  tier: fast
+  prompt: Vì sao Merge Sort luôn O(n log n) ở CẢ worst-case, không như Quick Sort?
+  answer: Merge Sort luôn chia mảng làm đôi bằng nhau bất kể giá trị, cây đệ quy luôn log2(n) tầng. Quick
+    Sort chia theo giá trị so pivot, pivot tệ làm cây lệch thành n tầng.
+- id: sorting-algorithms-q3
+  node: sorting-algorithms
+  tier: fast
+  prompt: Tại sao Merge Sort cần O(n) bộ nhớ phụ mà Quick Sort không cần?
+  answer: Bước gộp của Merge Sort phải tạo mảng mới. Quick Sort phân hoạch bằng đổi chỗ ngay trong mảng
+    gốc (in-place).
+- id: sorting-algorithms-q4
+  node: sorting-algorithms
+  tier: fast
+  prompt: Cho mảng giảm dần {9,7,5,3,1}, dùng QuickSort pivot=phần tử cuối. Đây có phải worst-case không?
+  answer: Có. Phần tử cuối luôn là giá trị nhỏ nhất của đoạn trên mảng giảm dần — mỗi lần partition chỉ
+    tách 1 phần tử, cây đệ quy có n tầng.
+- id: sorting-algorithms-q5
+  node: sorting-algorithms
+  tier: fast
+  prompt: Định nghĩa stable sort. Selection Sort (đổi chỗ trực tiếp) có stable không?
+  answer: Stable là giữ nguyên thứ tự tương đối của các phần tử bằng nhau so với mảng gốc. Selection Sort
+    bản đổi chỗ trực tiếp không stable.
+- id: sorting-algorithms-q6
+  node: sorting-algorithms
+  tier: fast
+  prompt: Với n=1.000, so sánh O(n²) và O(n log n). Con số nào lớn hơn, gấp bao nhiêu lần?
+  answer: O(n²)=1.000.000, O(n log n)≈10.000. O(n²) lớn hơn khoảng 100 lần.
+- id: sorting-algorithms-q7
+  node: sorting-algorithms
+  tier: fast
+  prompt: Tại sao trong code sản xuất nên dùng .Sort() của BCL thay vì tự viết Quick/Merge Sort?
+  answer: .Sort() đã tối ưu (thuật toán lai), xử lý sẵn trường hợp biên, chọn pivot thông minh tránh worst-case
+    — tự viết chỉ nhằm hiểu cơ chế.
+- id: recursion-binary-search-q1
+  node: recursion-binary-search
+  tier: fast
+  prompt: Vì sao mọi hàm đệ quy đúng đều bắt buộc phải có base case?
+  answer: Không có base case, hàm tự gọi vô hạn — mỗi lần gọi thêm stack frame cho tới khi cạn bộ nhớ
+    stack, ném StackOverflowException.
+- id: recursion-binary-search-q2
+  node: recursion-binary-search
+  tier: fast
+  prompt: StackOverflowException có bắt được bằng try/catch không?
+  answer: Không. Từ .NET Framework 2.0, nó luôn làm crash tiến trình ngay lập tức vì call stack đã cạn
+    sạch, không còn bộ nhớ để xử lý exception thông thường.
+- id: recursion-binary-search-q3
+  node: recursion-binary-search
+  tier: fast
+  prompt: Binary Search chạy trên mảng chưa sắp xếp có ném exception không? Kết quả trả về đáng tin không?
+  answer: Không ném exception. Kết quả có thể sai hoàn toàn — báo không tìm thấy dù phần tử tồn tại, hoặc
+    trả sai chỉ số. Lỗi sai âm thầm.
+- id: recursion-binary-search-q4
+  node: recursion-binary-search
+  tier: fast
+  prompt: Tính gần đúng số so sánh tối đa của Binary Search trong mảng 1 triệu phần tử, so với Linear
+    Search worst-case.
+  answer: 'Binary Search: log2(1.000.000) ≈ 20 lần. Linear Search worst-case: tối đa 1.000.000 lần. Chênh
+    lệch theo tốc độ tăng O(log n) vs O(n).'
+- id: recursion-binary-search-q5
+  node: recursion-binary-search
+  tier: fast
+  prompt: Vì sao Binary Search đệ quy tốn O(log n) bộ nhớ còn phiên bản lặp chỉ tốn O(1)?
+  answer: Đệ quy tạo stack frame mới mỗi lời gọi, chồng lên nhau tối đa log n lần. Lặp chỉ dùng hai biến
+    cập nhật tại chỗ, không tạo frame nào.
+- id: recursion-binary-search-q6
+  node: recursion-binary-search
+  tier: fast
+  prompt: Hàm đệ quy f(n) gọi f(n-1) hai lần mỗi bước, base case n=0. Bộ nhớ call stack tối đa tại một
+    thời điểm là gì theo n?
+  answer: Vẫn O(n), không phải O(2^n). Tổng số lời gọi là O(2^n) nhưng tại một thời điểm, call stack chỉ
+    giữ các lời gọi trên một nhánh, độ sâu tối đa n.
+- id: recursion-binary-search-q7
+  node: recursion-binary-search
+  tier: fast
+  prompt: Khi nào nên chuyển một hàm đệ quy sang viết lại bằng vòng lặp?
+  answer: Khi độ sâu đệ quy có thể lớn tới mức gây StackOverflowException, hoặc khi hàm chạy trong hot
+    path và chi phí stack frame ảnh hưởng hiệu năng.
+- id: recursion-binary-search-q8
+  node: recursion-binary-search
+  tier: fast
+  prompt: Array.Sort() rồi Array.BinarySearch() một lần trên mảng 1000 phần tử chưa sắp có nhanh hơn quét
+    tuyến tính một lần không?
+  answer: Không, thường chậm hơn. Sort tốn O(n log n) cộng thêm Binary Search O(log n), trong khi Linear
+    Search một lần chỉ tốn O(n).
+- id: recursion-binary-search-q9
+  node: recursion-binary-search
+  tier: fast
+  prompt: FibNgayTho(n) đúng logic nhưng chạy rất chậm với n lớn. Đúng hay sai, vì sao?
+  answer: Đúng. Không có lỗi logic, nhưng các nhánh tính lại cùng giá trị nhiều lần (overlapping subproblems)
+    — tổng số lời gọi tăng theo cấp lũy thừa O(2^n).
+- id: dynamic-programming-co-ban-q1
+  node: dynamic-programming-co-ban
+  tier: fast
+  prompt: Vì sao đệ quy thuần cho Fib(n) có độ phức tạp O(2^n)?
+  answer: Mỗi lần gọi sinh ra hai lời gọi con, các bài con lặp lại những giá trị đã tính ở nhánh khác
+    — cây gọi đệ quy phình theo cấp số nhân theo độ sâu n.
+- id: dynamic-programming-co-ban-q2
+  node: dynamic-programming-co-ban
+  tier: fast
+  prompt: Hai điều kiện bắt buộc để áp dụng DP là gì?
+  answer: (1) Optimal substructure — lời giải bài lớn xây từ lời giải tối ưu bài con nhỏ hơn. (2) Overlapping
+    subproblems — cùng bài con bị gọi lại nhiều lần.
+- id: dynamic-programming-co-ban-q3
+  node: dynamic-programming-co-ban
+  tier: fast
+  prompt: Memoization và tabulation khác nhau ở điểm cốt lõi nào?
+  answer: Memoization là đệ quy + cache, top-down, chỉ tính bài con thật cần. Tabulation là vòng lặp +
+    bảng, bottom-up, thường tính mọi bài con từ nhỏ nhất.
+- id: dynamic-programming-co-ban-q4
+  node: dynamic-programming-co-ban
+  tier: fast
+  prompt: Với Fib(30), số lần gọi hàm giảm từ bao nhiêu xuống bao nhiêu khi thêm memoization?
+  answer: Từ 2.692.537 lần (đệ quy thuần) xuống 59 lần (memoization) — mỗi Fib(k) chỉ được tính thật đúng
+    một lần.
+- id: dynamic-programming-co-ban-q5
+  node: dynamic-programming-co-ban
+  tier: fast
+  prompt: Trong Coin Change, nếu bỏ qua kiểm tra bang[i-xu]==int.MaxValue, điều gì xảy ra?
+  answer: Phép +1 vào int.MaxValue có thể gây tràn số thành giá trị sai, khiến Math.Min chọn kết quả sai
+    mà không có exception nào báo.
+- id: dynamic-programming-co-ban-q6
+  node: dynamic-programming-co-ban
+  tier: fast
+  prompt: Bài toán tìm max trong mảng bằng chia đôi có nên áp dụng memoization không?
+  answer: Không nên. Có optimal substructure nhưng không có overlapping subproblems — mỗi đoạn con chỉ
+    xuất hiện đúng một lần, cache sẽ luôn miss.
+- id: dynamic-programming-co-ban-q7
+  node: dynamic-programming-co-ban
+  tier: fast
+  prompt: Bước đầu tiên trong quy trình 4 bước giải bài DP mới là gì, và vì sao quan trọng hơn viết code?
+  answer: Định nghĩa trạng thái (state) — xác định chính xác bài con nhỏ nhất có ý nghĩa. Sai định nghĩa
+    trạng thái làm công thức truy hồi trông hợp lý nhưng cho kết quả sai.
+- id: dynamic-programming-co-ban-q8
+  node: dynamic-programming-co-ban
+  tier: fast
+  prompt: Sự khác biệt cốt lõi giữa 0/1 Knapsack và Coin Change nằm ở đâu?
+  answer: Coin Change cho dùng lại không giới hạn một mệnh giá; Knapsack chỉ chọn mỗi vật 0 hoặc 1 lần
+    — Knapsack phải chuyển dòng i-1 khi chọn vật i.
+- id: interview-patterns-q1
+  node: interview-patterns
+  tier: fast
+  prompt: Vì sao Two Pointers hai đầu tiến vào nhau chỉ dùng đúng trên dữ liệu đã sắp xếp?
+  answer: Vì lý luận tăng/giảm con trỏ chỉ đúng khi giá trị tăng dần theo chỉ số (tính đơn điệu). Mảng
+    chưa sắp có thể bỏ sót đáp án đúng.
+- id: interview-patterns-q2
+  node: interview-patterns
+  tier: fast
+  prompt: Two Pointers tìm hai số có tổng X có độ phức tạp thời gian và bộ nhớ phụ là gì?
+  answer: O(n) thời gian, O(1) bộ nhớ phụ. Khoảng cách phai-trai giảm đúng 1 mỗi bước, tổng số bước tối
+    đa n-1.
+- id: interview-patterns-q3
+  node: interview-patterns
+  tier: fast
+  prompt: Sliding Window độ dài cố định và thay đổi khác nhau ở điểm cốt lõi nào?
+  answer: 'Cố định: khung luôn giữ đúng k phần tử, thêm 1 bỏ 1. Thay đổi: khung tự mở rộng khi hợp lệ
+    và co lại khi vi phạm điều kiện.'
+- id: interview-patterns-q4
+  node: interview-patterns
+  tier: fast
+  prompt: Vì sao Sliding Window độ dài thay đổi vẫn O(n) dù có for lồng while?
+  answer: Biến trai chỉ tăng không giảm trong toàn hàm — tổng số lần tăng cộng dồn tối đa n (amortized
+    analysis).
+- id: interview-patterns-q5
+  node: interview-patterns
+  tier: fast
+  prompt: Dấu hiệu nào gợi ý nên nghĩ tới Sliding Window thay vì Two Pointers?
+  answer: Đề bài hỏi về đoạn con liên tiếp (subarray/substring) với một điều kiện cần thoả. Two Pointers
+    gợi ý bởi dữ liệu đã sắp xếp hoặc đối xứng.
+- id: interview-patterns-q6
+  node: interview-patterns
+  tier: fast
+  prompt: Bài đếm số cặp có tích là số chính phương trên mảng chưa sắp xếp — vì sao Two Pointers không
+    áp dụng được?
+  answer: Vì tính chất tích là số chính phương không đơn điệu — không có quy luật loại trừ một tập cặp
+    khác, buộc phải duyệt toàn bộ O(n²).
+- id: interview-patterns-q7
+  node: interview-patterns
+  tier: fast
+  prompt: Công thức tongHienTai += mang[i]; tongHienTai -= mang[i-k]; thể hiện điều gì?
+  answer: Khung mới và khung cũ chồng lấp k-1 phần tử — chỉ khác đúng 1 phần tử mỗi đầu, nên tổng mới
+    tính từ tổng cũ bằng O(1).
+- id: interview-patterns-q8
+  node: interview-patterns
+  tier: fast
+  prompt: Bài tổng con nhỏ nhất >= target co khung khi nào?
+  answer: Co khung khi khung ĐANG thoả điều kiện để tìm khung nhỏ nhất còn thoả — khác ví dụ co khung
+    khi VI PHẠM điều kiện, nhưng cùng cơ chế O(n) amortized.
+- id: interview-patterns-q9
+  node: interview-patterns
+  tier: fast
+  prompt: Two Pointers cùng hướng khác Two Pointers hai đầu tiến vào nhau ở điểm nào?
+  answer: Hai đầu tiến vào nhau bắt đầu từ hai phía đối lập. Cùng hướng bắt đầu gần nhau, đi cùng chiều
+    với vai trò khác nhau (dò/giữ).
+- id: interview-patterns-q10
+  node: interview-patterns
+  tier: fast
+  prompt: Trong bài xoá trùng lặp tại chỗ, vì sao chỉ cần so sánh với giá trị hợp lệ gần nhất?
+  answer: Vì mảng đã sắp xếp — mọi giá trị trùng nhau nằm liền kề. Với mảng chưa sắp xếp giả định này
+    sai.
+- id: interview-patterns-q11
+  node: interview-patterns
+  tier: fast
+  prompt: Trong Container With Most Water, vì sao luôn di chuyển con trỏ tại vách thấp hơn?
+  answer: Vì diện tích bị giới hạn bởi vách thấp hơn. Di chuyển vách cao vào trong chỉ giảm khoảng cách
+    mà không tăng chiều cao giới hạn.
+- id: system-design-behavioral-q1
+  node: system-design-behavioral
+  tier: fast
+  prompt: Vì sao System Design interview không có đáp án đúng duy nhất là điểm khác biệt cốt lõi so với
+    coding interview?
+  answer: Vì tiêu chí đánh giá là cách suy nghĩ và đánh đổi giữa các lựa chọn kiến trúc, không phải một
+    đoạn code đúng/sai rõ ràng.
+- id: system-design-behavioral-q2
+  node: system-design-behavioral
+  tier: fast
+  prompt: Bước 1 trong quy trình 4 bước System Design là gì, và vì sao bỏ qua bị đánh giá thấp?
+  answer: Làm rõ yêu cầu và giới hạn quy mô. Bỏ qua khiến ứng viên thiết kế dựa trên giả định tự đặt,
+    có thể sai lệch hoàn toàn so với quy mô thực tế.
+- id: system-design-behavioral-q3
+  node: system-design-behavioral
+  tier: fast
+  prompt: Database sharding theo user_id % N nghĩa là gì, và vì sao chọn đúng shard key quan trọng?
+  answer: Chia dữ liệu ra N database, mỗi bản ghi vào database số user_id chia dư N. Chọn sai shard key
+    khiến truy vấn phải quét toàn bộ shard.
+- id: system-design-behavioral-q4
+  node: system-design-behavioral
+  tier: fast
+  prompt: Rủi ro chính của cache-aside là gì, và vì sao chấp nhận được với URL shortener nhưng không hẳn
+    với giá sản phẩm?
+  answer: Dữ liệu cũ (stale) — cache giữ giá trị cũ tới khi hết TTL. URL gốc hiếm khi sửa nên rủi ro thấp;
+    giá sản phẩm đổi thường xuyên nên hậu quả lớn hơn.
+- id: system-design-behavioral-q5
+  node: system-design-behavioral
+  tier: fast
+  prompt: Vì sao tài khoản celebrity nên dùng pull model thay vì push model cho Notification?
+  answer: Push phải tạo bản ghi riêng cho từng follower ngay khi có bài mới — với 10 triệu follower chi
+    phí rất cao. Pull chỉ ghi một bản ghi, follower tự tổng hợp khi mở app.
+- id: system-design-behavioral-q6
+  node: system-design-behavioral
+  tier: fast
+  prompt: STAR là viết tắt của gì, và phần nào thường bị bỏ sót nhất?
+  answer: Situation-Task-Action-Result. Phần Action thường bị bỏ sót hoặc sơ sài nhất — nhiều người kể
+    bối cảnh rồi nhảy thẳng tới kết quả.
+- id: system-design-behavioral-q7
+  node: system-design-behavioral
+  tier: fast
+  prompt: Vì sao phần Action trong STAR nên dùng chủ ngữ tôi thay vì chúng tôi?
+  answer: Vì người phỏng vấn muốn đánh giá vai trò cá nhân, không phải thành tích chung của cả team.
+- id: system-design-behavioral-q8
+  node: system-design-behavioral
+  tier: fast
+  prompt: Vì sao dòng CV liệt kê tên công nghệ suông bị đánh giá thấp?
+  answer: Vì không chứng minh được ứng viên đã thực sự dùng công nghệ đó giải quyết vấn đề gì — bất kỳ
+    ai cũng gõ được tên công nghệ.
