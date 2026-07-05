@@ -140,5 +140,16 @@ nav:
     - "06 — CQRS": p6-kien-truc/cqrs.md
     - "07 — Domain-Driven Design cơ bản": p6-kien-truc/ddd-co-ban.md
     - "08 — Message Queue & Event-Driven": p6-kien-truc/message-queue-event-driven.md
+  - "P7 · Blazor Frontend":
+    - "01 — Blazor: Server vs WebAssembly vs Hybrid": p7-blazor/blazor-tong-quan.md
+    - "02 — Component cơ bản": p7-blazor/component-co-ban.md
+    - "03 — Data Binding & Sự kiện": p7-blazor/data-binding-events.md
+    - "04 — Routing & Navigation": p7-blazor/routing-navigation.md
+    - "05 — Forms & Validation": p7-blazor/forms-validation.md
+    - "06 — Quản lý State": p7-blazor/state-management.md
+    - "07 — Gọi API Backend": p7-blazor/goi-api-tu-blazor.md
+    - "08 — Authentication trong Blazor": p7-blazor/blazor-authentication.md
+    - "09 — JS Interop & Lifecycle nâng cao": p7-blazor/js-interop-lifecycle-sau.md
+    - "10 — Performance & Deploy": p7-blazor/blazor-performance-deploy.md
   - "Về hệ thống":
     - "Kiến trúc sư phạm": PEDAGOGY.md

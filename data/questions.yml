@@ -2892,3 +2892,560 @@ questions:
   prompt: Nêu một ví dụ cụ thể mà thêm message queue vào hệ thống là over-engineering.
   answer: Một ứng dụng nội bộ nhỏ, một service duy nhất, ghi log vào file trong cùng tiến trình — đây
     là lời gọi method nội bộ, không cần bất đồng bộ, không cần thêm hạ tầng.
+- id: blazor-tong-quan-q1
+  node: blazor-tong-quan
+  tier: fast
+  prompt: Vấn đề cụ thể nào Blazor giải quyết cho một team backend .NET?
+  answer: Blazor giải quyết vấn đề team backend .NET phải học thêm một ngôn ngữ/framework riêng (JavaScript,
+    React/Vue/Angular) để làm frontend — Blazor cho phép viết UI web bằng C#/Razor, chạy trên .NET runtime.
+- id: blazor-tong-quan-q2
+  node: blazor-tong-quan
+  tier: fast
+  prompt: Blazor Server chạy logic ứng dụng ở đâu, và UI được cập nhật qua công nghệ gì?
+  answer: Blazor Server chạy toàn bộ logic ứng dụng trên server; UI được cập nhật qua kết nối SignalR
+    liên tục.
+- id: blazor-tong-quan-q3
+  node: blazor-tong-quan
+  tier: fast
+  prompt: Vì sao Blazor Server không phù hợp với ứng dụng mà người dùng thường mất kết nối mạng?
+  answer: Vì Blazor Server phụ thuộc kết nối SignalR liên tục — mất kết nối đồng nghĩa mất khả năng tương
+    tác, trang bị đứng, nút bấm không phản hồi cho tới khi kết nối được thiết lập lại.
+- id: blazor-tong-quan-q4
+  node: blazor-tong-quan
+  tier: fast
+  prompt: Blazor WebAssembly khác Blazor Server ở điểm nào về nơi logic chạy sau khi đã tải trang xong?
+  answer: Blazor WebAssembly tải toàn bộ app cùng .NET runtime xuống trình duyệt, sau đó logic chạy hoàn
+    toàn client-side; Blazor Server luôn cần server chạy logic qua SignalR.
+- id: blazor-tong-quan-q5
+  node: blazor-tong-quan
+  tier: fast
+  prompt: Blazor Hybrid dùng để xây loại ứng dụng nào, và công nghệ nào đứng sau nó?
+  answer: Blazor Hybrid dùng để xây ứng dụng desktop/mobile; công nghệ đứng sau là .NET MAUI, với component
+    Blazor chạy trong một BlazorWebView nhúng trong app native.
+- id: blazor-tong-quan-q6
+  node: blazor-tong-quan
+  tier: fast
+  prompt: Trong dự án Blazor WebAssembly tối thiểu, file nào chứa div#app, và điều gì xảy ra nếu Program.cs
+    thiếu dòng RootComponents.Add?
+  answer: File wwwroot/index.html chứa div#app. Nếu thiếu RootComponents.Add<App>("#app"), app vẫn build
+    thành công nhưng lúc runtime hiển thị trang trắng hoàn toàn — lỗi runtime im lặng.
+- id: blazor-tong-quan-q7
+  node: blazor-tong-quan
+  tier: fast
+  prompt: Nêu trình tự tổng quát khi trình duyệt tải một trang Blazor WebAssembly lần đầu.
+  answer: (1) tải index.html; (2) tải script blazor.webassembly.js, script này tải .NET runtime + DLL
+    app dạng WASM; (3) Program.cs chạy, cắm component App vào div#app; (4) App.razor (Router) đọc URL,
+    chọn trang tương ứng.
+- id: blazor-tong-quan-q8
+  node: blazor-tong-quan
+  tier: fast
+  prompt: Vì sao Blazor Server tốn thêm bộ nhớ server khi số người dùng đồng thời tăng, còn Blazor WebAssembly
+    thì gần như không?
+  answer: Blazor Server phải giữ một kết nối SignalR sống (circuit) và trạng thái UI riêng cho mỗi người
+    dùng. Blazor WebAssembly không giữ trạng thái riêng nào trên server — server chỉ xử lý request API
+    rời rạc.
+- id: blazor-tong-quan-q9
+  node: blazor-tong-quan
+  tier: fast
+  prompt: Nêu một khác biệt cụ thể trong cách viết code truy cập dữ liệu giữa Blazor Server và Blazor
+    WebAssembly.
+  answer: Trong Blazor Server, component có thể gọi trực tiếp DbContext vì logic chạy trên server. Trong
+    Blazor WebAssembly, phải gọi qua HttpClient tới một Web API riêng chạy trên server.
+- id: component-co-ban-q1
+  node: component-co-ban
+  tier: fast
+  prompt: Component trong Blazor là gì, và nó tương ứng với loại file nào?
+  answer: Là một đơn vị UI tái sử dụng được, gói cả markup và logic C# trong một file .razor — compiler
+    biến file này thành một class C# kế thừa ComponentBase.
+- id: component-co-ban-q2
+  node: component-co-ban
+  tier: fast
+  prompt: Vì sao chỉ khai báo public string Title mà không thêm [Parameter] sẽ gây lỗi biên dịch khi component
+    cha truyền Title="..."?
+  answer: Vì Blazor compiler kiểm tra tại thời điểm build rằng mọi attribute gán trên tag component phải
+    khớp một thuộc tính có [Parameter] — một thuộc tính public trơn không đủ điều kiện.
+- id: component-co-ban-q3
+  node: component-co-ban
+  tier: fast
+  prompt: ChildContent là gì, và tên thuộc tính này có bắt buộc viết đúng chính tả không?
+  answer: Là một [Parameter] đặc biệt kiểu RenderFragment giữ nội dung cha đặt giữa tag mở-đóng của component
+    con. Bắt buộc đúng tên ChildContent — Blazor chỉ tự động gom nội dung vào đúng tên này.
+- id: component-co-ban-q4
+  node: component-co-ban
+  tier: fast
+  prompt: OnInitializedAsync chạy bao nhiêu lần trong đời sống một component? OnParametersSetAsync thì
+    sao?
+  answer: OnInitializedAsync chạy đúng một lần, ngay sau khi component được tạo. OnParametersSetAsync
+    chạy mỗi khi component cha truyền giá trị Parameter mới xuống.
+- id: component-co-ban-q5
+  node: component-co-ban
+  tier: fast
+  prompt: Vì sao gọi một API bất đồng bộ trong constructor của component là sai?
+  answer: Vì constructor trong C# là đồng bộ tuyệt đối, không await được. Component vẽ giao diện trước
+    khi dữ liệu API trả về, gây giao diện trống hoặc NullReferenceException. Cách đúng là dùng OnInitializedAsync.
+- id: component-co-ban-q6
+  node: component-co-ban
+  tier: fast
+  prompt: Một component không cập nhật giao diện khi cha đổi Parameter — nguyên nhân phổ biến nhất là
+    gì?
+  answer: Logic tải/tính dữ liệu phụ thuộc Parameter bị đặt sai trong OnInitialized (chỉ chạy 1 lần) thay
+    vì OnParametersSet (chạy lại mỗi khi Parameter đổi).
+- id: component-co-ban-q7
+  node: component-co-ban
+  tier: fast
+  prompt: Quy ước đặt tên file .razor là gì, và điều gì xảy ra nếu vi phạm?
+  answer: Phải viết hoa chữ đầu (PascalCase), vì compiler sinh ra một class C# cùng tên. Vi phạm khiến
+    Blazor không nhận diện được như một tag component hợp lệ.
+- id: component-co-ban-q8
+  node: component-co-ban
+  tier: fast
+  prompt: Nếu một component gán giá trị mặc định cho một [Parameter], giá trị đó có giữ nguyên khi cha
+    KHÔNG truyền Parameter đó không? Còn khi cha CÓ truyền?
+  answer: Nếu cha không truyền, giá trị mặc định giữ nguyên. Nếu cha có truyền, Blazor ghi đè giá trị
+    mặc định trước khi OnInitialized chạy.
+- id: component-co-ban-q9
+  node: component-co-ban
+  tier: fast
+  prompt: OnParametersSet có tự động biết Parameter có thực sự thay đổi giá trị hay không trước khi chạy?
+  answer: Không — nó chạy mỗi khi cha render lại và truyền Parameter xuống lần nữa, bất kể giá trị có
+    đổi thật hay không. Nếu logic bên trong tốn kém, nó sẽ bị gọi lại lãng phí.
+- id: component-co-ban-q10
+  node: component-co-ban
+  tier: fast
+  prompt: Khi nào một thuộc tính trong @code KHÔNG cần [Parameter]?
+  answer: Khi đó là dữ liệu component tự quản lý bên trong nó, không cần component cha truyền vào — ví
+    dụ một field đếm số lần bấm nút nội bộ.
+- id: data-binding-events-q1
+  node: data-binding-events
+  tier: fast
+  prompt: '@onclick="TenMethod" và @onclick="TenMethod()" khác nhau thế nào?'
+  answer: '@onclick="TenMethod" gắn method làm handler, gọi lại mỗi lần click. @onclick="TenMethod()"
+    gọi method ngay lúc render — với method void gây lỗi build; với method trả kiểu khác, chỉ chạy đúng
+    một lần.'
+- id: data-binding-events-q2
+  node: data-binding-events
+  tier: fast
+  prompt: '@bind="ten" tương đương với việc tự viết hai thứ gì bằng tay?'
+  answer: Tương đương value="@ten" (chiều C# → HTML) cộng với một @onchange tự sinh gán giá trị ngược
+    lại vào ten (chiều HTML → C#).
+- id: data-binding-events-q3
+  node: data-binding-events
+  tier: fast
+  prompt: '@bind mặc định cập nhật biến C# vào lúc nào? Nếu cần cập nhật ngay lúc gõ, phải thêm gì?'
+  answer: Mặc định cập nhật lúc input mất focus. Muốn cập nhật ngay mỗi ký tự, thêm @bind:event="oninput".
+- id: data-binding-events-q4
+  node: data-binding-events
+  tier: fast
+  prompt: Vì sao các ví dụ dùng @onclick/@bind không cần gọi StateHasChanged() thủ công, nhưng ví dụ Timer
+    lại cần?
+  answer: '@onclick/@onchange là event Blazor tự điều phối, tự gọi StateHasChanged() sau khi chạy xong.
+    Timer chạy trên luồng riêng, ngoài vòng event Blazor theo dõi, nên phải gọi InvokeAsync(StateHasChanged)
+    thủ công.'
+- id: data-binding-events-q5
+  node: data-binding-events
+  tier: fast
+  prompt: Nếu quên gọi StateHasChanged() trong callback của Timer, điều gì xảy ra cụ thể — có exception
+    không?
+  answer: Không có exception. Biến state vẫn tăng đúng trong bộ nhớ, nhưng UI đứng yên không cập nhật
+    — lỗi hành vi im lặng.
+- id: data-binding-events-q6
+  node: data-binding-events
+  tier: fast
+  prompt: Component tạo Timer nhưng không implement IDisposable sẽ gặp vấn đề gì khi người dùng điều hướng
+    rời trang?
+  answer: Timer vẫn tiếp tục chạy dù component đã bị loại khỏi cây UI — memory leak, tích lũy dần nếu
+    người dùng vào-ra trang nhiều lần.
+- id: data-binding-events-q7
+  node: data-binding-events
+  tier: fast
+  prompt: EventCallback<T> dùng để làm gì, và vì sao nên dùng nó thay vì Action<T>?
+  answer: Cho phép con gọi ngược lên method của cha kèm giá trị kiểu T, tích hợp sẵn với vòng render (tự
+    gọi StateHasChanged() sau callback). Action<T> không có tích hợp này, dễ nuốt exception nếu handler
+    cha là async.
+- id: data-binding-events-q8
+  node: data-binding-events
+  tier: fast
+  prompt: Trong ví dụ NutGuiSo/TrangCha, NutGuiSo (con) có biết gì về biến bên TrangCha (cha) không?
+  answer: Không. NutGuiSo chỉ biết nó có parameter OnGuiSo kiểu EventCallback<int> — không biết cha là
+    ai hay cha làm gì với giá trị đó.
+- id: routing-navigation-q1
+  node: routing-navigation
+  tier: fast
+  prompt: Điều gì xảy ra khi một component không có @page — nó có báo lỗi build không?
+  answer: Component vẫn compile được, không báo lỗi build — nhưng gõ URL vào nó sẽ không tìm thấy trang,
+    Router hiển thị <NotFound>.
+- id: routing-navigation-q2
+  node: routing-navigation
+  tier: fast
+  prompt: Vì sao tên property [Parameter] phải khớp tên route parameter trong @page, và sai tên có báo
+    lỗi build không?
+  answer: Router dùng đúng tên để gán giá trị từ URL. Sai tên không báo lỗi build — property giữ giá trị
+    mặc định, lỗi runtime im lặng.
+- id: routing-navigation-q3
+  node: routing-navigation
+  tier: fast
+  prompt: Khác biệt hành vi giữa <a href> và <NavLink href> khi URL hiện tại khớp chính xác href đó?
+  answer: Cả hai đều điều hướng đúng, nhưng NavLink tự động thêm class CSS active khi khớp URL hiện tại.
+- id: routing-navigation-q4
+  node: routing-navigation
+  tier: fast
+  prompt: Vì sao onclick="TenHam()" (không có @) không gọi được phương thức C# trong @code{}?
+  answer: onclick (không @) là thuộc tính HTML chuẩn, trình duyệt hiểu là gọi hàm JavaScript toàn cục
+    — gây lỗi console ReferenceError. Phải dùng @onclick.
+- id: routing-navigation-q5
+  node: routing-navigation
+  tier: fast
+  prompt: Query string thiếu [Parameter] đi kèm [SupplyParameterFromQuery] gây lỗi ở giai đoạn nào?
+  answer: Ở giai đoạn build — Blazor analyzer từ chối compile property thiếu [Parameter] đi kèm.
+- id: routing-navigation-q6
+  node: routing-navigation
+  tier: fast
+  prompt: Nêu khác biệt về cách báo lỗi khi route constraint {id:int} không khớp, so với khi query string
+    ?page=abc không parse được thành int.
+  answer: Route constraint không khớp khiến cả route không khớp, hiển thị not found toàn trang. Query
+    string không parse được thì route vẫn khớp, property chỉ im lặng giữ giá trị mặc định.
+- id: routing-navigation-q7
+  node: routing-navigation
+  tier: fast
+  prompt: Router trong App.razor dùng phần nào để hiển thị nội dung khi không có @page nào khớp URL?
+  answer: <NotFound> — render khi URL hiện tại không khớp bất kỳ @page nào đã khai báo.
+- id: routing-navigation-q8
+  node: routing-navigation
+  tier: fast
+  prompt: 'NavigateTo(url, forceLoad: true) khác NavigateTo(url) như thế nào?'
+  answer: 'NavigateTo(url) điều hướng phía client, giữ nguyên state trong bộ nhớ. forceLoad: true buộc
+    tải lại toàn bộ trang từ server, mất hoàn toàn state đang có.'
+- id: routing-navigation-q9
+  node: routing-navigation
+  tier: fast
+  prompt: Vì sao customerId nên là route parameter còn status nên là query string?
+  answer: customerId là dữ liệu bắt buộc, định danh chính — thiếu nó nên là not found. status chỉ là bộ
+    lọc tuỳ chọn — thiếu nó vẫn xem được danh sách đầy đủ.
+- id: forms-validation-q1
+  node: forms-validation
+  tier: fast
+  prompt: EditForm cần tối thiểu parameter nào để hoạt động, và nếu thiếu thì lỗi gì xảy ra?
+  answer: Cần Model (hoặc EditContext). Thiếu cả hai, EditForm ném InvalidOperationException lúc render.
+- id: forms-validation-q2
+  node: forms-validation
+  tier: fast
+  prompt: Vì sao <input> HTML thuần gắn @bind không hiện lỗi validation dù model có [Required], còn InputText
+    thì hiện?
+  answer: <input> thuần không tự đăng ký với EditContext của EditForm; InputText tự làm việc này qua cascading
+    parameter EditContext.
+- id: forms-validation-q3
+  node: forms-validation
+  tier: fast
+  prompt: Thành phần nào chịu trách nhiệm đọc attribute Data Annotations trên model và đẩy kết quả vào
+    EditContext?
+  answer: DataAnnotationsValidator, đặt bên trong EditForm.
+- id: forms-validation-q4
+  node: forms-validation
+  tier: fast
+  prompt: OnValidSubmit và OnSubmit khác nhau ở điểm nào khi dữ liệu form không hợp lệ?
+  answer: OnValidSubmit không được gọi nếu dữ liệu sai. OnSubmit vẫn chạy đầy đủ bất kể hợp lệ hay không,
+    phải tự gọi EditContext.Validate().
+- id: forms-validation-q5
+  node: forms-validation
+  tier: fast
+  prompt: Nếu gắn cả OnValidSubmit và OnSubmit cùng lúc trên một EditForm, chuyện gì xảy ra?
+  answer: EditForm ném InvalidOperationException lúc render vì hai cơ chế xung đột.
+- id: forms-validation-q6
+  node: forms-validation
+  tier: fast
+  prompt: Object con (nested) trong model có cần attribute riêng trên property đó để được validate không?
+  answer: Không cần — DataAnnotationsValidator tự đi sâu vào bên trong và kiểm tra attribute trên property
+    con.
+- id: forms-validation-q7
+  node: forms-validation
+  tier: fast
+  prompt: Điều gì xảy ra nếu property object con không được khởi tạo (null) mà InputText lại bind vào
+    field bên trong nó?
+  answer: InputText cố đọc giá trị field bên trong object null, gây NullReferenceException ngay lúc render,
+    trước khi người dùng nhập gì.
+- id: state-management-q1
+  node: state-management
+  tier: fast
+  prompt: Prop drilling là gì, và vì sao nó trở thành vấn đề khi cây component sâu?
+  answer: Prop drilling là truyền dữ liệu qua nhiều cấp Parameter trung gian chỉ để chuyển tiếp. Mỗi component
+    mới cần dữ liệu buộc phải sửa Parameter ở tất cả các cấp trung gian.
+- id: state-management-q2
+  node: state-management
+  tier: fast
+  prompt: CascadingValue giải quyết prop drilling như thế nào, khác gì so với [Parameter] thông thường?
+  answer: CascadingValue chia sẻ một giá trị cho toàn bộ cây con — component con/cháu nào khai [CascadingParameter]
+    cùng kiểu đều tự nhận được, không cần truyền tay qua từng cấp.
+- id: state-management-q3
+  node: state-management
+  tier: fast
+  prompt: Nếu một component khai [CascadingParameter] nhưng không nằm trong CascadingValue nào, điều gì
+    xảy ra?
+  answer: Không lỗi biên dịch. Lúc chạy, property giữ giá trị mặc định — lỗi runtime âm thầm.
+- id: state-management-q4
+  node: state-management
+  tier: fast
+  prompt: State container service là gì, và nó có gì mà CascadingValue không có?
+  answer: Là một service C# đăng ký DI chứa state chung + event thông báo. Vì tiêm qua DI, nó không phụ
+    thuộc vị trí trong cây component.
+- id: state-management-q5
+  node: state-management
+  tier: fast
+  prompt: Nếu một component subscribe vào OnChange của state container service nhưng không implement IDisposable,
+    hậu quả cụ thể là gì?
+  answer: 'Memory leak: mỗi lần component tạo lại, một đăng ký mới thêm vào OnChange không bị huỷ, service
+    giữ tham chiếu tới các instance component cũ.'
+- id: state-management-q6
+  node: state-management
+  tier: fast
+  prompt: Vì sao dùng biến static chứa giỏ hàng chung là sai, trong khi AddScoped<CartState>() lại đúng?
+  answer: Biến static chỉ có một bản cho toàn process, không phân biệt người dùng — dữ liệu nhiều người
+    dùng sẽ lẫn vào nhau. AddScoped tạo instance riêng cho mỗi người dùng.
+- id: state-management-q7
+  node: state-management
+  tier: fast
+  prompt: Vì sao dùng CascadingValue cho dữ liệu đổi liên tục gây lãng phí hiệu năng?
+  answer: Mỗi lần giá trị đổi, Blazor mặc định re-render toàn bộ cây con bên trong nó, kể cả component
+    không đọc giá trị đó.
+- id: state-management-q8
+  node: state-management
+  tier: fast
+  prompt: Nếu state container service expose dữ liệu qua List<T> công khai thay vì qua method riêng, hậu
+    quả khi component sửa trực tiếp là gì?
+  answer: Dữ liệu vẫn thay đổi thật, nhưng OnChange không được gọi — component khác đang subscribe sẽ
+    không biết để cập nhật UI.
+- id: goi-api-tu-blazor-q1
+  node: goi-api-tu-blazor
+  tier: fast
+  prompt: Vì sao code HttpClient trong Blazor WASM dùng lại đúng các API đã học ở backend, không có method
+    mới nào?
+  answer: HttpClient là một phần của .NET, không phụ thuộc việc code chạy server hay browser. Khác biệt
+    duy nhất là bị chi phối bởi luật bảo mật của browser (CORS).
+- id: goi-api-tu-blazor-q2
+  node: goi-api-tu-blazor
+  tier: fast
+  prompt: CORS là luật của ai — .NET, backend, hay browser? Nó chặn điều gì cụ thể?
+  answer: CORS là luật của browser. Nó chặn không cho JS/WASM đang chạy ở một origin đọc response từ request
+    tới origin khác, trừ khi server trả header Access-Control-Allow-Origin cho phép.
+- id: goi-api-tu-blazor-q3
+  node: goi-api-tu-blazor
+  tier: fast
+  prompt: Nếu backend chưa cấu hình CORS, lỗi hiện ra ở đâu — exception .NET hay console browser?
+  answer: Chỉ hiện trong console browser (F12), không xuất hiện trong exception .NET — dễ gây nhầm lẫn
+    khi debug.
+- id: goi-api-tu-blazor-q4
+  node: goi-api-tu-blazor
+  tier: fast
+  prompt: Hai lỗi cấu hình AddCors/UseCors phổ biến nhất khiến CORS vẫn bị chặn?
+  answer: (1) Quên gọi app.UseCors(...). (2) Gọi app.UseCors(...) sau khi đã map endpoint — thứ tự middleware
+    sai.
+- id: goi-api-tu-blazor-q5
+  node: goi-api-tu-blazor
+  tier: fast
+  prompt: Nếu thiếu BaseAddress khi đăng ký HttpClient trong Blazor WASM, gọi API với đường dẫn tương
+    đối lỗi gì?
+  answer: 'Ném InvalidOperationException: BaseAddress must be set.'
+- id: goi-api-tu-blazor-q6
+  node: goi-api-tu-blazor
+  tier: fast
+  prompt: Vì sao đặt isLoading = false trong nhánh try (không dùng finally) là một lỗi?
+  answer: Nếu lời gọi API ném exception, dòng isLoading = false không được thực thi vì luồng nhảy sang
+    catch trước — isLoading giữ nguyên true vĩnh viễn.
+- id: goi-api-tu-blazor-q7
+  node: goi-api-tu-blazor
+  tier: fast
+  prompt: Vì sao gọi API trực tiếp trong một method được @foreach/@if trong markup gọi lại là sai?
+  answer: Blazor render lại markup (gồm mọi method gọi trong đó) mỗi khi StateHasChanged() kích hoạt —
+    method gọi API sẽ chạy lại mỗi lần đó, gửi request không kiểm soát.
+- id: goi-api-tu-blazor-q8
+  node: goi-api-tu-blazor
+  tier: fast
+  prompt: Nơi đúng để gọi API trong một component Blazor là gì?
+  answer: Trong OnInitializedAsync() hoặc trong một event handler — kết quả lưu vào field, markup chỉ
+    đọc field đó.
+- id: goi-api-tu-blazor-q9
+  node: goi-api-tu-blazor
+  tier: fast
+  prompt: Method TaiDuLieu() được gọi từ hai nơi khác nhau. Đó là hai nơi nào, và vì sao cả hai đều hợp
+    lệ?
+  answer: OnInitializedAsync() (gọi 1 lần lúc khởi tạo) và @onclick trên nút Tải lại (gọi khi người dùng
+    bấm) — cả hai là lời gọi rời rạc, có chủ đích.
+- id: goi-api-tu-blazor-q10
+  node: goi-api-tu-blazor
+  tier: fast
+  prompt: Vì sao gõ vào ô tìm kiếm lại kích hoạt gọi API không liên quan tới tồn kho?
+  answer: Vì method gọi API được gọi trực tiếp trong markup. Mỗi lần ô tìm kiếm đổi, Blazor re-render,
+    và việc re-render chạy lại toàn bộ markup bao gồm method đó.
+- id: blazor-authentication-q1
+  node: blazor-authentication
+  tier: fast
+  prompt: Vì sao lưu JWT trong một biến C# thường không sống sót qua việc tải lại trang (F5) trong Blazor
+    WebAssembly?
+  answer: Vì Blazor WebAssembly chạy hoàn toàn qua WASM runtime — tải lại trang xoá toàn bộ chương trình
+    .NET trong bộ nhớ. localStorage là bộ nhớ trình duyệt, tồn tại độc lập với vòng đời chương trình .NET.
+- id: blazor-authentication-q2
+  node: blazor-authentication
+  tier: fast
+  prompt: AuthenticationStateProvider là gì, và tại sao phải tự kế thừa nó?
+  answer: Là lớp trừu tượng của Blazor đóng vai trò nguồn sự thật duy nhất cho 'ai đang đăng nhập'. Phải
+    tự kế thừa vì lớp cha không biết cách tìm ra danh tính trong ứng dụng cụ thể của bạn.
+- id: blazor-authentication-q3
+  node: blazor-authentication
+  tier: fast
+  prompt: AuthenticationStateProvider phía Blazor WASM có kiểm chữ ký JWT không?
+  answer: Không, vì trình duyệt không có secret key. Bảo vệ dữ liệu thật luôn phải nằm ở server qua AddJwtBearer/[Authorize]
+    trên API.
+- id: blazor-authentication-q4
+  node: blazor-authentication
+  tier: fast
+  prompt: AuthorizeView khác [Authorize] trên @page như thế nào về phạm vi tác động?
+  answer: AuthorizeView chỉ ẩn/hiện một phần UI. [Authorize] trên @page chặn hiển thị toàn bộ trang, cần
+    AuthorizeRouteView trong App.razor.
+- id: blazor-authentication-q5
+  node: blazor-authentication
+  tier: fast
+  prompt: Vì sao [Authorize] trên component Blazor không bảo vệ được API mà trang đó gọi tới?
+  answer: Vì code Blazor WASM chạy trong trình duyệt người dùng — họ có thể gọi thẳng API bằng công cụ
+    khác. Nếu API backend không có [Authorize] riêng, request trực tiếp vẫn thành công.
+- id: blazor-authentication-q6
+  node: blazor-authentication
+  tier: fast
+  prompt: Đăng xuất gồm những bước nào và vì sao phải đúng thứ tự?
+  answer: (1) xoá token khỏi localStorage, (2) gọi NotifyAuthenticationStateChanged. Phải xoá token trước,
+    nếu đảo thứ tự sẽ đọc token còn tồn tại.
+- id: blazor-authentication-q7
+  node: blazor-authentication
+  tier: fast
+  prompt: Nếu quên gọi NotifyAuthenticationStateChanged sau khi đăng xuất, hậu quả runtime cụ thể là gì?
+  answer: Không có exception. Token đã xoá thật nhưng AuthorizeView không được báo đổi — UI vẫn hiện như
+    đã đăng nhập cho tới khi tải lại trang.
+- id: blazor-authentication-q8
+  node: blazor-authentication
+  tier: fast
+  prompt: Vì sao context.User.Identity?.Name có thể trả về null dù ClaimsIdentity đã được dựng đúng dữ
+    liệu?
+  answer: Vì Identity.Name đọc claim type chuẩn ClaimTypes.Name. Nếu claim dựng bằng tên tuỳ ý mà không
+    map sang ClaimTypes.Name, Identity.Name trả null.
+- id: blazor-authentication-q9
+  node: blazor-authentication
+  tier: fast
+  prompt: localStorage có bảo vệ được JWT khỏi tấn công XSS không?
+  answer: Không. Một script độc hại chèn vào trang đọc được toàn bộ localStorage, bao gồm JWT — hạn chế
+    cố hữu.
+- id: blazor-authentication-q10
+  node: blazor-authentication
+  tier: fast
+  prompt: Vì sao cần kiểm claim exp ngay trong GetAuthenticationStateAsync(), dù server cũng đã kiểm?
+  answer: Để UI phản ánh đúng trạng thái sớm hơn — không phải cơ chế bảo mật, server vẫn phải tự kiểm
+    exp độc lập.
+- id: blazor-authentication-q11
+  node: blazor-authentication
+  tier: fast
+  prompt: Khi nào buộc phải tự tiêm AuthenticationStateProvider và gọi GetAuthenticationStateAsync() trong
+    @code thay vì chỉ dùng AuthorizeView?
+  answer: Khi cần logic C# tuỳ biến theo trạng thái đăng nhập không chỉ là ẩn/hiện UI — ví dụ chọn API
+    để gọi trong OnInitializedAsync().
+- id: blazor-authentication-q12
+  node: blazor-authentication
+  tier: fast
+  prompt: Nếu ClaimsIdentity không khai roleClaimType, [Authorize(Roles = "admin")] có cho người dùng
+    có claim role:admin vào không?
+  answer: Sẽ chặn lại dù có đúng claim. ClaimsIdentity mặc định tìm vai trò theo ClaimTypes.Role — thiếu
+    roleClaimType khiến IsInRole() luôn trả false.
+- id: js-interop-lifecycle-sau-q1
+  node: js-interop-lifecycle-sau
+  tier: fast
+  prompt: Vì sao Blazor cần JS Interop, dù đã là một framework C# đầy đủ?
+  answer: Vì nhiều hành vi (focus, clipboard, localStorage, thư viện JS bên thứ ba) là hành vi trình duyệt
+    thực thi bởi JavaScript — Blazor không thể bọc sẵn API cho mọi hành vi.
+- id: js-interop-lifecycle-sau-q2
+  node: js-interop-lifecycle-sau
+  tier: fast
+  prompt: InvokeVoidAsync và InvokeAsync<T> khác nhau ở điểm nào?
+  answer: InvokeVoidAsync dùng khi hàm JS không cần trả về giá trị. InvokeAsync<T> dùng khi cần lấy kết
+    quả trả về, chuyển thành kiểu T.
+- id: js-interop-lifecycle-sau-q3
+  node: js-interop-lifecycle-sau
+  tier: fast
+  prompt: '[JSInvokable] dùng để làm gì?'
+  answer: Đánh dấu một method C# public để JavaScript gọi ngược lại qua DotNet.invokeMethodAsync, tên
+    method phải khớp chính xác.
+- id: js-interop-lifecycle-sau-q4
+  node: js-interop-lifecycle-sau
+  tier: fast
+  prompt: OnAfterRenderAsync khác OnInitializedAsync ở điểm nào về thời điểm chạy so với DOM thật?
+  answer: OnInitializedAsync chạy trước lần render đầu (DOM chưa tồn tại). OnAfterRenderAsync chạy sau
+    khi đã vẽ xong HTML ra DOM thật.
+- id: js-interop-lifecycle-sau-q5
+  node: js-interop-lifecycle-sau
+  tier: fast
+  prompt: Tham số firstRender có giá trị gì ở lần gọi đầu và các lần sau?
+  answer: true chỉ ở lần gọi đầu tiên, false ở mọi lần sau — cần kiểm tra khi logic chỉ nên chạy một lần.
+- id: js-interop-lifecycle-sau-q6
+  node: js-interop-lifecycle-sau
+  tier: fast
+  prompt: Nếu một component tạo Timer nhưng không implement IDisposable, hậu quả cụ thể là gì?
+  answer: Timer tiếp tục chạy độc lập với vòng đời component dù đã gỡ khỏi cây UI — rò rỉ bộ nhớ tăng
+    dần.
+- id: js-interop-lifecycle-sau-q7
+  node: js-interop-lifecycle-sau
+  tier: fast
+  prompt: '@key giải quyết vấn đề gì khi render danh sách, và dùng index làm @key có giải quyết được không?'
+  answer: '@key giúp Blazor so khớp phần tử theo danh tính ổn định, tránh gán nhầm trạng thái khi danh
+    sách sắp xếp lại. Dùng index không giải quyết được vì vẫn đổi theo vị trí.'
+- id: js-interop-lifecycle-sau-q8
+  node: js-interop-lifecycle-sau
+  tier: fast
+  prompt: ElementReference giải quyết vấn đề gì mà document.getElementById với id cố định không giải quyết
+    được?
+  answer: Khi component dùng nhiều lần trên một trang, id cố định bị trùng. ElementReference (qua @ref)
+    luôn tham chiếu đúng phần tử DOM của chính instance đó.
+- id: blazor-performance-deploy-q1
+  node: blazor-performance-deploy
+  tier: fast
+  prompt: Vì sao Blazor WebAssembly tải lần đầu chậm hơn một trang HTML/JS thường?
+  answer: Vì trước khi chạy được code C#, trình duyệt phải tải thêm runtime .NET biên dịch sang WebAssembly
+    và các assembly .dll — trang JS thường chỉ cần tải và chạy ngay.
+- id: blazor-performance-deploy-q2
+  node: blazor-performance-deploy
+  tier: fast
+  prompt: AOT compilation đánh đổi cái gì để lấy cái gì?
+  answer: Đánh đổi kích thước file tải xuống lớn hơn để lấy tốc độ thực thi nhanh hơn (biên dịch sẵn thành
+    native WASM, không cần diễn giải IL lúc runtime).
+- id: blazor-performance-deploy-q3
+  node: blazor-performance-deploy
+  tier: fast
+  prompt: ShouldRender() dùng để làm gì, và trả về false có nghĩa là gì?
+  answer: Quyết định component có cần render lại hay không. Trả về false khiến Blazor bỏ qua hoàn toàn
+    lần render đó.
+- id: blazor-performance-deploy-q4
+  node: blazor-performance-deploy
+  tier: fast
+  prompt: Vì sao viết lambda trực tiếp trong markup trong một @foreach có thể gây re-render dư thừa?
+  answer: Mỗi lần cha render lại, lambda được tạo ra một delegate instance mới — component con nhận qua
+    [Parameter] thấy giá trị đổi (tham chiếu khác) và bị buộc render lại.
+- id: blazor-performance-deploy-q5
+  node: blazor-performance-deploy
+  tier: fast
+  prompt: dotnet publish -c Release cho Blazor WebAssembly sinh ra loại nội dung gì, có cần process nào
+    chạy để phục vụ không?
+  answer: Sinh ra thư mục wwwroot chỉ chứa file static — không cần process ASP.NET Core nào chạy phía
+    sau.
+- id: blazor-performance-deploy-q6
+  node: blazor-performance-deploy
+  tier: fast
+  prompt: Vì sao có thể deploy Blazor WebAssembly lên GitHub Pages, nhưng không thể deploy Blazor Server?
+  answer: Blazor WASM sau publish chỉ là file static, phù hợp GitHub Pages. Blazor Server cần một process
+    ASP.NET Core chạy liên tục giữ kết nối SignalR — GitHub Pages không hỗ trợ.
+- id: blazor-performance-deploy-q7
+  node: blazor-performance-deploy
+  tier: fast
+  prompt: Deploy Blazor WASM lên GitHub Pages gặp trang trắng, file _framework/*.wasm báo 404 — nguyên
+    nhân phổ biến nhất?
+  answer: Quên sửa <base href="/" /> thành đường dẫn con đúng tên repository, vì GitHub Pages phục vụ
+    tại /ten-repo/, không phải gốc domain.
+- id: blazor-performance-deploy-q8
+  node: blazor-performance-deploy
+  tier: fast
+  prompt: Health check endpoint có áp dụng trực tiếp cho một ứng dụng Blazor WebAssembly thuần không?
+  answer: Không, vì nó không có process server chạy phía sau. Chỉ liên quan nếu ứng dụng gọi tới một Web
+    API backend riêng.

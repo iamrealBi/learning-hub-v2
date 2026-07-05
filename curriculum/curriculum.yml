@@ -186,3 +186,27 @@ phases:
           objective: "Phân biệt Entity/Value Object/Aggregate, dùng Aggregate Root đúng cách", requires: [p6-cqrs] }
       - { id: p6-messaging, file: p6-kien-truc/message-queue-event-driven.md, tier: fast, status: core, owner: core-team,
           objective: "Dùng message queue đúng lúc: Point-to-point vs Pub/Sub, Dead Letter Queue", requires: [p6-ddd] }
+
+  - id: P7
+    title: "Blazor Frontend"
+    nodes:
+      - { id: p7-overview, file: p7-blazor/blazor-tong-quan.md, tier: fast, status: core, owner: core-team,
+          objective: "Chọn đúng hosting model Blazor (Server/WebAssembly/Hybrid) theo tình huống", requires: [p6-messaging] }
+      - { id: p7-component, file: p7-blazor/component-co-ban.md, tier: fast, status: core, owner: core-team,
+          objective: "Viết component .razor với Parameter/ChildContent/lifecycle đúng thứ tự", requires: [p7-overview] }
+      - { id: p7-binding, file: p7-blazor/data-binding-events.md, tier: fast, status: core, owner: core-team,
+          objective: "Dùng @bind/@onclick/EventCallback đúng, tránh quên StateHasChanged", requires: [p7-component] }
+      - { id: p7-routing, file: p7-blazor/routing-navigation.md, tier: fast, status: core, owner: core-team,
+          objective: "Dùng @page/route parameter/NavigationManager đúng, chọn route vs query string", requires: [p7-component] }
+      - { id: p7-forms, file: p7-blazor/forms-validation.md, tier: fast, status: core, owner: core-team,
+          objective: "Dùng EditForm/InputText/DataAnnotationsValidator đúng, phân biệt OnValidSubmit/OnSubmit", requires: [p7-binding] }
+      - { id: p7-state, file: p7-blazor/state-management.md, tier: fast, status: core, owner: core-team,
+          objective: "Chọn đúng CascadingParameter vs state container service theo phạm vi dữ liệu", requires: [p7-routing] }
+      - { id: p7-httpclient, file: p7-blazor/goi-api-tu-blazor.md, tier: fast, status: core, owner: core-team,
+          objective: "Gọi API backend từ Blazor WASM đúng cách, quản lý loading/error state", requires: [p7-state] }
+      - { id: p7-auth, file: p7-blazor/blazor-authentication.md, tier: fast, status: core, owner: core-team,
+          objective: "Lưu JWT & bảo vệ route bằng AuthenticationStateProvider/AuthorizeView", requires: [p7-httpclient, p4-jwt] }
+      - { id: p7-jsinterop, file: p7-blazor/js-interop-lifecycle-sau.md, tier: fast, status: core, owner: core-team,
+          objective: "Gọi JS Interop đúng cú pháp, dùng OnAfterRender/@key/IDisposable đúng chỗ", requires: [p7-auth] }
+      - { id: p7-deploy, file: p7-blazor/blazor-performance-deploy.md, tier: fast, status: core, owner: core-team,
+          objective: "Tối ưu re-render, publish & deploy Blazor WASM lên static hosting", requires: [p7-jsinterop] }
