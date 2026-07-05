@@ -301,6 +301,13 @@ Lỗi nghiệp vụ: Sản phẩm 1 đã có trong đơn — dùng UpdateLineQua
 
 ```csharp title="C#"
 // test:compile minh hoạ SAI — cho phép sửa OrderLine trực tiếp từ ngoài, KHÔNG qua Order
+public record Money(decimal Amount, string Currency);
+
+public record OrderLine(int ProductId, int Quantity, Money UnitPrice)
+{
+    public Money LineTotal => new Money(UnitPrice.Amount * Quantity, UnitPrice.Currency);
+}
+
 public class UnsafeOrder
 {
     public int Id { get; set; }

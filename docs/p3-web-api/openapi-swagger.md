@@ -69,17 +69,25 @@ Chỉ nhìn JSON này, một công cụ (hoặc một lập trình viên fronten
 
 ---
 
-## 2. `AddOpenApi`/`MapOpenApi`: sinh đặc tả JSON có sẵn trong .NET, không cần package ngoài
+## 2. `AddOpenApi`/`MapOpenApi`: sinh đặc tả JSON, package chính chủ Microsoft
 
-Từ .NET 9, ASP.NET Core có sẵn (built-in, nằm trong Web SDK, không cần cài package ngoài) hai phương thức để tự động sinh file OpenAPI từ các endpoint Minimal API đã khai báo:
+Từ .NET 9, Microsoft cung cấp package `Microsoft.AspNetCore.OpenApi` với hai phương thức để tự động sinh file OpenAPI từ các endpoint Minimal API đã khai báo:
 
 - `builder.Services.AddOpenApi()` — đăng ký dịch vụ sinh đặc tả OpenAPI (đọc route, tham số, kiểu trả về qua reflection lúc khởi động).
 - `app.MapOpenApi()` — mở một endpoint HTTP (mặc định `/openapi/v1.json`) để **trả về** file đặc tả đó dưới dạng JSON khi có ai gọi.
 
-Ví dụ tối thiểu, độc lập, chỉ minh hoạ đúng hai phương thức này:
+`Microsoft.AspNetCore.OpenApi` **vẫn là một package NuGet riêng** — không phải một phần "lõi" nằm cứng trong Web SDK. Sở dĩ nhiều người tưởng "không cần cài gì cả" là vì từ .NET 9, template `dotnet new webapi` tự động thêm sẵn `<PackageReference Include="Microsoft.AspNetCore.OpenApi" />` vào file `.csproj` khi scaffold — cảm giác như có sẵn, nhưng thực ra package đã được thêm hộ bạn. Nếu bạn tạo project bằng template `dotnet new web` (trần, không phải bản `webapi`), hoặc thêm OpenAPI vào một project có sẵn, bạn phải tự cài:
+
+```bash
+dotnet add package Microsoft.AspNetCore.OpenApi
+```
+
+Thiếu package này, gọi `AddOpenApi()`/`MapOpenApi()` sẽ lỗi biên dịch **CS1061** ("không chứa định nghĩa cho `AddOpenApi`") — không phải lỗi runtime, mà là lỗi ngay lúc build.
+
+Ví dụ tối thiểu, độc lập, chỉ minh hoạ đúng hai phương thức này (giả định project đã có package `Microsoft.AspNetCore.OpenApi`, xem trên):
 
 ```csharp title="Program.cs"
-// test:compile AddOpenApi/MapOpenApi có sẵn trong Web SDK .NET 9+, không cần package ngoài
+// test:compile AddOpenApi/MapOpenApi cần package Microsoft.AspNetCore.OpenApi (dotnet new webapi tự thêm từ .NET 9+, dotnet new web trần thì phải "dotnet add package" thủ công)
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
 

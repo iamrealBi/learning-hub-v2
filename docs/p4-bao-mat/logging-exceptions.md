@@ -102,7 +102,7 @@ Mỗi mức có một tình huống dùng riêng biệt:
 Ví dụ tối thiểu, tự chứa (chạy bằng BCL thuần, không cần web) minh hoạ việc gọi đúng phương thức tương ứng với mỗi level và cách chọn level theo tình huống:
 
 ```csharp title="C#"
-// test:run minh hoa 6 log level qua ILoggerFactory don gian, khong can ASP.NET Core
+// test:compile minh hoa 6 log level qua ILoggerFactory don gian, khong can ASP.NET Core
 using Microsoft.Extensions.Logging;
 
 using var factory = LoggerFactory.Create(builder =>
@@ -149,7 +149,7 @@ crit: DemoLogLevel[0]
 So sánh trực tiếp hai cách viết cho cùng một sự kiện:
 
 ```csharp title="C#"
-// test:run so sanh truc tiep: string interpolation (SAI) vs structured logging (DUNG)
+// test:compile so sanh truc tiep: string interpolation (SAI) vs structured logging (DUNG)
 using Microsoft.Extensions.Logging;
 
 using var factory = LoggerFactory.Create(builder => builder.AddConsole());
@@ -196,7 +196,7 @@ Cách gọi `LogInformation(...)` thông thường vẫn hoạt động đúng, 
 Ví dụ tối thiểu, độc lập:
 
 ```csharp title="C#"
-// test:run LoggerMessage source generator toi thieu, tu chua bang BCL
+// test:compile LoggerMessage source generator toi thieu, tu chua bang BCL
 using Microsoft.Extensions.Logging;
 
 using var factory = LoggerFactory.Create(builder => builder.AddConsole());
@@ -243,7 +243,7 @@ Tình huống điển hình: bạn muốn mọi dòng log của **cùng một re
 Ví dụ tối thiểu, độc lập, minh hoạ đúng khái niệm scope (không cần HTTP thật):
 
 ```csharp title="C#"
-// test:run BeginScope toi thieu: gan CorrelationId cho nhieu dong log trong 1 "request" gia lap
+// test:compile BeginScope toi thieu: gan CorrelationId cho nhieu dong log trong 1 "request" gia lap
 using Microsoft.Extensions.Logging;
 
 using var factory = LoggerFactory.Create(builder =>
@@ -420,7 +420,7 @@ app.Run();
 **Bài 1 (giàn giáo):** Đoạn code dưới đây ghi log bằng string interpolation cho một luồng xử lý thanh toán. Hãy sửa lại thành structured logging đúng chuẩn (message template + tham số có tên), sao cho hệ thống log tập trung có thể lọc theo `PaymentId` và `Amount` riêng biệt.
 
 ```csharp title="C#"
-// test:run bai tap 1 - co loi string interpolation, can sua
+// test:compile bai tap 1 - co loi string interpolation, can sua
 using Microsoft.Extensions.Logging;
 
 using var factory = LoggerFactory.Create(builder => builder.AddConsole());
@@ -437,7 +437,7 @@ Gợi ý giàn giáo: message template dùng `{TenTruong}` viết hoa chữ cái
 
 ??? success "Lời giải + vì sao"
     ```csharp title="C#"
-    // test:run bai tap 1 - da sua thanh structured logging
+    // test:compile bai tap 1 - da sua thanh structured logging
     using Microsoft.Extensions.Logging;
 
     using var factory = LoggerFactory.Create(builder => builder.AddConsole());
@@ -456,7 +456,7 @@ Gợi ý giàn giáo: message template dùng `{TenTruong}` viết hoa chữ cái
 
 ??? success "Lời giải + vì sao"
     ```csharp title="C#"
-    // test:run bai tap 2 - thiet ke day du BeginScope + log level phu hop
+    // test:compile bai tap 2 - thiet ke day du BeginScope + log level phu hop
     using Microsoft.Extensions.Logging;
 
     using var factory = LoggerFactory.Create(builder =>

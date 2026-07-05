@@ -384,6 +384,7 @@ Thay vì trả về một giá trị mặc định "rỗng" như ví dụ trên,
 
 ```csharp title="Program.cs (minh hoa Fallback tra ve du lieu cache cu)"
 // test:compile khong dung API Polly nao ca trong doan nay - chi IMemoryCache + IHttpClientFactory co san trong Web SDK
+using Microsoft.Extensions.Caching.Memory;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddMemoryCache();
 

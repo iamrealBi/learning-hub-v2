@@ -135,9 +135,9 @@ Console.WriteLine(FibNgayTho(10));   // 55
 
 ```csharp title="Đếm số lần gọi thực tế của Fibonacci ngây thơ"
 // test:run
-static int soLanGoi = 0;
+int soLanGoi = 0;
 
-static long FibDemLanGoi(int n)
+long FibDemLanGoi(int n)
 {
     soLanGoi++;
     if (n <= 1) return n;

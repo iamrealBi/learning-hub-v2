@@ -459,6 +459,11 @@ Quan sát: cả hai đoạn code **giống nhau về bản chất** — cả hai
 
 ```csharp title="C#"
 // test:compile Web SDK trần — giao tiếp ĐƠN GIẢN trong CÙNG MỘT tiến trình, KHÔNG cần message queue
+public class AuditLogWriter
+{
+    public void Write(string message) => Console.WriteLine(message); // giả lập ghi vào bảng AuditLog
+}
+
 public class EmployeeService
 {
     private readonly AuditLogWriter _auditLogWriter;

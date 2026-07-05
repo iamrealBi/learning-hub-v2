@@ -65,6 +65,7 @@ Ví dụ tối thiểu: giới hạn một endpoint chỉ nhận tối đa 5 req
 ```csharp title="Program.cs"
 // test:compile dang ky AddRateLimiter co ban, ap dung cho 1 endpoint
 using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -106,6 +107,7 @@ Ví dụ: giới hạn 100 request/60 giây cho toàn bộ API bằng một name
 ```csharp title="Program.cs"
 // test:compile fixed window: 100 request co dinh moi 60 giay
 using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -139,6 +141,7 @@ app.Run();
 ```csharp title="Program.cs"
 // test:compile sliding window: 100 request/60s, chia thanh 6 segment 10s de tinh chinh xac hon
 using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -173,6 +176,7 @@ app.Run();
 ```csharp title="Program.cs"
 // test:compile token bucket: giu toi 20 token, nap lai 5 token moi 10 giay -> cho phep burst ngan han
 using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -209,6 +213,7 @@ Ví dụ: một endpoint gọi tới một tác vụ nặng (xử lý ảnh, exp
 ```csharp title="Program.cs"
 // test:compile concurrency limiter: toi da 3 request DANG XU LY dong thoi, khong lien quan so luong theo thoi gian
 using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -251,6 +256,7 @@ Middleware `UseRateLimiter()` của .NET tự động trả 429 khi vượt gi�
 ```csharp title="Program.cs"
 // test:compile tuy bien response 429 kem header Retry-After
 using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -290,6 +296,7 @@ app.Run();
 ```csharp title="Program.cs"
 // test:compile tinh Retry-After dong tu RateLimitLease.Metadata, chinh xac hon hang so cung
 using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -411,6 +418,7 @@ Kết hợp nhiều policy cho cùng một endpoint được thực hiện bằn
 ```csharp title="Program.cs"
 // test:compile ket hop 2 loai policy khac nhau cho CUNG mot endpoint: gioi han theo ngay + gioi han dong thoi
 using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -507,6 +515,7 @@ app.Run();
     ```csharp title="Program.cs"
     // test:compile bai 2 - concurrency limiter cho tac vu nang, khong gioi han theo thoi gian
     using System.Threading.RateLimiting;
+    using Microsoft.AspNetCore.RateLimiting;
 
     var builder = WebApplication.CreateBuilder(args);
 

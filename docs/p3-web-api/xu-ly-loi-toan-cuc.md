@@ -622,8 +622,8 @@ Gợi ý giàn giáo: middleware bọc theo thứ tự đăng ký — muốn `Us
     var app = builder.Build();
     app.UseExceptionHandler();
 
-    app.MapGet("/cham", () => throw new TimeoutException("Qua thoi gian cho"));
-    app.MapGet("/loi-khac", () => throw new InvalidOperationException("Loi khac"));
+    app.MapGet("/cham", () => { throw new TimeoutException("Qua thoi gian cho"); });
+    app.MapGet("/loi-khac", () => { throw new InvalidOperationException("Loi khac"); });
 
     app.Run();
 

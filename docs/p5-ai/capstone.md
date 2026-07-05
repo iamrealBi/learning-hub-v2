@@ -424,6 +424,47 @@ app.Run();
 // DTO tối thiểu để ví dụ compile được — validation attribute trả 400 tự động qua model binding.
 public record LoginDto(string Email, string Password);
 public record CreateTaskDto([System.ComponentModel.DataAnnotations.Required, System.ComponentModel.DataAnnotations.MaxLength(200)] string Title);
+
+// User/TaskItem/AppDbContext/TaskService: định nghĩa đầy đủ ở mục 3 (User/TaskItem) và mục 4
+// (AppDbContext, TaskService) của chương này — rút gọn lại đây chỉ để khối wiring này tự biên dịch độc lập.
+public class User
+{
+    public Guid Id { get; set; } = Guid.NewGuid();
+    public string Email { get; set; } = "";
+    public string PasswordHash { get; set; } = "";
+}
+
+public class TaskItem
+{
+    public Guid Id { get; set; } = Guid.NewGuid();
+    public string Title { get; set; } = "";
+    public bool IsDeleted { get; set; } = false;
+    public Guid UserId { get; set; }
+}
+
+public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
+{
+    public DbSet<User> Users => Set<User>();
+    public DbSet<TaskItem> Tasks => Set<TaskItem>();
+}
+
+// TokenService: cấp/kiểm JWT — chi tiết thật đã học ở chương jwt (P4), rút gọn lại đây chỉ để compile.
+public sealed class TokenService
+{
+    public bool VerifyPassword(string password, string hash) => true; // thật: BCrypt.Verify(...)
+    public string CapToken(string userId, string email) => "jwt-token-gia-lap"; // thật: JwtSecurityTokenHandler
+}
+
+public sealed class TaskService(AppDbContext db)
+{
+    public async Task<TaskItem> CreateAsync(Guid userId, string title)
+    {
+        var task = new TaskItem { Title = title, UserId = userId };
+        db.Tasks.Add(task);
+        await db.SaveChangesAsync();
+        return task;
+    }
+}
 ```
 
 Đọc đúng thứ tự các bước đánh số trong comment: **(1)** đăng ký `AppDbContext` trước tiên vì mọi service khác có thể cần nó; **(2)** đăng ký xác thực/phân quyền JWT; **(3)** đăng ký service nghiệp vụ qua `AddScoped` (không `new TaskService()` thủ công trong endpoint — nếu làm vậy, service không nhận được `AppDbContext` qua constructor injection, và không thể mock khi test); **(4)** khai báo middleware theo đúng thứ tự (exception handler bọc ngoài cùng, `UseAuthentication` trước `UseAuthorization`), rồi mới tới endpoint.

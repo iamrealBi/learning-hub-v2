@@ -554,6 +554,8 @@ public class NotificationWorker : BackgroundService
 
     ```csharp title="C#"
     // test:compile bai 3 da sua - bat loi tung item, khong de mot email sai lam sap ca app
+    using System.Threading.Channels;
+
     public class NotificationWorker : BackgroundService
     {
         private readonly Channel<string> _emailQueue;
@@ -666,6 +668,11 @@ public class NotificationWorker : BackgroundService
 
     ```csharp title="C#"
     // test:compile Web SDK tran - dung IServiceScopeFactory de lay Scoped service trong BackgroundService
+    public interface IAuditLogRepository
+    {
+        Task DeleteOlderThanAsync(DateTime threshold, CancellationToken cancellationToken);
+    }
+
     public class DataCleanupWorker : BackgroundService
     {
         private readonly IServiceScopeFactory _scopeFactory;

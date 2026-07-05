@@ -110,6 +110,8 @@ Vì hai câu hỏi khác nhau và dẫn tới hai hành động khác nhau, ASP.
 
 ```csharp title="Program.cs"
 // test:compile tach Liveness va Readiness bang tag va predicate
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddHealthChecks()
@@ -243,6 +245,7 @@ Thứ tự mức độ tệ, từ nhẹ đến nặng: `Healthy` < `Degraded` < 
 ```csharp title="Program.cs"
 // test:compile 3 check dang ky cung endpoint - minh hoa quy tac tong hop trang thai
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -272,6 +275,7 @@ Một tình huống thực tế hay gặp: app của bạn đang **shutdown có 
 ```csharp title="Program.cs"
 // test:compile readiness phan anh trang thai shutdown co chu dich
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
 var builder = WebApplication.CreateBuilder(args);
 var dangShutdown = false;
@@ -338,6 +342,7 @@ Mặc định, `MapHealthChecks` trả về **text thuần** (`Healthy`/`Unhealt
 // test:compile ResponseWriter tuy chinh - tra JSON chi tiet tung check
 using System.Text.Json;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -606,6 +611,7 @@ Gợi ý giàn giáo: Kubernetes gọi `/health` cho cả `livenessProbe` và `r
 ```csharp title="Program.cs"
 // test:compile bai tap 4 - du doan ket qua tong hop
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
 var builder = WebApplication.CreateBuilder(args);
 

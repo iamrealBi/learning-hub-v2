@@ -168,6 +168,7 @@ Ví dụ tối thiểu:
 
 ```csharp title="Program.cs"
 // test:compile Options pattern toi thieu: class + Configure<T> + IOptions<T>
+using Microsoft.Extensions.Options;
 var builder = WebApplication.CreateBuilder(args);
 
 // Buoc 2: dang ky - troi class EmailOptions vao section "Email" cua JSON.
@@ -211,6 +212,7 @@ Ví dụ tối thiểu — tiêm `IOptions<T>` vào một Singleton:
 
 ```csharp title="Program.cs"
 // test:compile IOptions<T> tiem vao Singleton - doc dung 1 lan luc khoi dong
+using Microsoft.Extensions.Options;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<EmailOptions>(
@@ -248,6 +250,7 @@ Ví dụ tối thiểu:
 
 ```csharp title="Program.cs"
 // test:compile IOptionsSnapshot<T> - doc lai moi request, chi dung cho Scoped/Transient
+using Microsoft.Extensions.Options;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<EmailOptions>(
@@ -295,6 +298,7 @@ Ví dụ tối thiểu:
 
 ```csharp title="Program.cs"
 // test:compile IOptionsMonitor<T> - Singleton, doc CurrentValue va theo doi OnChange
+using Microsoft.Extensions.Options;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<EmailOptions>(
@@ -425,6 +429,7 @@ Gợi ý giàn giáo: binder cấu hình của .NET khớp tên thuộc tính C#
 ??? success "Lời giải + vì sao"
     ```csharp title="Program.cs"
     // test:compile bai 2: Singleton + can gia tri moi lien tuc -> IOptionsMonitor<T>
+    using Microsoft.Extensions.Options;
     var builder = WebApplication.CreateBuilder(args);
 
     builder.Services.Configure<FeatureFlagOptions>(
@@ -496,6 +501,7 @@ Gợi ý giàn giáo: binder cấu hình của .NET khớp tên thuộc tính C#
 
     ```csharp title="Program.cs"
     // test:compile named options - nhieu bien the cua cung mot Options class
+    using Microsoft.Extensions.Options;
     var builder = WebApplication.CreateBuilder(args);
 
     builder.Services.Configure<EmailOptions>("Primary", builder.Configuration.GetSection("Email:Primary"));

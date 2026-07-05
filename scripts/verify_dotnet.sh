@@ -31,17 +31,38 @@ echo "=== COMPILE snippets (web project + package auth) ==="
 dotnet new web -o verify/web >/dev/null
 ( cd verify/web
   dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer >/dev/null
-  dotnet add package System.IdentityModel.Tokens.Jwt >/dev/null )
+  dotnet add package System.IdentityModel.Tokens.Jwt >/dev/null
+  dotnet add package Microsoft.AspNetCore.OpenApi >/dev/null
+  dotnet add package Microsoft.EntityFrameworkCore >/dev/null
+  dotnet add package Microsoft.EntityFrameworkCore.InMemory >/dev/null
+  dotnet add package Npgsql.EntityFrameworkCore.PostgreSQL >/dev/null )
+# Chụp lại Program.cs gốc (do `dotnet new web` sinh ra) MỘT LẦN, để khôi phục
+# trước mỗi snippet — nếu không, snippet nào ghi đè Program.cs sẽ làm BẨN mọi
+# snippet 'class-only' chạy SAU nó trong cùng vòng lặp (từng gây rớt hàng loạt).
+cp verify/web/Program.cs verify/web/Program.cs.pristine
 for f in "$EX"/snippet_*_compile.cs; do
   [ -e "$f" ] || continue
   echo "-- build: $f"
-  # Nếu snippet có top-level statements, nó THAY Program.cs; nếu là class thì thêm file.
-  if grep -qE '^\s*(var|using )' "$f" && ! grep -qE '^\s*(public|internal|sealed) ' "$(head -1 <<<"$f")" 2>/dev/null; then
+  cp verify/web/Program.cs.pristine verify/web/Program.cs
+  rm -f verify/web/Snippet.cs
+  # Mặc định: coi snippet là class/record thêm-vào (Snippet.cs), giữ Program.cs
+  # gốc (đã có top-level statements từ `dotnet new web`). Không đoán bằng regex
+  # trên nội dung file (dễ sai — vd snippet "top-level statements + class phụ
+  # trợ" vẫn chứa dòng `public class ...`) — để chính compiler quyết: nếu build
+  # báo CS8802 (2 compilation unit cùng có top-level statements), nghĩa là
+  # snippet NÀY tự nó là top-level -> thử lại bằng cách thay hẳn Program.cs.
+  cp "$f" verify/web/Snippet.cs
+  build_out=$( cd verify/web && dotnet build -c Release 2>&1 )
+  build_status=$?
+  if [ $build_status -ne 0 ] && grep -q "CS8802" <<<"$build_out"; then
+    echo "   (snippet tự thân có top-level statements -> thử lại bằng cách thay Program.cs)"
+    rm -f verify/web/Snippet.cs
     cp "$f" verify/web/Program.cs
-  else
-    cp "$f" verify/web/Snippet.cs
+    build_out=$( cd verify/web && dotnet build -c Release 2>&1 )
+    build_status=$?
   fi
-  if ! ( cd verify/web && dotnet build -c Release ); then
+  echo "$build_out"
+  if [ $build_status -ne 0 ]; then
     FAILED+=("$f")
     echo "❌ FAIL: $f"
   fi
