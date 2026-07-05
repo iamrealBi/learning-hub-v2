@@ -131,5 +131,14 @@ nav:
     - "01 — Dùng Claude Code": p5-ai/claude-code.md
     - "02 — Model Context Protocol": p5-ai/mcp.md
     - "03 — 🏁 Capstone trung gian: TaskFlow (P1–P4)": p5-ai/capstone.md
+  - "P6 · Kiến trúc & Design Patterns":
+    - "01 — Kiến trúc phân lớp": p6-kien-truc/kien-truc-phan-lop.md
+    - "02 — Repository & Unit of Work": p6-kien-truc/repository-unit-of-work.md
+    - "03 — Design Patterns cốt lõi": p6-kien-truc/design-patterns-co-ban.md
+    - "04 — Design Patterns nâng cao": p6-kien-truc/design-patterns-nang-cao.md
+    - "05 — Clean Architecture": p6-kien-truc/clean-architecture.md
+    - "06 — CQRS": p6-kien-truc/cqrs.md
+    - "07 — Domain-Driven Design cơ bản": p6-kien-truc/ddd-co-ban.md
+    - "08 — Message Queue & Event-Driven": p6-kien-truc/message-queue-event-driven.md
   - "Về hệ thống":
     - "Kiến trúc sư phạm": PEDAGOGY.md

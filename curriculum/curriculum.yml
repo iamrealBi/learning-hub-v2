@@ -166,3 +166,23 @@ phases:
           objective: "Kết nối agent với công cụ ngoài qua MCP: tools/resources/prompts, stdio/HTTP", requires: [p5-claude-code], risk_tier: T3 }
       - { id: p5-capstone, file: p5-ai/capstone.md, tier: fast, status: core, owner: core-team,
           objective: "Capstone trung gian: ghép P1–P4 thành app TaskFlow chạy được đầu-cuối", requires: [p5-mcp, p4-jwt, p2-ef] }
+
+  - id: P6
+    title: "Kiến trúc & Design Patterns"
+    nodes:
+      - { id: p6-layered, file: p6-kien-truc/kien-truc-phan-lop.md, tier: fast, status: core, owner: core-team,
+          objective: "Tách Presentation/Application/Data đúng luật phụ thuộc một chiều", requires: [p5-capstone] }
+      - { id: p6-repository, file: p6-kien-truc/repository-unit-of-work.md, tier: fast, status: core, owner: core-team,
+          objective: "Biết khi nào Repository/Unit of Work riêng thật sự cần, khi nào DbSet là đủ", requires: [p6-layered] }
+      - { id: p6-patterns-basic, file: p6-kien-truc/design-patterns-co-ban.md, tier: fast, status: core, owner: core-team,
+          objective: "Áp dụng đúng Factory/Strategy/Decorator, nhận diện khi nào là thừa", requires: [p6-repository] }
+      - { id: p6-patterns-advanced, file: p6-kien-truc/design-patterns-nang-cao.md, tier: fast, status: core, owner: core-team,
+          objective: "Áp dụng Observer/Singleton(GoF)/Adapter, phân biệt Singleton pattern vs DI lifetime", requires: [p6-patterns-basic] }
+      - { id: p6-clean-architecture, file: p6-kien-truc/clean-architecture.md, tier: fast, status: core, owner: core-team,
+          objective: "Áp dụng Dependency Rule & Dependency Inversion ở tầng kiến trúc", requires: [p6-patterns-advanced] }
+      - { id: p6-cqrs, file: p6-kien-truc/cqrs.md, tier: fast, status: core, owner: core-team,
+          objective: "Quyết định đúng khi nào tách Command/Query, tránh over-engineering CRUD", requires: [p6-clean-architecture] }
+      - { id: p6-ddd, file: p6-kien-truc/ddd-co-ban.md, tier: fast, status: core, owner: core-team,
+          objective: "Phân biệt Entity/Value Object/Aggregate, dùng Aggregate Root đúng cách", requires: [p6-cqrs] }
+      - { id: p6-messaging, file: p6-kien-truc/message-queue-event-driven.md, tier: fast, status: core, owner: core-team,
+          objective: "Dùng message queue đúng lúc: Point-to-point vs Pub/Sub, Dead Letter Queue", requires: [p6-ddd] }

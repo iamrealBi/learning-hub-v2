@@ -2464,3 +2464,431 @@ questions:
     để không hiển thị nhầm task đã xoá?
   answer: Endpoint GET /tasks phải lọc thêm điều kiện !t.IsDeleted trong Where(...) — nếu quên, task đã
     xoá vẫn hiện ra vì xoá mềm chỉ đổi cờ, không thật sự xoá dòng dữ liệu.
+- id: kien-truc-phan-lop-q1
+  node: kien-truc-phan-lop
+  tier: fast
+  prompt: Kể tên 3 lớp trong kiến trúc Presentation — Application — Data, và công việc chính của mỗi lớp
+    trong đúng một câu.
+  answer: 'Presentation: nhận/parse HTTP, validate hình thức, ánh xạ kết quả thành mã HTTP. Application
+    (Service): chứa quy tắc nghiệp vụ thật, không biết gì về HTTP. Data (Repository/DbContext): đọc/ghi
+    dữ liệu bền, không tự quyết định quy tắc nghiệp vụ.'
+- id: kien-truc-phan-lop-q2
+  node: kien-truc-phan-lop
+  tier: fast
+  prompt: Luật phụ thuộc trong kiến trúc phân lớp quy định điều gì, theo đúng một chiều nào?
+  answer: 'Lớp ngoài được gọi lớp trong: Presentation → Application → Data. Lớp trong tuyệt đối không
+    được gọi ngược lại hoặc biết gì về lớp ngoài.'
+- id: kien-truc-phan-lop-q3
+  node: kien-truc-phan-lop
+  tier: fast
+  prompt: Vì sao đoạn code gộp validate + query + business logic trong một endpoint lại khó viết unit
+    test, dù về mặt chức năng nó vẫn chạy đúng?
+  answer: Vì quy tắc nghiệp vụ không tồn tại như một đơn vị gọi được độc lập — nó dính chặt vào DbContext/HTTP
+    pipeline bên trong lambda endpoint, nên test nó buộc phải kéo theo cả HTTP và database thật.
+- id: kien-truc-phan-lop-q4
+  node: kien-truc-phan-lop
+  tier: fast
+  prompt: Với EF Core, vì sao wrap thêm một lớp Repository quanh DbSet<T> thường là dư thừa? Khi nào thì
+    Repository riêng THẬT SỰ có giá trị?
+  answer: Dư thừa vì DbContext/DbSet<T> đã là một Unit-of-Work + Repository-like abstraction có sẵn. Repository
+    riêng có giá trị khi cần gom logic query phức tạp, dùng lại ở nhiều Service khác nhau.
+- id: kien-truc-phan-lop-q5
+  node: kien-truc-phan-lop
+  tier: fast
+  prompt: Cho ví dụ cụ thể một vi phạm luật phụ thuộc ở lớp Data, và hậu quả thực tế của nó.
+  answer: 'Ví dụ: ProductRepository trả về IResult thay vì trả Product? thuần. Hậu quả: OrderService buộc
+    phải xử lý IResult — nếu gọi từ nơi không có HTTP (background job), phải unwrap IResult một cách vô
+    nghĩa.'
+- id: kien-truc-phan-lop-q6
+  node: kien-truc-phan-lop
+  tier: fast
+  prompt: CQRS đáng dùng khi nào, và vì sao dùng nó cho một CRUD đơn giản là over-engineering?
+  answer: Đáng dùng khi model đọc và model ghi thật sự khác biệt đáng kể. Với CRUD đơn giản, tách riêng
+    Command/Query/Handler chỉ thêm nhiều class và độ phức tạp mà không giải quyết vấn đề gì.
+- id: kien-truc-phan-lop-q7
+  node: kien-truc-phan-lop
+  tier: fast
+  prompt: Singleton pattern (GoF) khác Singleton lifetime (DI container) ở điểm nào?
+  answer: Singleton pattern là một pattern cổ điển tự code (constructor private, thuộc tính tĩnh Instance).
+    Singleton lifetime chỉ là một cấu hình cho DI container biết tạo một instance dùng chung — không tự
+    quản gì.
+- id: kien-truc-phan-lop-q8
+  node: kien-truc-phan-lop
+  tier: fast
+  prompt: Nếu Service tự đọc HttpContext.User trực tiếp thay vì nhận userId qua tham số, hậu quả cụ thể
+    là gì khi viết unit test cho Service đó?
+  answer: Mọi unit test buộc phải giả lập cả IHttpContextAccessor và toàn bộ HttpContext.User chỉ để test
+    một quy tắc nghiệp vụ không liên quan gì đến HTTP, và Service không gọi được từ nơi không có HTTP
+    context.
+- id: kien-truc-phan-lop-q9
+  node: kien-truc-phan-lop
+  tier: fast
+  prompt: Vì sao OrderService nhận IProductRepository (interface) qua constructor thay vì nhận thẳng class
+    cụ thể lại giúp test dễ hơn? Cho một ví dụ khi việc tạo interface là KHÔNG cần thiết.
+  answer: 'Nhận qua interface nghĩa là OrderService chỉ biết hợp đồng, có thể thay bằng FakeProductRepository
+    trong test. Ví dụ không cần interface: một class tiện ích thuần tính toán, chỉ có đúng một cài đặt
+    duy nhất.'
+- id: repository-unit-of-work-q1
+  node: repository-unit-of-work
+  tier: fast
+  prompt: Repository pattern định nghĩa là gì, và nó giải quyết vấn đề cụ thể nào khi viết unit test?
+  answer: 'Repository là một interface trừu tượng hoá việc truy cập dữ liệu. Nó giải quyết vấn đề: Service
+    phụ thuộc trực tiếp một class cụ thể rất khó mock; phụ thuộc một interface thì mock được bằng fake
+    class, test chạy không cần database.'
+- id: repository-unit-of-work-q2
+  node: repository-unit-of-work
+  tier: fast
+  prompt: Unit of Work là gì? Cho ví dụ cụ thể trong EF Core chứng minh nó đã có sẵn.
+  answer: Unit of Work gom nhiều thay đổi dữ liệu thành một giao dịch lưu một lần. Trong EF Core, DbContext.SaveChangesAsync()
+    chính là Unit of Work có sẵn.
+- id: repository-unit-of-work-q3
+  node: repository-unit-of-work
+  tier: fast
+  prompt: Vì sao viết một GenericRepository<T> bọc quanh DbSet<T> với chỉ Add/Get/Update/Delete thường
+    là thừa khi dùng EF Core?
+  answer: Vì DbSet<T> đã là Repository-like abstraction + Unit of Work có sẵn. Bọc thêm không thêm giá
+    trị trừu tượng hoá thật, mà che mất Include, Select projection, AsNoTracking.
+- id: repository-unit-of-work-q4
+  node: repository-unit-of-work
+  tier: fast
+  prompt: Nêu hai trường hợp cụ thể khi viết Repository riêng THẬT SỰ hữu ích với EF Core.
+  answer: (1) Có logic query phức tạp được tái sử dụng ở nhiều nơi — gói vào một phương thức để không
+    lặp code. (2) Thật sự cần trừu tượng hoá để đổi database provider, hoặc mock hoàn toàn trong test.
+- id: repository-unit-of-work-q5
+  node: repository-unit-of-work
+  tier: fast
+  prompt: Nếu gọi SaveChangesAsync() hai lần rời rạc cho hai thay đổi liên quan, điều gì có thể xảy ra
+    nếu bước thứ hai thất bại?
+  answer: Hai lần gọi là hai transaction độc lập — nếu bước thứ hai thất bại, thay đổi của bước đầu (đã
+    lưu thành công) không bị rollback theo. Phải sửa cả hai entity trước, rồi gọi SaveChangesAsync() một
+    lần.
+- id: repository-unit-of-work-q6
+  node: repository-unit-of-work
+  tier: fast
+  prompt: Interface Repository nên chứa bao nhiêu phương thức — càng nhiều cho đủ dùng sau càng tốt, hay
+    chỉ vừa đủ nhu cầu hiện tại?
+  answer: Chỉ nên chứa đúng những phương thức mà caller thật sự đang gọi. Thêm phương thức cho đủ trước
+    khi có nhu cầu thật làm interface phình to, khó mock, vi phạm Interface Segregation.
+- id: repository-unit-of-work-q7
+  node: repository-unit-of-work
+  tier: fast
+  prompt: Một API CRUD đơn giản, không có logic query phức tạp, không có kế hoạch đổi database — có nên
+    viết Repository riêng bọc DbSet<T> không? Vì sao?
+  answer: Không nên. Không rơi vào hai trường hợp cần Repository riêng — viết thêm chỉ tạo code dư thừa,
+    mất tính năng EF Core mà không có lợi ích thật.
+- id: repository-unit-of-work-q8
+  node: repository-unit-of-work
+  tier: fast
+  prompt: Repository đặc thù (IOrderRepository) khác Repository generic (IGenericRepository<T>) ở điểm
+    thiết kế nào, và vì sao khác biệt đó giúp không che mất Include/projection?
+  answer: Repository đặc thù có phương thức đặt tên theo câu hỏi nghiệp vụ cụ thể, không phải theo động
+    từ CRUD chung áp dụng cho mọi T — mỗi phương thức tự do trả về đúng hình dạng dữ liệu cần.
+- id: repository-unit-of-work-q9
+  node: repository-unit-of-work
+  tier: fast
+  prompt: Khi nào cần một IUnitOfWork tường minh? Nếu đăng ký sai lifetime cho Repository/IUnitOfWork
+    so với DbContext, hậu quả cụ thể là gì?
+  answer: Cần khi một nghiệp vụ phải phối hợp nhiều Repository trong cùng một giao dịch. Nếu đăng ký Singleton
+    trong khi DbContext là Scoped, ASP.NET Core ném lỗi ngay khi khởi động (captive dependency).
+- id: design-patterns-co-ban-q1
+  node: design-patterns-co-ban
+  tier: fast
+  prompt: Factory pattern giải quyết vấn đề cụ thể gì — nêu đúng triệu chứng code trước khi áp dụng.
+  answer: Logic tạo object (switch-case/if-else tạo instance) lặp lại ở nhiều nơi gọi khác nhau, khiến
+    việc thêm một loại object mới phải sửa nhiều chỗ, dễ quên sửa sót gây bug.
+- id: design-patterns-co-ban-q2
+  node: design-patterns-co-ban
+  tier: fast
+  prompt: Vì sao if-else chọn thuật toán khác về bản chất với Strategy pattern, không chỉ là viết dài
+    hơn?
+  answer: if-else chọn cứng trong một hàm, không tách được thành đơn vị độc lập, không test riêng được,
+    không đổi được lúc runtime. Strategy đóng gói mỗi thuật toán vào một class riêng cài cùng interface,
+    đổi được mà không sửa context gọi nó.
+- id: design-patterns-co-ban-q3
+  node: design-patterns-co-ban
+  tier: fast
+  prompt: Decorator có sửa class gốc để thêm hành vi mới không? Vì sao đây là điểm mấu chốt của pattern
+    này?
+  answer: Không — Decorator bọc object gốc bằng một class khác cùng interface, hành vi mới thêm ở lớp
+    bọc, class gốc không đổi một dòng nào.
+- id: design-patterns-co-ban-q4
+  node: design-patterns-co-ban
+  tier: fast
+  prompt: Nêu một tình huống Strategy pattern là over-engineering, và cách đơn giản hơn nên dùng.
+  answer: Chỉ có 2 mức giá vận chuyển cố định, hiếm khi thay đổi — dùng enum + switch đơn giản hơn hẳn
+    so với dựng interface + nhiều class.
+- id: design-patterns-co-ban-q5
+  node: design-patterns-co-ban
+  tier: fast
+  prompt: Nêu một tình huống Decorator pattern là over-engineering.
+  answer: Chỉ cần thêm log cho đúng một service, một nơi dùng, không có kế hoạch tái dùng — viết thẳng
+    dòng log vào class đó đơn giản hơn dựng cả decorator riêng.
+- id: design-patterns-co-ban-q6
+  node: design-patterns-co-ban
+  tier: fast
+  prompt: Lỗi lập trình phổ biến nhất khi viết Decorator là gì, và vì sao khó phát hiện bằng mắt?
+  answer: Quên gọi _inner (hành vi gốc). Khó phát hiện vì code vẫn compile và chạy bình thường, không
+    có exception — chỉ trả về kết quả sai hoặc giá trị mặc định.
+- id: design-patterns-co-ban-q7
+  node: design-patterns-co-ban
+  tier: fast
+  prompt: Vì sao một Strategy có trạng thái (stateful) đăng ký làm singleton trong DI container lại nguy
+    hiểm?
+  answer: Nếu strategy đó có field lưu trạng thái mutable, nhiều request đồng thời sẽ đọc/ghi chung trạng
+    thái đó, gây race condition khó tái hiện.
+- id: design-patterns-nang-cao-q1
+  node: design-patterns-nang-cao
+  tier: fast
+  prompt: Trong Observer pattern, vì sao subject (publisher) không cần biết cụ thể observer là kiểu gì?
+  answer: Vì subject chỉ giữ một event/delegate với chữ ký cố định — nó thông báo qua chữ ký đó, không
+    quan tâm ai đã đăng ký hay có bao nhiêu người.
+- id: design-patterns-nang-cao-q2
+  node: design-patterns-nang-cao
+  tier: fast
+  prompt: event/delegate của C# liên quan gì tới Observer pattern của GoF?
+  answer: event/delegate chính là cách C# cài đặt sẵn ngữ nghĩa Observer trong ngôn ngữ — GoF mô tả Observer
+    bằng interface tự viết vì Java/C++ thời đó chưa có delegate hạng nhất.
+- id: design-patterns-nang-cao-q3
+  node: design-patterns-nang-cao
+  tier: fast
+  prompt: Singleton pattern (GoF) và Singleton lifetime (DI container) khác nhau ở điểm nào về constructor?
+  answer: Singleton GoF bắt buộc constructor private. Singleton lifetime của DI container yêu cầu constructor
+    public vì chính container phải gọi constructor đó — hai yêu cầu đối lập, không trộn được trên cùng
+    một class.
+- id: design-patterns-nang-cao-q4
+  node: design-patterns-nang-cao
+  tier: fast
+  prompt: Vì sao Singleton pattern GoF khó test hơn Singleton lifetime của DI?
+  answer: Singleton GoF là global mutable state truy cập qua điểm tĩnh — không có cách tráo bằng fake
+    khi test. Singleton lifetime của DI cho phép đăng ký implementation khác riêng cho test.
+- id: design-patterns-nang-cao-q5
+  node: design-patterns-nang-cao
+  tier: fast
+  prompt: Adapter pattern giải quyết vấn đề gì khi tích hợp thư viện thanh toán bên thứ ba?
+  answer: Thư viện ngoài có interface khác IPaymentGateway nội bộ, không sửa được thư viện ngoài. Adapter
+    bọc lại, implement IPaymentGateway, gọi đúng API ngoài và chuyển đổi dữ liệu.
+- id: design-patterns-nang-cao-q6
+  node: design-patterns-nang-cao
+  tier: fast
+  prompt: Vì sao Adapter nên trả về kiểu dữ liệu nội bộ thay vì kiểu của thư viện ngoài?
+  answer: Nếu Adapter trả thẳng kiểu ngoài, code gọi vẫn phải biết cấu trúc dữ liệu ngoài — chưa cách
+    ly thật. Trả kiểu nội bộ đảm bảo code gọi không biết thư viện ngoài tồn tại.
+- id: design-patterns-nang-cao-q7
+  node: design-patterns-nang-cao
+  tier: fast
+  prompt: Cho một ứng dụng chỉ có một chỗ gọi API ngoài, không có kế hoạch đổi nhà cung cấp — có nên tạo
+    interface + Adapter không? Vì sao?
+  answer: Không cần — over-engineering. Adapter chỉ đáng giá khi có nhu cầu thay thế/cách ly thật.
+- id: design-patterns-nang-cao-q8
+  node: design-patterns-nang-cao
+  tier: fast
+  prompt: Vì sao C# trong thực tế chỉ dùng được Object Adapter (composition) mà hiếm khi dùng Class Adapter
+    theo đúng nghĩa GoF?
+  answer: Vì C# không hỗ trợ đa kế thừa class, nên Class Adapter (kế thừa cả interface đích lẫn class
+    cần bọc) không viết được nếu thứ cần bọc là một class cụ thể.
+- id: clean-architecture-q1
+  node: clean-architecture
+  tier: fast
+  prompt: Trong kiến trúc phân lớp thông thường, điều gì SAI về hướng phụ thuộc, cụ thể là ai phụ thuộc
+    vào ai?
+  answer: Application (chứa quy tắc nghiệp vụ, đáng lẽ ổn định nhất) lại phụ thuộc trực tiếp vào Data/hạ
+    tầng cụ thể — lớp quan trọng phụ thuộc lớp chi tiết dễ đổi.
+- id: clean-architecture-q2
+  node: clean-architecture
+  tier: fast
+  prompt: Phát biểu chính xác Dependency Rule bằng một câu.
+  answer: Phụ thuộc luôn trỏ vào trong, về phía Domain; Domain — vòng trung tâm — không phụ thuộc vào
+    bất kỳ vòng nào khác.
+- id: clean-architecture-q3
+  node: clean-architecture
+  tier: fast
+  prompt: IOrderRepository nên được định nghĩa trong project nào, và implement trong project nào?
+  answer: Định nghĩa trong Application (hoặc Domain). Implement (ví dụ bằng EF Core) trong Infrastructure.
+- id: clean-architecture-q4
+  node: clean-architecture
+  tier: fast
+  prompt: Vì sao đặt IOrderRepository trong project Infrastructure rồi để Application using nó là một
+    lỗi phổ biến?
+  answer: Vì hướng tham chiếu .csproj vẫn là Application --> Infrastructure — thêm interface không đảo
+    được gì nếu nó nằm sai project.
+- id: clean-architecture-q5
+  node: clean-architecture
+  tier: fast
+  prompt: Nêu 2 dấu hiệu cho thấy áp Clean Architecture là over-engineering cho một dự án cụ thể.
+  answer: Dự án nhỏ, một developer, không có kế hoạch thật đổi hạ tầng; hoặc team chưa có kỷ luật giữ
+    hướng phụ thuộc.
+- id: clean-architecture-q6
+  node: clean-architecture
+  tier: fast
+  prompt: DbSet<T> của EF Core có phải là một dạng Repository/Unit-of-Work sẵn có không? Điều này ảnh
+    hưởng gì tới quyết định viết thêm interface Repository riêng?
+  answer: Đúng, DbSet<T> + DbContext đã là Unit-of-Work + Repository-like abstraction có sẵn. Viết thêm
+    là dư thừa nếu không có nhu cầu thật.
+- id: clean-architecture-q7
+  node: clean-architecture
+  tier: fast
+  prompt: Trong ví dụ OrderService/IOrderRepository, viết unit test cho OrderService cần gì trước và sau
+    khi đảo hướng phụ thuộc?
+  answer: 'Trước: cần AppDbContext thật hoặc InMemory provider. Sau: chỉ cần một class nhỏ implement IOrderRepository
+    bằng List<Order> trong bộ nhớ.'
+- id: clean-architecture-q8
+  node: clean-architecture
+  tier: fast
+  prompt: Domain có được phép biết Application, Infrastructure, hay Presentation không?
+  answer: Không. Domain là vòng trung tâm, không phụ thuộc bất kỳ vòng nào khác.
+- id: cqrs-q1
+  node: cqrs
+  tier: fast
+  prompt: CQRS là viết tắt của gì, và hai chữ C và Q tương ứng với loại hành động nào?
+  answer: Command Query Responsibility Segregation. C (Command) là hành động thay đổi trạng thái; Q (Query)
+    là hành động chỉ đọc, không gây tác dụng phụ.
+- id: cqrs-q2
+  node: cqrs
+  tier: fast
+  prompt: Vì sao dùng chung một model cho cả đọc và ghi lại gây khó khăn khi hệ thống lớn lên?
+  answer: Model đọc (cần denormalize, JOIN, tính toán) và model ghi (chỉ cần dữ liệu tối thiểu) có nhu
+    cầu khác nhau; dùng chung khiến mỗi lần đổi field cho một bên rung chuyển bên còn lại.
+- id: cqrs-q3
+  node: cqrs
+  tier: fast
+  prompt: Một Command có nên trả về toàn bộ object chi tiết vừa tạo/sửa không? Vì sao?
+  answer: Không nên. Command chỉ trả về thông tin tối thiểu (id, thành công/thất bại); trả dữ liệu chi
+    tiết là trách nhiệm của Query.
+- id: cqrs-q4
+  node: cqrs
+  tier: fast
+  prompt: CQRS có bắt buộc phải tách thành hai database riêng không?
+  answer: Không. CQRS ở mức cơ bản chỉ tách model và luồng xử lý trong code, vẫn dùng chung một database.
+    Tách hẳn hai database là biến thể nâng cao (Event Sourcing).
+- id: cqrs-q5
+  node: cqrs
+  tier: fast
+  prompt: Nêu một ví dụ cụ thể mà áp dụng CQRS là over-engineering.
+  answer: Một API CRUD đơn giản (quản lý Category/Tag) với model đọc và ghi giống nhau gần như 100%, không
+    có logic nghiệp vụ phức tạp riêng.
+- id: cqrs-q6
+  node: cqrs
+  tier: fast
+  prompt: MediatR khác CQRS ở điểm nào — cái nào là khái niệm kiến trúc, cái nào là công cụ cài đặt?
+  answer: CQRS là nguyên tắc kiến trúc, áp dụng được bằng class C# thuần. MediatR là một thư viện NuGet
+    cụ thể tổ chức CQRS theo một khuôn thống nhất — không bắt buộc phải dùng.
+- id: cqrs-q7
+  node: cqrs
+  tier: fast
+  prompt: Nêu checklist 3 câu hỏi để quyết định có nên áp dụng CQRS hay không.
+  answer: (1) Model đọc và ghi có khác nhau đáng kể không? (2) Có logic nghiệp vụ phức tạp ở phía ghi
+    khác biệt với phía đọc không? (3) Phía đọc có cần denormalize/JOIN phức tạp mà phía ghi không quan
+    tâm không?
+- id: cqrs-q8
+  node: cqrs
+  tier: fast
+  prompt: Command handler và Query handler có bắt buộc phải dùng hai Repository/DbContext khác nhau không?
+  answer: Không bắt buộc. Cả hai có thể tiêm cùng một DbContext, chỉ khác cách gọi API (Command dùng Add+SaveChanges,
+    Query dùng AsNoTracking+Select).
+- id: cqrs-q9
+  node: cqrs
+  tier: fast
+  prompt: Vì sao nên bắt đầu từ mức CQRS-lite thay vì áp dụng ngay CQRS kèm Event Sourcing?
+  answer: Vì chi phí vận hành của Event Sourcing (đồng bộ hai luồng lưu trữ, eventual consistency) phải
+    trả ngay từ đầu, trong khi lý do thật sự cần nó thường chưa xảy ra ở giai đoạn đầu.
+- id: ddd-co-ban-q1
+  node: ddd-co-ban
+  tier: fast
+  prompt: Entity được xác định bằng gì? Value Object được xác định bằng gì? Nêu sự khác biệt cốt lõi.
+  answer: Entity được xác định bằng danh tính (Id) — hai Entity cùng Id là một, dù dữ liệu khác nhau.
+    Value Object được xác định hoàn toàn bởi giá trị — hai Value Object cùng giá trị là một.
+- id: ddd-co-ban-q2
+  node: ddd-co-ban
+  tier: fast
+  prompt: Vì sao dùng record để cài đặt Entity là một lựa chọn dễ gây lỗi, dù record viết ngắn hơn class?
+  answer: Vì record mặc định so sánh theo giá trị — hai bản ghi Entity khác Id nhưng trùng dữ liệu khác
+    sẽ bị coi là bằng nhau (sai), trong khi Entity chỉ cần so sánh theo Id.
+- id: ddd-co-ban-q3
+  node: ddd-co-ban
+  tier: fast
+  prompt: Vì sao record lại là cách cài đặt tự nhiên nhất cho Value Object trong C#?
+  answer: 'Vì Value Object cần đúng thứ record đã có sẵn: so sánh bằng nhau theo giá trị, không cần tự
+    viết Equals/GetHashCode.'
+- id: ddd-co-ban-q4
+  node: ddd-co-ban
+  tier: fast
+  prompt: Aggregate Root có vai trò gì? Nêu một hệ quả cụ thể nếu cho phép sửa thành phần con trực tiếp
+    từ ngoài.
+  answer: Aggregate Root là cửa duy nhất để thay đổi dữ liệu bên trong Aggregate. Nếu sửa trực tiếp thành
+    phần con, rule nghiệp vụ viết trong method của Aggregate Root sẽ bị bỏ qua hoàn toàn.
+- id: ddd-co-ban-q5
+  node: ddd-co-ban
+  tier: fast
+  prompt: Bounded Context giải quyết vấn đề gì khi hai team dùng chung một tên khái niệm?
+  answer: Bounded Context cho phép cùng một tên khái niệm có hai model khác nhau ở hai ngữ cảnh nghiệp
+    vụ khác nhau mà không xung đột.
+- id: ddd-co-ban-q6
+  node: ddd-co-ban
+  tier: fast
+  prompt: Nêu một ví dụ mà áp dụng Entity/Aggregate đầy đủ là over-engineering.
+  answer: Một API quản lý Currency (chỉ Code, Symbol), không có rule nghiệp vụ, không có thành phần con
+    — một record CurrencyDto đơn giản là đủ.
+- id: ddd-co-ban-q7
+  node: ddd-co-ban
+  tier: fast
+  prompt: Trong ví dụ Order/OrderLine, vì sao OrderLine không nên là Aggregate Root riêng?
+  answer: Vì OrderLine không có ý nghĩa tồn tại độc lập — chỉ có nghĩa khi gắn với một Order cụ thể, và
+    rule nghiệp vụ cần được kiểm tra ở phạm vi toàn bộ Order.
+- id: ddd-co-ban-q8
+  node: ddd-co-ban
+  tier: fast
+  prompt: Cách đúng để đổi một Value Object bất biến là gì — sửa trực tiếp field hay tạo bản mới?
+  answer: Phải tạo bản mới, dùng cú pháp with của record, ví dụ var newAddress = oldAddress with { City
+    = "Hà Nội" }.
+- id: message-queue-event-driven-q1
+  node: message-queue-event-driven
+  tier: fast
+  prompt: Nếu OrderService gọi trực tiếp EmailService qua HTTP đồng bộ và EmailService đang down, điều
+    gì xảy ra với request tạo đơn?
+  answer: Request tạo đơn cũng fail theo dù đơn hàng đã lưu thành công vào database ở bước trước — vì
+    gọi đồng bộ, lỗi ở service phụ lan sang phá hỏng luồng nghiệp vụ chính.
+- id: message-queue-event-driven-q2
+  node: message-queue-event-driven
+  tier: fast
+  prompt: Nêu định nghĩa một câu của Message Queue và giải thích vì sao nó không yêu cầu người gửi và
+    nhận online cùng lúc.
+  answer: Message Queue là một service trung gian nhận message và giữ lại cho đến khi người nhận sẵn sàng
+    lấy; người gửi chỉ cần gửi xong là hoàn tất, không cần đợi người nhận xử lý ngay.
+- id: message-queue-event-driven-q3
+  node: message-queue-event-driven
+  tier: fast
+  prompt: Phân biệt Point-to-point và Publish/Subscribe dựa trên số lượng người nhận xử lý mỗi message.
+  answer: 'Point-to-point: mỗi message chỉ được đúng một consumer nhận dù có nhiều consumer lắng nghe.
+    Publish/Subscribe: mỗi message được giao tới tất cả subscriber đã đăng ký.'
+- id: message-queue-event-driven-q4
+  node: message-queue-event-driven
+  tier: fast
+  prompt: Competing Consumers là gì, và nó xây dựng trên nền Point-to-point hay Publish/Subscribe?
+  answer: Competing Consumers là chạy nhiều instance của cùng một consumer, cùng lắng nghe một queue để
+    chia tải. Xây dựng trên Point-to-point, vì mỗi message vẫn chỉ được đúng một instance xử lý.
+- id: message-queue-event-driven-q5
+  node: message-queue-event-driven
+  tier: fast
+  prompt: RabbitMQ và Azure Service Bus khác nhau cơ bản ở điểm gì?
+  answer: RabbitMQ là phần mềm self-host — tự vận hành hạ tầng; Azure Service Bus là dịch vụ managed cloud
+    — Microsoft vận hành hạ tầng, chỉ cần tạo resource và trả tiền theo mức dùng.
+- id: message-queue-event-driven-q6
+  node: message-queue-event-driven
+  tier: fast
+  prompt: Vì sao đọc message qua JsonElement/dynamic nguy hiểm hơn deserialize thẳng về một record message
+    contract cụ thể?
+  answer: Đọc qua JsonElement/dynamic khi tên field không khớp sẽ không throw lỗi — chỉ đọc ra giá trị
+    mặc định âm thầm. Deserialize về record cụ thể giúp lỗi lộ ra rõ ràng ngay khi field bắt buộc thiếu/sai
+    kiểu.
+- id: message-queue-event-driven-q7
+  node: message-queue-event-driven
+  tier: fast
+  prompt: Dead Letter Queue giải quyết vấn đề gì?
+  answer: DLQ là một queue phụ mà hạ tầng tự động chuyển message vào sau khi giao lại thất bại quá số
+    lần giới hạn, giúp lấy message lỗi ra khỏi luồng xử lý chính để không chặn message hợp lệ khác.
+- id: message-queue-event-driven-q8
+  node: message-queue-event-driven
+  tier: fast
+  prompt: Nêu một ví dụ cụ thể mà thêm message queue vào hệ thống là over-engineering.
+  answer: Một ứng dụng nội bộ nhỏ, một service duy nhất, ghi log vào file trong cùng tiến trình — đây
+    là lời gọi method nội bộ, không cần bất đồng bộ, không cần thêm hạ tầng.
