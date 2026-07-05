@@ -16,3 +16,6 @@ venv/
 # OS
 .DS_Store
 Thumbs.db
+
+# Cấu hình preview cục bộ (tool nội bộ), không phải nội dung dự án
+.claude/
