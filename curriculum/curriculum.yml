@@ -31,7 +31,7 @@ concepts:
   exceptions:         p1-csharp/exceptions.md
   jwt:                p4-bao-mat/jwt.md
   di:                 p3-web-api/dependency-injection.md
-  ef-core-query:      p2-du-lieu/ef-core-truy-van.md
+  ef-core-query:      p2-du-lieu/ef-core.md
 
 phases:
   - id: P0
@@ -148,15 +148,21 @@ phases:
       - { id: p4-jwt, file: p4-bao-mat/jwt.md, tier: fast, status: core, owner: security-expert,
           objective: "Cấp/kiểm JWT an toàn (UtcNow, HTTPS, ClockSkew) — trang canonical duy nhất về JWT",
           requires: [p3-di], risk_tier: T3 }
-      - { id: p4-upload, file: p4-bao-mat/tai-file-an-toan.md, tier: fast, status: draft, owner: security-expert,
+      - { id: p4-upload, file: p4-bao-mat/tai-file-an-toan.md, tier: fast, status: core, owner: security-expert,
           objective: "Nhận file an toàn: chống path traversal, kiểm MIME/magic-byte", requires: [p4-jwt], risk_tier: T3 }
-      - { id: p4-test, file: p4-bao-mat/testing.md, tier: fast, status: draft, owner: core-team,
-          objective: "Viết test xUnit làm-tài-liệu-sống cho API", requires: [p3-api] }
+      - { id: p4-test, file: p4-bao-mat/testing.md, tier: fast, status: core, owner: core-team,
+          objective: "Viết test xUnit làm-tài-liệu-sống cho API", requires: [p4-upload] }
+      - { id: p4-logging, file: p4-bao-mat/logging-exceptions.md, tier: fast, status: core, owner: core-team,
+          objective: "Structured logging với ILogger: log level, correlation id, Serilog", requires: [p4-test] }
+      - { id: p4-deploy, file: p4-bao-mat/deploy-docker.md, tier: fast, status: core, owner: core-team,
+          objective: "Đóng gói .NET bằng Docker multi-stage, chạy qua docker-compose", requires: [p4-logging] }
 
   - id: P5
     title: "AI Engineering (fast-churn — 'run-it-to-verify')"
     nodes:
       - { id: p5-claude-code, file: p5-ai/claude-code.md, tier: fast, status: draft, owner: ai-expert,
-          objective: "Dùng Claude Code đúng: SKILL.md, hooks PascalCase, mcp add", requires: [p4-test], risk_tier: T3 }
+          objective: "Dùng Claude Code đúng: CLAUDE.md, SKILL.md, hooks PascalCase, subagent", requires: [p4-deploy], risk_tier: T3 }
+      - { id: p5-mcp, file: p5-ai/mcp.md, tier: fast, status: draft, owner: ai-expert,
+          objective: "Kết nối agent với công cụ ngoài qua MCP: tools/resources/prompts, stdio/HTTP", requires: [p5-claude-code], risk_tier: T3 }
       - { id: p5-capstone, file: p5-ai/capstone.md, tier: fast, status: draft, owner: core-team,
-          objective: "Ghép P1–P5 thành một app TaskFlow chạy được đầu-cuối", requires: [p5-claude-code, p4-jwt, p2-ef] }
+          objective: "Capstone trung gian: ghép P1–P4 thành app TaskFlow chạy được đầu-cuối", requires: [p5-mcp, p4-jwt, p2-ef] }

@@ -350,18 +350,23 @@ questions:
 - id: tai-file-an-toan-q1
   node: tai-file-an-toan
   tier: fast
-  prompt: Hàm BCL nào bóc bỏ mọi thành phần đường dẫn khỏi tên file client?
-  answer: Path.GetFileName — chỉ giữ phần tên cuối, loại bỏ .. và mọi phần thư mục.
+  prompt: Hàm BCL nào bóc bỏ mọi thành phần đường dẫn khỏi tên file client, và nó có nhược điểm gì trên
+    hệ điều hành không phải Windows?
+  answer: 'Path.GetFileName — chỉ giữ phần tên cuối, loại bỏ .. và thư mục cha. Nhược điểm: trên hệ điều
+    hành không phải Windows, nó không coi \ là dấu phân tách, nên một chuỗi kiểu ..\..\cmd.exe lọt qua
+    gần như nguyên vẹn, vẫn nên kiểm thêm ký tự lạ.'
 - id: tai-file-an-toan-q2
   node: tai-file-an-toan
   tier: fast
-  prompt: Vì sao không được tin Content-Type hay đuôi file khi phân loại?
-  answer: Cả hai do client kiểm soát và có thể bịa; chỉ magic bytes (nội dung thật) mới đáng tin.
+  prompt: Vì sao không được tin Content-Type hay đuôi file khi phân loại nội dung?
+  answer: Cả hai đều là giá trị do client tự khai — không có cơ chế nào bắt buộc chúng khớp với nội dung
+    thật; chỉ magic byte (đọc trực tiếp nội dung) mới đáng tin.
 - id: tai-file-an-toan-q3
   node: tai-file-an-toan
   tier: fast
-  prompt: Nên kiểm kích thước file trước hay sau khi đọc toàn bộ nội dung? Vì sao?
-  answer: Trước. Từ chối sớm tránh nạp file khổng lồ vào bộ nhớ/đĩa (chống DoS) và tiết kiệm xử lý.
+  prompt: Nên kiểm kích thước file trước hay sau khi đọc toàn bộ nội dung vào bộ nhớ? Vì sao?
+  answer: Trước. Từ chối sớm bằng giới hạn ở tầng server (RequestSizeLimit/MaxRequestBodySize) tránh nạp
+    file khổng lồ vào bộ nhớ/đĩa trước — đây là điều kiện để chống DoS thật sự.
 - id: tai-file-an-toan-q4
   node: tai-file-an-toan
   tier: fast
@@ -371,39 +376,42 @@ questions:
 - id: tai-file-an-toan-q5
   node: tai-file-an-toan
   tier: fast
-  prompt: Vì sao đặt tên lưu bằng Guid an toàn hơn dùng tên client?
-  answer: GUID do server sinh, client không kiểm soát nên loại bỏ path traversal và va chạm/ghi đè tên;
-    tên client chỉ giữ để hiển thị.
+  prompt: Vì sao đặt tên lưu bằng Guid an toàn hơn dùng tên client, ngay cả khi tên đó đã qua Path.GetFileName?
+  answer: Path.GetFileName chỉ loại bỏ phần đường dẫn, nhưng vẫn giữ nguyên tên — hai client khác nhau
+    gửi cùng tên sẽ ghi đè lẫn nhau. Guid.NewGuid() do server sinh, đảm bảo không trùng, loại bỏ hoàn
+    toàn cả traversal và va chạm/ghi đè tên.
 - id: testing-q1
   node: testing
   tier: fast
-  prompt: Khi nào dùng [Theory] thay vì viết nhiều [Fact]?
-  answer: Khi cùng một logic cần kiểm với nhiều bộ dữ liệu — [Theory]+[InlineData] biến mỗi bộ thành một
-    test riêng, báo lỗi rõ giá trị nào sai.
+  prompt: Vì sao test tự động phát hiện lỗi sớm hơn việc tự tay chạy thử một lần?
+  answer: Vì test tự động chạy lại mọi lần build/commit, kể cả khi người sửa code không biết đoạn code
+    họ sửa có liên quan tới test đó — nó bảo vệ được cả những thay đổi không lường trước, còn tự tay chạy
+    thử chỉ kiểm tại một thời điểm.
 - id: testing-q2
   node: testing
   tier: fast
-  prompt: Ba khối của Arrange-Act-Assert làm gì?
-  answer: 'Arrange: dựng dữ liệu đầu vào. Act: gọi đúng một hành động cần kiểm. Assert: so kết quả thực
-    tế với kỳ vọng.'
+  prompt: Ba khối Arrange-Act-Assert lần lượt trả lời câu hỏi gì?
+  answer: 'Arrange: đầu vào/dữ liệu là gì. Act: gọi đúng một hành động cần kiểm. Assert: kết quả thực
+    tế có khớp kết quả kỳ vọng không.'
 - id: testing-q3
   node: testing
   tier: fast
-  prompt: Vì sao đặt tên test theo hành vi là tài liệu sống?
-  answer: Mỗi tên nêu rõ điều kiện và hành vi mong đợi, nên đọc danh sách tên test là đọc được đặc tả
-    hệ thống mà không cần đọc cài đặt.
+  prompt: Khi nào nên dùng [Theory] + [InlineData] thay vì viết nhiều [Fact]?
+  answer: Khi cùng một logic cần kiểm với nhiều bộ dữ liệu khác nhau — gộp thành một [Theory] tránh lặp
+    code, và mỗi [InlineData] vẫn là một test độc lập, báo lỗi rõ đúng bộ tham số nào gây fail.
 - id: testing-q4
   node: testing
   tier: fast
-  prompt: WebApplicationFactory<Program> khác test logic thuần ở điểm cốt lõi nào?
-  answer: Nó khởi động toàn bộ app trong bộ nhớ và gọi endpoint http thật qua routing/DI/middleware; test
-    logic thuần chỉ gọi một lớp cô lập, không qua pipeline.
+  prompt: Tiêu chí duy nhất để phân biệt unit test và integration test là gì?
+  answer: Có I/O thật (mạng, database, file) hay không. Unit test không có I/O thật, mọi dependency ngoài
+    bị thay giả; integration test có I/O thật hoặc gần thật, ví dụ WebApplicationFactory<T>.
 - id: testing-q5
   node: testing
   tier: fast
-  prompt: Vì sao mock qua interface giúp test tất định hơn?
-  answer: Fake/mock cho phép điều khiển đầu ra của phụ thuộc (DB, mạng), nên kết quả không phụ thuộc yếu
-    tố ngoài, chạy nhanh và luôn cho cùng kết quả.
+  prompt: Vì sao mock qua interface hoạt động được, mà không mock được nếu code gọi trực tiếp một lớp
+    cụ thể?
+  answer: Vì service chỉ phụ thuộc vào abstraction (interface), không phụ thuộc cài đặt cụ thể — cho phép
+    cắm bất kỳ implementation nào, kể cả một implementation giả chỉ tồn tại trong test.
 - id: claude-code-1
   node: claude-code
   tier: fast
@@ -518,31 +526,33 @@ questions:
 - id: deploy-docker-q1
   node: deploy-docker
   tier: fast
-  prompt: Vì sao stage build và stage runtime dùng hai image khác nhau?
-  answer: sdk để biên dịch (nặng, nhiều công cụ), aspnet để chạy (nhỏ, ít bề mặt tấn công); multi-stage
-    chỉ copy output nên image cuối nhỏ và an toàn.
+  prompt: Container khác VM ở điểm cách ly nào — cụ thể là kernel?
+  answer: Container dùng chung kernel của host (cách ly ở tầng tiến trình qua namespace/cgroup); VM có
+    kernel riêng hoàn toàn được hypervisor giả lập.
 - id: deploy-docker-q2
   node: deploy-docker
   tier: fast
-  prompt: Lệnh nào trong Dockerfile giúp container không chạy bằng root?
-  answer: USER app (chuyển sang user không đặc quyền có sẵn trong image aspnet).
+  prompt: Từ một image, docker run ba lần thì có ba image hay ba container?
+  answer: Ba container. Image không đổi số lượng — nó vẫn là một bản thiết kế bất biến; mỗi lần docker
+    run tạo một container mới từ đó.
 - id: deploy-docker-q3
   node: deploy-docker
   tier: fast
-  prompt: EXPOSE 8080 có tự động mở cổng ra host không?
-  answer: 'Không; chỉ là tài liệu hoá, cần -p khi docker run hoặc ports: trong compose.'
+  prompt: Vì sao multi-stage build không COPY toàn bộ mã nguồn và SDK vào image cuối?
+  answer: Vì production chỉ cần kết quả đã publish để chạy; mang SDK làm image nặng hơn và tăng bề mặt
+    tấn công, mang mã nguồn làm lộ logic nội bộ nếu ai đó lấy được image.
 - id: deploy-docker-q4
   node: deploy-docker
   tier: fast
-  prompt: Vì sao không nên đặt mật khẩu DB bằng ENV trong Dockerfile?
-  answer: Mỗi layer bất biến và đọc được qua docker history nên secret bị bake vĩnh viễn; phải truyền
-    lúc runtime.
+  prompt: .dockerignore giải quyết vấn đề gì mà .gitignore không giải quyết được cho Docker?
+  answer: .dockerignore lọc file trước khi gửi build context cho Docker daemon và trước khi COPY vào image
+    — Docker không đọc .gitignore, nên file như bin/ hay obj/ vẫn cần lọc riêng ở đây.
 - id: deploy-docker-q5
   node: deploy-docker
   tier: fast
-  prompt: 'Trong compose, condition: service_healthy giải quyết vấn đề gì?'
-  answer: Đảm bảo api chỉ khởi động sau khi Postgres sẵn sàng (pg_isready), tránh lỗi kết nối lúc khởi
-    động.
+  prompt: EXPOSE 8080 trong Dockerfile có tự mở cổng ra host không? Cái gì mới thực sự mở cổng?
+  answer: 'Không. EXPOSE chỉ là tài liệu hoá cổng dự kiến. Cổng thực sự mở bằng -p host:container ở docker
+    run hoặc ports: trong docker-compose.yml.'
 - id: p5-mcp-q1
   node: mcp
   tier: fast
@@ -2186,3 +2196,150 @@ questions:
   prompt: response.Content.ReadFromJsonAsync<T>() gọi hai lần trên cùng một response sẽ có vấn đề gì?
   answer: HttpContent là một stream chỉ đọc được một lần. Đọc lần thứ hai sẽ gây lỗi hoặc trả về dữ liệu
     rỗng — nếu cần dùng lại, phải đọc một lần thành biến rồi xử lý từ biến đó.
+- id: jwt-q1
+  node: jwt
+  tier: fast
+  prompt: JWT gồm 3 phần nào, và phần nào chứa dữ liệu (claim) mà bất kỳ ai cũng đọc được?
+  answer: Header.Payload.Signature. Phần Payload chỉ là Base64URL (không phải mã hoá), ai cũng decode
+    đọc được nguyên văn JSON claim bên trong.
+- id: jwt-q2
+  node: jwt
+  tier: fast
+  prompt: Đơn vị của claim exp/iat/nbf là gì? Nếu nhét nhầm giá trị millisecond vào đó, hậu quả gì?
+  answer: Unix timestamp tính bằng giây. Nếu nhét nhầm millisecond (lớn hơn 1000 lần), thư viện hiểu token
+    hết hạn ở một thời điểm cách xa hàng nghìn năm sau — token coi như không bao giờ hết hạn, một lỗ hổng
+    bảo mật.
+- id: jwt-q3
+  node: jwt
+  tier: fast
+  prompt: ClockSkew mặc định của TokenValidationParameters là bao nhiêu? Vì sao cần biết điều này khi
+    viết test kiểm token hết hạn?
+  answer: Mặc định 5 phút, không phải 0. Một token hết hạn 4 phút trước vẫn được coi là hợp lệ vì nằm
+    trong biên độ lệch cho phép — test kỳ vọng hết hạn ngay lập tức sẽ fail nếu không set ClockSkew =
+    TimeSpan.Zero tường minh.
+- id: jwt-q4
+  node: jwt
+  tier: fast
+  prompt: Vì sao nói JWT không mã hoá, chỉ ký? Nếu một kẻ tấn công sửa claim role trong payload rồi gửi
+    lại token, chuyện gì xảy ra khi server kiểm?
+  answer: JWT dùng Base64URL (đảo ngược tự do) cho payload, không dùng thuật toán mã hoá cần khoá giải
+    mã. Chữ ký phụ thuộc toàn bộ vào payload gốc + secret key — nếu kẻ tấn công sửa payload nhưng giữ
+    chữ ký cũ, server tính lại chữ ký từ payload mới, kết quả không khớp chữ ký cũ, server phát hiện và
+    từ chối token.
+- id: jwt-q5
+  node: jwt
+  tier: fast
+  prompt: Vì sao access token nên sống ngắn (phút) trong khi refresh token sống dài (ngày/tuần)? Refresh
+    token nên lưu ở đâu phía client, và vì sao?
+  answer: Access token ngắn hạn để giảm thiệt hại nếu bị đánh cắp. Refresh token cần sống dài để người
+    dùng không phải đăng nhập lại liên tục, nhưng phải lưu trong cookie HttpOnly + Secure + SameSite để
+    giảm rủi ro bị đánh cắp qua XSS, đồng thời gắn với bản ghi phía server để có thể thu hồi khi cần.
+- id: jwt-q6
+  node: jwt
+  tier: fast
+  prompt: Nếu bạn quên set ValidateIssuerSigningKey = true (hoặc set thành false), điều gì có thể xảy
+    ra?
+  answer: Server sẽ chấp nhận token bất kể chữ ký có khớp hay không — bất kỳ ai tự tạo một token với claim
+    tuỳ ý (ví dụ role=admin) cũng được coi là hợp lệ. Đây là lỗ hổng nghiêm trọng nhất khi cấu hình sai
+    TokenValidationParameters.
+- id: jwt-q7
+  node: jwt
+  tier: fast
+  prompt: app.UseAuthentication() phải đứng trước hay sau app.UseAuthorization()? Nếu đặt sai thứ tự,
+    hiện tượng cụ thể là gì?
+  answer: Phải đứng trước. Nếu đặt sau, HttpContext.User chưa được điền thông tin khi UseAuthorization()
+    chạy kiểm tra quyền — mọi request bị trả 401 dù client gửi token hợp lệ.
+- id: tai-file-an-toan-q6
+  node: tai-file-an-toan
+  tier: fast
+  prompt: Byte đầu tiên của một file PNG hợp lệ là giá trị hex nào?
+  answer: 0x89 (byte đầu trong chữ ký 8-byte chuẩn 89 50 4E 47 0D 0A 1A 0A).
+- id: tai-file-an-toan-q7
+  node: tai-file-an-toan
+  tier: fast
+  prompt: Khi kiểm magic byte, vì sao phải dùng số byte thực sự đọc được (bytesDaDoc) chứ không dùng độ
+    dài của mảng buffer đã cấp phát?
+  answer: Buffer được cấp phát sẵn với kích thước cố định và giữ giá trị 0x00 mặc định ở các vị trí chưa
+    được ghi; nếu stream chỉ đọc được ít byte hơn kích thước buffer, dùng độ dài buffer sẽ vô tình so
+    khớp trên dữ liệu chưa từng tồn tại trong file thật, gây kết quả sai.
+- id: testing-q6
+  node: testing
+  tier: fast
+  prompt: Test không có Assert nào có làm tăng coverage không? Vì sao đây là vấn đề?
+  answer: Có — dòng code được chạy qua vẫn tính vào coverage dù không có Assert. Đây là vấn đề vì test
+    đó không kiểm tra gì cả, luôn pass bất kể kết quả đúng sai, tạo cảm giác an toàn giả.
+- id: testing-q7
+  node: testing
+  tier: fast
+  prompt: 100% test coverage có đảm bảo không có bug không? Vì sao?
+  answer: Không. Coverage chỉ đo tỉ lệ code được chạy qua trong lúc test, không đo việc kết quả có được
+    kiểm tra đúng hay không. Một dự án 100% coverage với assert hời hợt vẫn có thể chứa nhiều bug.
+- id: logging-exceptions-q1
+  node: logging-exceptions
+  tier: fast
+  prompt: ILogger<T> — tham số T dùng để làm gì, và bạn có nên tự new nó thay vì để DI cấp không?
+  answer: 'T dùng làm category — tên nguồn phát ra dòng log, thường là tên class. Không nên tự new: để
+    DI cấp đảm bảo logger được nối đúng với mọi provider đã cấu hình sẵn; tự tạo thủ công dễ thiếu kết
+    nối, khiến log biến mất mà không rõ lý do.'
+- id: logging-exceptions-q2
+  node: logging-exceptions
+  tier: fast
+  prompt: Sắp xếp đúng thứ tự nghiêm trọng tăng dần của 6 log level.
+  answer: Trace < Debug < Information < Warning < Error < Critical.
+- id: logging-exceptions-q3
+  node: logging-exceptions
+  tier: fast
+  prompt: Vì sao logger.LogInformation($"User {userId} logged in") bị coi là sai trong code review, dù
+    console hiển thị đúng nội dung mong muốn?
+  answer: Vì nội suy chuỗi hoà giá trị userId vào chuỗi ngay lập tức, hệ thống log tập trung không còn
+    tách được userId thành một trường riêng để truy vấn — chỉ còn full-text search kém chính xác trên
+    chuỗi phẳng.
+- id: logging-exceptions-q4
+  node: logging-exceptions
+  tier: fast
+  prompt: LoggerMessage source generator giải quyết vấn đề gì, và khi nào bạn NÊN cân nhắc dùng nó?
+  answer: Nó sinh code ghi log tại thời điểm compile, tránh chi phí boxing tham số và kiểm tra level lặp
+    lại. Nên cân nhắc dùng khi đã đo được logging là điểm nghẽn hiệu năng thật sự — không nên dùng tràn
+    lan vì tăng độ phức tạp không cần thiết.
+- id: logging-exceptions-q5
+  node: logging-exceptions
+  tier: fast
+  prompt: BeginScope dùng để làm gì, và điều gì xảy ra nếu bạn không đặt nó trong khối using?
+  answer: Dùng để gắn context (ví dụ correlation id) vào mọi dòng log ghi bên trong scope đó. Nếu không
+    đặt trong using, scope không kết thúc đúng thời điểm — dữ liệu context có thể dính vào các dòng log
+    không liên quan được ghi sau đó.
+- id: logging-exceptions-q6
+  node: logging-exceptions
+  tier: fast
+  prompt: Trong appsettings.json, mục Logging:LogLevel:Default và một mục ghi đè riêng cho một category
+    cụ thể khác nhau ở điểm nào?
+  answer: Default áp dụng cho mọi category không được liệt kê riêng. Mục ghi đè riêng chỉ áp dụng cho
+    đúng category đó (và các category con theo namespace), cho phép hạ/nâng mức log của một phần nhỏ hệ
+    thống mà không ảnh hưởng phần còn lại.
+- id: logging-exceptions-q7
+  node: logging-exceptions
+  tier: fast
+  prompt: Sink trong Serilog là gì?
+  answer: Sink là đích đến cụ thể mà log chảy tới, ví dụ Console, File, Seq, Elasticsearch. Serilog cho
+    phép cấu hình nhiều sink cùng lúc cho cùng một dòng log.
+- id: logging-exceptions-q8
+  node: logging-exceptions
+  tier: fast
+  prompt: 'Nếu bạn để "Default": "Trace" sót lại trong appsettings.Production.json, hậu quả cụ thể là
+    gì?'
+  answer: Hệ thống production ghi log ở mức chi tiết nhất cho mọi request thật, khiến lượng log tăng vọt
+    — có thể làm đầy disk, vượt hạn mức dịch vụ log tập trung, hoặc khiến log quan trọng bị tự động xoá
+    sớm hơn đúng lúc cần nó nhất.
+- id: deploy-docker-q6
+  node: deploy-docker
+  tier: fast
+  prompt: Container ở trạng thái Up có chắc là app đang hoạt động đúng không? Vì sao cần HEALTHCHECK?
+  answer: Không chắc. Up chỉ nghĩa tiến trình chính chưa thoát; app có thể deadlock hoặc kẹt mà vẫn Up.
+    HEALTHCHECK (hoặc endpoint /health) kiểm tra app có phản hồi đúng, không chỉ còn tồn tại.
+- id: deploy-docker-q7
+  node: deploy-docker
+  tier: fast
+  prompt: 'Trong docker-compose.yml, condition: service_healthy khác gì so với việc chỉ khai depends_on
+    không kèm condition?'
+  answer: 'depends_on không kèm condition chỉ đợi container khởi động; condition: service_healthy đợi
+    đến khi healthcheck của service đó thực sự báo PASS, tức service sẵn sàng nhận request/kết nối thật.'

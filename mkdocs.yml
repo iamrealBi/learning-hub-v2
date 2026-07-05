@@ -125,11 +125,11 @@ nav:
     - "01 — JWT (canonical)": p4-bao-mat/jwt.md
     - "02 — Tải file an toàn": p4-bao-mat/tai-file-an-toan.md
     - "03 — Testing (xUnit)": p4-bao-mat/testing.md
-    - "04 — Logging & Ngoại lệ toàn cục": p4-bao-mat/logging-exceptions.md
+    - "04 — Structured Logging (ILogger)": p4-bao-mat/logging-exceptions.md
     - "05 — Docker & Deploy": p4-bao-mat/deploy-docker.md
   - "P5 · AI Engineering":
     - "01 — Dùng Claude Code": p5-ai/claude-code.md
     - "02 — Model Context Protocol": p5-ai/mcp.md
-    - "03 — 🏁 Capstone: TaskFlow": p5-ai/capstone.md
+    - "03 — 🏁 Capstone trung gian: TaskFlow (P1–P4)": p5-ai/capstone.md
   - "Về hệ thống":
     - "Kiến trúc sư phạm": PEDAGOGY.md
