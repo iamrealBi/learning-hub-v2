@@ -278,6 +278,15 @@ graph LR
 
 ```csharp title="Rate Limiter tối giản bằng sliding window counter"
 // test:run
+var rl = new RateLimiter(gioiHan: 3, cuaSo: TimeSpan.FromSeconds(10));
+var goc = new DateTime(2026, 1, 1, 0, 0, 0);
+
+Console.WriteLine(rl.ChoPhep("client-A", goc));                              // True  (1/3)
+Console.WriteLine(rl.ChoPhep("client-A", goc.AddSeconds(2)));                 // True  (2/3)
+Console.WriteLine(rl.ChoPhep("client-A", goc.AddSeconds(4)));                 // True  (3/3)
+Console.WriteLine(rl.ChoPhep("client-A", goc.AddSeconds(5)));                 // False (vượt hạn mức 3 trong 10s)
+Console.WriteLine(rl.ChoPhep("client-A", goc.AddSeconds(11)));                // True  (request đầu tiên đã trôi khỏi cửa sổ 10s)
+
 class RateLimiter
 {
     private readonly Dictionary<string, Queue<DateTime>> _lichSu = new();
@@ -309,15 +318,6 @@ class RateLimiter
         return true;        // còn hạn mức -> cho qua
     }
 }
-
-var rl = new RateLimiter(gioiHan: 3, cuaSo: TimeSpan.FromSeconds(10));
-var goc = new DateTime(2026, 1, 1, 0, 0, 0);
-
-Console.WriteLine(rl.ChoPhep("client-A", goc));                              // True  (1/3)
-Console.WriteLine(rl.ChoPhep("client-A", goc.AddSeconds(2)));                 // True  (2/3)
-Console.WriteLine(rl.ChoPhep("client-A", goc.AddSeconds(4)));                 // True  (3/3)
-Console.WriteLine(rl.ChoPhep("client-A", goc.AddSeconds(5)));                 // False (vượt hạn mức 3 trong 10s)
-Console.WriteLine(rl.ChoPhep("client-A", goc.AddSeconds(11)));                // True  (request đầu tiên đã trôi khỏi cửa sổ 10s)
 ```
 
 **Độ phức tạp:** mỗi lần gọi `ChoPhep`, việc bỏ request cũ chạy tối đa `_gioiHan` lần (vì hàng đợi không bao giờ vượt quá `_gioiHan` phần tử được giữ lại), và `Dictionary` tra `clientId` là O(1) trung bình → tổng chi phí mỗi lần gọi là O(1) tính theo `_gioiHan` (một hằng số cố định, không phụ thuộc số client hay số request đã qua) — đủ nhanh cho quy mô 16.667 request/giây ước lượng ở bước 2.
@@ -544,6 +544,14 @@ R (Result): ???
 ??? success "Lời giải"
     ```csharp title="bai3_loigiai.cs"
     // test:run
+    var rl = new RateLimiter(gioiHan: 2, cuaSo: TimeSpan.FromSeconds(5));
+    var t = new DateTime(2026, 1, 1);
+
+    Console.WriteLine(rl.ChoPhep("client-A", t));    // True (1/2 của client-A)
+    Console.WriteLine(rl.ChoPhep("client-A", t));    // True (2/2 của client-A)
+    Console.WriteLine(rl.ChoPhep("client-A", t));    // False (client-A đã hết hạn mức)
+    Console.WriteLine(rl.ChoPhep("client-B", t));    // True (1/2 của client-B — TÁCH RIÊNG với client-A)
+
     class RateLimiter
     {
         private readonly Dictionary<string, Queue<DateTime>> _lichSu = new();
@@ -574,14 +582,6 @@ R (Result): ???
             return true;
         }
     }
-
-    var rl = new RateLimiter(gioiHan: 2, cuaSo: TimeSpan.FromSeconds(5));
-    var t = new DateTime(2026, 1, 1);
-
-    Console.WriteLine(rl.ChoPhep("client-A", t));    // True (1/2 của client-A)
-    Console.WriteLine(rl.ChoPhep("client-A", t));    // True (2/2 của client-A)
-    Console.WriteLine(rl.ChoPhep("client-A", t));    // False (client-A đã hết hạn mức)
-    Console.WriteLine(rl.ChoPhep("client-B", t));    // True (1/2 của client-B — TÁCH RIÊNG với client-A)
     ```
     **Điểm cốt lõi:** `client-A` và `client-B` được tính **tách riêng hoàn toàn** vì `_lichSu` là một `Dictionary` khoá theo `clientId` — mỗi `clientId` có `Queue` riêng của mình. Đây chính là lý do Rate Limiter dùng `clientId` (không phải một biến đếm chung toàn cục) làm khoá tra cứu: nếu dùng chung một bộ đếm cho mọi client, một client gửi nhiều request sẽ vô tình làm các client khác bị chặn — sai hoàn toàn mục đích của Rate Limiter (chỉ chặn đúng client vượt hạn mức, không ảnh hưởng client khác).
 

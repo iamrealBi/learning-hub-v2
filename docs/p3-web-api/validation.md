@@ -64,12 +64,6 @@ Dưới đây là ví dụ tối thiểu, chỉ dùng BCL (`System.ComponentMode
 // test:run
 using System.ComponentModel.DataAnnotations;
 
-public class RegisterInput
-{
-    [Required]
-    public string? Name { get; set; }
-}
-
 var input = new RegisterInput { Name = null };
 var context = new ValidationContext(input);
 var results = new List<ValidationResult>();
@@ -79,6 +73,12 @@ bool isValid = Validator.TryValidateObject(input, context, results, validateAllP
 Console.WriteLine($"Hợp lệ: {isValid}");
 foreach (var r in results)
     Console.WriteLine($"- {r.ErrorMessage}");
+
+public class RegisterInput
+{
+    [Required]
+    public string? Name { get; set; }
+}
 ```
 
 ```text title="Kết quả"
@@ -98,8 +98,6 @@ Cơ chế cốt lõi: attribute như `[Required]` chỉ là **metadata** (dữ l
 // test:run
 using System.ComponentModel.DataAnnotations;
 
-public class Model1 { [Required] public string? Title { get; set; } }
-
 var missing = new Model1 { Title = null };
 var results = new List<ValidationResult>();
 bool ok1 = Validator.TryValidateObject(missing, new ValidationContext(missing), results, true);
@@ -109,6 +107,8 @@ results.Clear();
 var m = new Model1 { Title = "" };
 bool ok2 = Validator.TryValidateObject(m, new ValidationContext(m), results, true);
 Console.WriteLine(ok2 + " " + string.Join(";", results.Select(r => r.ErrorMessage)));
+
+public class Model1 { [Required] public string? Title { get; set; } }
 ```
 
 ```text title="Kết quả"
@@ -122,12 +122,12 @@ False The Title field is required.
 // test:run
 using System.ComponentModel.DataAnnotations;
 
-public class Model2 { [StringLength(5, MinimumLength = 2)] public string? Code { get; set; } }
-
 var m = new Model2 { Code = "abcdefgh" }; // dài 8, vượt max 5
 var results = new List<ValidationResult>();
 bool ok = Validator.TryValidateObject(m, new ValidationContext(m), results, true);
 Console.WriteLine(ok + " " + string.Join(";", results.Select(r => r.ErrorMessage)));
+
+public class Model2 { [StringLength(5, MinimumLength = 2)] public string? Code { get; set; } }
 ```
 
 ```text title="Kết quả"
@@ -140,12 +140,12 @@ False The field Code must be a string with a minimum length of 2 and a maximum l
 // test:run
 using System.ComponentModel.DataAnnotations;
 
-public class Model3 { [Range(1, 1000)] public int Quantity { get; set; } }
-
 var m = new Model3 { Quantity = -5 };
 var results = new List<ValidationResult>();
 bool ok = Validator.TryValidateObject(m, new ValidationContext(m), results, true);
 Console.WriteLine(ok + " " + string.Join(";", results.Select(r => r.ErrorMessage)));
+
+public class Model3 { [Range(1, 1000)] public int Quantity { get; set; } }
 ```
 
 ```text title="Kết quả"
@@ -158,12 +158,12 @@ False The field Quantity must be between 1 and 1000.
 // test:run
 using System.ComponentModel.DataAnnotations;
 
-public class Model4 { [EmailAddress] public string? Email { get; set; } }
-
 var m = new Model4 { Email = "khong-phai-email" };
 var results = new List<ValidationResult>();
 bool ok = Validator.TryValidateObject(m, new ValidationContext(m), results, true);
 Console.WriteLine(ok + " " + string.Join(";", results.Select(r => r.ErrorMessage)));
+
+public class Model4 { [EmailAddress] public string? Email { get; set; } }
 ```
 
 ```text title="Kết quả"
@@ -581,6 +581,15 @@ Yêu cầu: viết đủ record và endpoint, đảm bảo mọi tầng (field p
     // test:run IValidatableObject cho rule liên-field, không cần FluentValidation
     using System.ComponentModel.DataAnnotations;
 
+    var request = new DateRangeRequest
+    {
+        Start = new DateOnly(2026, 7, 10),
+        End = new DateOnly(2026, 7, 1)
+    };
+    var results = new List<ValidationResult>();
+    bool ok = Validator.TryValidateObject(request, new ValidationContext(request), results, true);
+    Console.WriteLine(ok + " " + string.Join(";", results.Select(r => r.ErrorMessage)));
+
     public class DateRangeRequest : IValidatableObject
     {
         public DateOnly Start { get; set; }
@@ -594,15 +603,6 @@ Yêu cầu: viết đủ record và endpoint, đảm bảo mọi tầng (field p
                     new[] { nameof(End) });
         }
     }
-
-    var request = new DateRangeRequest
-    {
-        Start = new DateOnly(2026, 7, 10),
-        End = new DateOnly(2026, 7, 1)
-    };
-    var results = new List<ValidationResult>();
-    bool ok = Validator.TryValidateObject(request, new ValidationContext(request), results, true);
-    Console.WriteLine(ok + " " + string.Join(";", results.Select(r => r.ErrorMessage)));
     ```
 
     ```text title="Kết quả"
