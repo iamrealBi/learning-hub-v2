@@ -159,5 +159,11 @@ nav:
     - "05 — API Versioning": p8-production/api-versioning.md
     - "06 — Resilience Patterns": p8-production/resilience-patterns.md
     - "07 — Security Headers & CORS": p8-production/security-headers-cors.md
+  - "P9 · DevOps":
+    - "01 — CI/CD với GitHub Actions": p9-devops/cicd-github-actions.md
+    - "02 — Cloud Fundamentals: IaaS, PaaS, SaaS": p9-devops/cloud-fundamentals.md
+    - "03 — Container Orchestration: Kubernetes cơ bản": p9-devops/container-orchestration.md
+    - "04 — Infrastructure as Code: Terraform & Bicep": p9-devops/infrastructure-as-code.md
+    - "05 — Monitoring & Alerting Production": p9-devops/monitoring-alerting.md
   - "Về hệ thống":
     - "Kiến trúc sư phạm": PEDAGOGY.md

@@ -3832,3 +3832,246 @@ questions:
   prompt: Content-Security-Policy bảo vệ đúng nguyên nhân gốc của XSS hay chỉ là lớp phòng thủ bổ sung?
   answer: Chỉ là lớp phòng thủ bổ sung — CSP chặn thực thi script từ nguồn không cho phép, nhưng không
     sửa nguyên nhân gốc là dữ liệu chưa được lọc/encode đúng.
+- id: cicd-github-actions-q1
+  node: cicd-github-actions
+  tier: fast
+  prompt: CI trả lời câu hỏi gì, CD trả lời câu hỏi gì?
+  answer: CI trả lời code này có build/test đúng không — chạy mỗi lần push hoặc mở pull request. CD trả
+    lời code đã xác nhận đúng có nên đưa lên chạy thật không — chỉ chạy sau khi CI đã báo xanh.
+- id: cicd-github-actions-q2
+  node: cicd-github-actions
+  tier: fast
+  prompt: Trong file .github/workflows/ci.yml của Learning Hub, trigger nào khiến CI tự chạy khi có người
+    mở pull request đề xuất merge vào main?
+  answer: 'pull_request: { branches: [main] }. Trigger này kích hoạt workflow mỗi khi có pull request
+    mở hoặc cập nhật, nhắm merge vào nhánh main.'
+- id: cicd-github-actions-q3
+  node: cicd-github-actions
+  tier: fast
+  prompt: Job gates và job dotnet chạy trên cùng một máy ảo hay hai máy ảo khác nhau? Vì sao điều này
+    quan trọng?
+  answer: Hai máy ảo khác nhau — mỗi job chạy trên máy ảo riêng, không chia sẻ state. Đây là lý do job
+    dotnet phải tự pip install lại từ đầu dù job gates đã cài rồi.
+- id: cicd-github-actions-q4
+  node: cicd-github-actions
+  tier: fast
+  prompt: 'needs: [gates, dotnet] trong job deploy nghĩa là gì?'
+  answer: Job deploy chỉ bắt đầu chạy khi cả gates và dotnet đều đã chạy xong và thành công. Nếu một trong
+    hai fail, deploy bị bỏ qua hoàn toàn.
+- id: cicd-github-actions-q5
+  node: cicd-github-actions
+  tier: fast
+  prompt: 'Nếu xoá needs: [gates, dotnet] khỏi job deploy, điều gì thay đổi về thứ tự chạy?'
+  answer: Ba job sẽ chạy song song ngay từ đầu — deploy có thể đẩy site lên thật trong khi gates/dotnet
+    vẫn đang chạy hoặc đã fail.
+- id: cicd-github-actions-q6
+  node: cicd-github-actions
+  tier: fast
+  prompt: 'permissions: { contents: write } trong job deploy dùng để làm gì?'
+  answer: Cấp quyền ghi vào nội dung repo, cần thiết vì mkdocs gh-deploy --force tạo/ghi đè nhánh gh-pages
+    rồi push lên repo. Job gates/dotnet chỉ đọc, không cần quyền này.
+- id: cicd-github-actions-q7
+  node: cicd-github-actions
+  tier: fast
+  prompt: Một dự án có CI tự động nhưng deploy vẫn do kỹ sư tự tay làm sau khi xem CI xanh. Dự án này
+    có CD không?
+  answer: Không có CD theo đúng định nghĩa — CD nghĩa là việc đưa code lên chạy thật cũng được tự động
+    hoá, không phải chỉ CI tự động còn deploy vẫn thao tác tay.
+- id: cloud-fundamentals-q1
+  node: cloud-fundamentals
+  tier: fast
+  prompt: On-premise khác IaaS ở điểm nào — cụ thể là ai sở hữu và bảo trì phần cứng vật lý?
+  answer: 'On-premise: tổ chức tự mua và bảo trì phần cứng. IaaS: nhà cung cấp cloud sở hữu và bảo trì
+    phần cứng, tổ chức chỉ thuê máy chủ ảo, trả tiền theo thời gian dùng.'
+- id: cloud-fundamentals-q2
+  node: cloud-fundamentals
+  tier: fast
+  prompt: Vì sao nói PaaS ẩn tầng hệ điều hành, còn IaaS thì không?
+  answer: Với IaaS, người dùng nhận máy chủ ảo trống, phải tự cài OS và vá lỗi bảo mật. Với PaaS, nhà
+    cung cấp đã cài sẵn và tự quản lý OS/runtime — người dùng chỉ deploy code.
+- id: cloud-fundamentals-q3
+  node: cloud-fundamentals
+  tier: fast
+  prompt: Một tổ chức dùng CRM online qua trình duyệt, không viết code. Đây là mô hình nào?
+  answer: SaaS. Tổ chức không tự quản lý tầng nào về hạ tầng hay code — chỉ sử dụng phần mềm hoàn chỉnh
+    do nhà cung cấp xây dựng và vận hành.
+- id: cloud-fundamentals-q4
+  node: cloud-fundamentals
+  tier: fast
+  prompt: Scale up và scale out khác nhau ở điểm cơ bản nào?
+  answer: Scale up nâng cấp MỘT máy hiện có lên mạnh hơn, số lượng máy không đổi. Scale out thêm NHIỀU
+    máy chạy song song, phân phối tải qua load balancer.
+- id: cloud-fundamentals-q5
+  node: cloud-fundamentals
+  tier: fast
+  prompt: Vì sao scale up vẫn giữ nguyên một điểm lỗi duy nhất, còn scale out thì không?
+  answer: Scale up chỉ nâng cấp một máy — hệ thống vẫn phụ thuộc đúng máy đó, nếu nó gặp sự cố thì toàn
+    bộ ngừng hoạt động. Scale out phân tán tải ra nhiều máy độc lập.
+- id: cloud-fundamentals-q6
+  node: cloud-fundamentals
+  tier: fast
+  prompt: Vì sao công ty on-premise khó phản ứng kịp với tải tăng vọt (Black Friday), còn công ty dùng
+    IaaS có thể phản ứng trong vài phút?
+  answer: On-premise cần mua phần cứng vật lý mới — quy trình mất nhiều tuần. IaaS chỉ cần thuê thêm máy
+    chủ ảo qua API, không có bước lắp đặt vật lý.
+- id: cloud-fundamentals-q7
+  node: cloud-fundamentals
+  tier: fast
+  prompt: Một đội nhỏ không có kỹ năng quản trị OS chuyên sâu, cần deploy nhanh ASP.NET Core. Giữa IaaS
+    và PaaS, lựa chọn nào phù hợp hơn?
+  answer: PaaS phù hợp hơn — đã cài sẵn và tự quản lý OS/runtime, đội chỉ cần build và deploy code, không
+    cần kỹ năng quản trị hệ điều hành.
+- id: container-orchestration-q1
+  node: container-orchestration
+  tier: fast
+  prompt: Vì sao chạy vài chục container thủ công bằng docker run không mở rộng được, cụ thể là ba việc
+    nào trở nên bất khả thi?
+  answer: 'Ba việc: (1) tự phát hiện và khởi động lại container chết mà không cần người canh, (2) tự phân
+    phối tải đều cho nhiều container, (3) tự điều chỉnh số lượng container theo nhu cầu — vượt quá khả
+    năng thao tác tay ở quy mô lớn.'
+- id: container-orchestration-q2
+  node: container-orchestration
+  tier: fast
+  prompt: Kubernetes khác gì so với chỉ dùng docker-compose khi hệ thống chạy trên nhiều máy chủ?
+  answer: docker-compose chỉ quản lý container trên một máy chủ duy nhất; nó không tự khởi động lại container
+    trên máy khác nếu cả máy đó chết, và không tự phân phối container qua nhiều máy như Kubernetes.
+- id: container-orchestration-q3
+  node: container-orchestration
+  tier: fast
+  prompt: Pod là gì, và vì sao Kubernetes không quản lý container trực tiếp mà luôn quản lý qua Pod?
+  answer: Pod là đơn vị nhỏ nhất Kubernetes tạo ra và lập lịch, chứa 1+ container chia sẻ network/storage.
+    Kubernetes quản lý qua Pod vì đây là đơn vị nó đặt lên một máy chủ trong cluster.
+- id: container-orchestration-q4
+  node: container-orchestration
+  tier: fast
+  prompt: 'Nếu khai replicas: 3 trong một Deployment và 1 Pod bị crash, điều gì xảy ra tiếp theo, và Pod
+    mới có giữ nguyên IP của Pod cũ không?'
+  answer: Deployment phát hiện số Pod thực tế thấp hơn mong muốn và tự tạo Pod mới thay thế. Pod mới không
+    giữ nguyên tên hay IP của Pod cũ.
+- id: container-orchestration-q5
+  node: container-orchestration
+  tier: fast
+  prompt: Vì sao client không nên gọi thẳng vào IP của một Pod cụ thể? Service giải quyết vấn đề đó bằng
+    cách nào?
+  answer: Vì IP của Pod không ổn định — Pod có thể bị thay thế bất cứ lúc nào. Service cấp một địa chỉ
+    mạng cố định, tự động chuyển tiếp request tới bất kỳ Pod hợp lệ đang chạy.
+- id: container-orchestration-q6
+  node: container-orchestration
+  tier: fast
+  prompt: Nếu selector của Service không khớp label của Pod, hậu quả cụ thể là gì?
+  answer: Service không tìm thấy Pod đích nào để chuyển tiếp — danh sách Pod đích trống, request gọi tới
+    Service bị timeout hoặc từ chối, dù các Pod thực tế vẫn chạy bình thường.
+- id: container-orchestration-q7
+  node: container-orchestration
+  tier: fast
+  prompt: Nêu vai trò khác nhau của Pod, Deployment, và Service chỉ trong một câu mỗi thành phần.
+  answer: 'Pod: đơn vị nhỏ nhất chứa container. Deployment: khai báo và duy trì đúng số lượng Pod mong
+    muốn, tự thay Pod chết. Service: cấp địa chỉ mạng ổn định đứng trước một nhóm Pod.'
+- id: infrastructure-as-code-q1
+  node: infrastructure-as-code
+  tier: fast
+  prompt: Vì sao tạo resource cloud bằng cách bấm chuột trên console lại khó review hơn thay đổi code
+    ứng dụng qua pull request?
+  answer: Vì bấm chuột có hiệu lực NGAY LẬP TỨC trên hệ thống thật, không qua bước chờ người khác đọc/góp
+    ý trước — khác với code phải qua pull request trước khi merge.
+- id: infrastructure-as-code-q2
+  node: infrastructure-as-code
+  tier: fast
+  prompt: Định nghĩa Infrastructure as Code trong một câu.
+  answer: Là cách quản lý hạ tầng bằng cách định nghĩa hạ tầng trong file code, lưu vào Git, và review
+    thay đổi qua pull request — giống quy trình dùng cho code ứng dụng.
+- id: infrastructure-as-code-q3
+  node: infrastructure-as-code
+  tier: fast
+  prompt: Phân biệt declarative với imperative bằng một câu cho mỗi loại.
+  answer: 'Declarative: khai báo TRẠNG THÁI MONG MUỐN cuối cùng, công cụ tự tính cách đạt được. Imperative:
+    khai báo TỪNG BƯỚC thao tác theo đúng thứ tự.'
+- id: infrastructure-as-code-q4
+  node: infrastructure-as-code
+  tier: fast
+  prompt: Terraform khác Bicep ở điểm nào về phạm vi nhà cung cấp cloud hỗ trợ?
+  answer: Terraform hỗ trợ nhiều nhà cung cấp cloud (AWS, Azure, GCP...) qua cùng cú pháp HCL. Bicep chỉ
+    hỗ trợ Azure.
+- id: infrastructure-as-code-q5
+  node: infrastructure-as-code
+  tier: fast
+  prompt: terraform plan và terraform apply khác nhau ở điểm nào?
+  answer: plan chỉ tính toán và in ra danh sách thay đổi, không thực hiện gì trên cloud thật. apply THỰC
+    SỰ THỰC HIỆN các thay đổi đó.
+- id: infrastructure-as-code-q6
+  node: infrastructure-as-code
+  tier: fast
+  prompt: Vì sao đổi tên nội bộ của một resource trong file .tf lại nguy hiểm nếu chạy apply ngay mà không
+    xem plan?
+  answer: Terraform hiểu đây là xoá resource cũ và tạo resource mới hoàn toàn. Nếu resource chứa dữ liệu,
+    dữ liệu sẽ mất khi apply thực thi việc xoá và tạo lại.
+- id: infrastructure-as-code-q7
+  node: infrastructure-as-code
+  tier: fast
+  prompt: Configuration drift là gì, và vì sao nó xảy ra khi trộn bấm chuột console với dùng Terraform
+    cho cùng resource?
+  answer: Là hiện tượng trạng thái thật trên cloud lệch khỏi trạng thái mô tả trong file .tf. Xảy ra khi
+    ai đó sửa resource trực tiếp qua console mà Terraform không biết.
+- id: infrastructure-as-code-q8
+  node: infrastructure-as-code
+  tier: fast
+  prompt: State file trong Terraform dùng để làm gì?
+  answer: Lưu lại resource nào Terraform đang quản lý và cấu hình hiện tại, để so sánh với file .tf khi
+    chạy plan/apply và biết cần tạo/sửa/xoá gì.
+- id: monitoring-alerting-q1
+  node: monitoring-alerting
+  tier: fast
+  prompt: Monitoring và Alerting khác nhau ở điểm cốt lõi nào?
+  answer: Monitoring thu thập và hiển thị chỉ số, cần con người chủ động xem. Alerting tự động phát hiện
+    và chủ động báo khi chỉ số vượt ngưỡng, không cần ai ngồi xem 24/7.
+- id: monitoring-alerting-q2
+  node: monitoring-alerting
+  tier: fast
+  prompt: Vì sao quy tắc CPU > 90% cần điều kiện trong 5 phút liên tục, không chỉ tại một thời điểm?
+  answer: Để tránh báo động giả từ những đợt CPU tăng vọt thoáng qua tự phục hồi ngay — điều kiện liên
+    tục lọc bỏ nhiễu ngắn hạn, chỉ báo khi bất thường thật kéo dài.
+- id: monitoring-alerting-q3
+  node: monitoring-alerting
+  tier: fast
+  prompt: Alert fatigue là gì, và vì sao nó nguy hiểm hơn là chỉ gây phiền?
+  answer: Là hiện tượng quá nhiều alert không quan trọng khiến người vận hành lơ là mọi alert, kể cả alert
+    nghiêm trọng. Nguy hiểm vì làm mất chính công cụ phát hiện sớm sự cố.
+- id: monitoring-alerting-q4
+  node: monitoring-alerting
+  tier: fast
+  prompt: Phân biệt SLI, SLO, SLA bằng một câu cho mỗi khái niệm.
+  answer: SLI là chỉ số đo được thực tế. SLO là mục tiêu nội bộ team tự đặt cho SLI đó. SLA là cam kết
+    chính thức với khách hàng, có ràng buộc hợp đồng.
+- id: monitoring-alerting-q5
+  node: monitoring-alerting
+  tier: fast
+  prompt: Vì sao SLO thường được đặt khắt khe hơn SLA, không đặt bằng nhau?
+  answer: Để tạo khoảng đệm an toàn — nếu bằng nhau, dao động nhỏ khiến SLI tụt dưới mục tiêu nội bộ cũng
+    đồng thời vi phạm hợp đồng với khách hàng.
+- id: monitoring-alerting-q6
+  node: monitoring-alerting
+  tier: fast
+  prompt: Runbook giải quyết vấn đề gì mà chỉ có Alerting không giải quyết được?
+  answer: Alerting chỉ báo có vấn đề xảy ra, không hướng dẫn phải làm gì tiếp. Runbook cung cấp quy trình
+    xử lý từng bước cụ thể.
+- id: monitoring-alerting-q7
+  node: monitoring-alerting
+  tier: fast
+  prompt: Một team báo cáo SLI uptime tháng này đạt 99.92% như một cam kết ràng buộc cho các tháng sau.
+    Đây có đúng cách dùng SLI không?
+  answer: Không đúng. SLI chỉ là một số đo lịch sử, không mang ý nghĩa dự đoán hay ràng buộc cho tương
+    lai. Cam kết ràng buộc là vai trò của SLA.
+- id: monitoring-alerting-q8
+  node: monitoring-alerting
+  tier: fast
+  prompt: Một runbook viết một năm trước chưa cập nhật theo kiến trúc mới. Điều gì có khả năng xảy ra
+    khi alert kích hoạt lần tới?
+  answer: Người trực ban làm theo các bước cũ không còn khớp kiến trúc hiện tại — mất thời gian nhận ra
+    runbook lỗi thời rồi phải tự tìm cách xử lý ngoài quy trình.
+- id: monitoring-alerting-q9
+  node: monitoring-alerting
+  tier: fast
+  prompt: Một bước runbook mô tả nguyên nhân nằm ở dịch vụ bên thứ ba không sửa được trực tiếp. Vì sao
+    đây vẫn là một bước hợp lệ?
+  answer: Vì mục tiêu runbook không phải luôn tự sửa được mọi thứ ngay, mà là loại bỏ nhu cầu suy nghĩ
+    từ đầu cho người trực ban — xác nhận đúng nguyên nhân và biết hành động đúng vẫn có ích.

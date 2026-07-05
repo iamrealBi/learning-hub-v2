@@ -228,3 +228,17 @@ phases:
           objective: "Kết hợp đúng Retry/Circuit Breaker/Timeout qua Polly ResiliencePipeline", requires: [p8-versioning] }
       - { id: p8-cors, file: p8-production/security-headers-cors.md, tier: fast, status: core, owner: core-team,
           objective: "Cấu hình CORS/security header đúng, hiểu CORS là luật browser không phải server", requires: [p8-resilience] }
+
+  - id: P9
+    title: "DevOps & Cloud"
+    nodes:
+      - { id: p9-cicd, file: p9-devops/cicd-github-actions.md, tier: fast, status: core, owner: core-team,
+          objective: "Đọc hiểu pipeline CI/CD thật (job/step/needs), phân biệt CI với CD", requires: [p8-cors] }
+      - { id: p9-cloud, file: p9-devops/cloud-fundamentals.md, tier: fast, status: core, owner: core-team,
+          objective: "Phân biệt IaaS/PaaS/SaaS theo tầng tự quản lý, chọn đúng scale up vs scale out", requires: [p9-cicd] }
+      - { id: p9-k8s, file: p9-devops/container-orchestration.md, tier: fast, status: core, owner: core-team,
+          objective: "Giải thích Pod/Deployment/Service và vai trò tự phục hồi của Kubernetes", requires: [p9-cloud] }
+      - { id: p9-iac, file: p9-devops/infrastructure-as-code.md, tier: fast, status: core, owner: core-team,
+          objective: "Phân biệt declarative/imperative, đọc hiểu Terraform/Bicep, plan vs apply", requires: [p9-k8s] }
+      - { id: p9-monitoring, file: p9-devops/monitoring-alerting.md, tier: fast, status: core, owner: core-team,
+          objective: "Phân biệt Monitoring/Alerting, dùng đúng SLI/SLO/SLA và runbook", requires: [p9-iac] }
