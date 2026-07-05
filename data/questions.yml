@@ -3449,3 +3449,386 @@ questions:
   prompt: Health check endpoint có áp dụng trực tiếp cho một ứng dụng Blazor WebAssembly thuần không?
   answer: Không, vì nó không có process server chạy phía sau. Chỉ liên quan nếu ứng dụng gọi tới một Web
     API backend riêng.
+- id: caching-q1
+  node: caching
+  tier: fast
+  prompt: IMemoryCache lưu dữ liệu ở đâu, và điều gì xảy ra với cache đó khi ứng dụng restart?
+  answer: Lưu trong RAM của chính tiến trình .NET đang chạy. Khi tiến trình restart, toàn bộ cache biến
+    mất hoàn toàn — không có cách khôi phục.
+- id: caching-q2
+  node: caching
+  tier: fast
+  prompt: Vì sao chạy 2 instance ứng dụng load-balance mà cả hai đều dùng IMemoryCache lại có thể dẫn
+    tới hai người dùng thấy hai kết quả khác nhau?
+  answer: Mỗi instance có một vùng IMemoryCache tách biệt trong RAM riêng. Nếu instance A cập nhật/xoá
+    cache, instance B không biết và vẫn giữ giá trị cũ — hai instance trả về hai kết quả khác nhau.
+- id: caching-q3
+  node: caching
+  tier: fast
+  prompt: IDistributedCache giải quyết đúng vấn đề gì mà IMemoryCache không giải quyết được?
+  answer: IDistributedCache lưu dữ liệu ở một server riêng, tách khỏi tiến trình — mọi instance đọc/ghi
+    cùng một nơi lưu trữ, nên khi một instance cập nhật/xoá, mọi instance khác thấy thay đổi ngay.
+- id: caching-q4
+  node: caching
+  tier: fast
+  prompt: Trong cache-aside pattern, thứ tự đúng của các bước khi cache miss là gì?
+  answer: (1) Đọc cache, phát hiện miss. (2) Truy vấn database. (3) Ghi dữ liệu vào cache (kèm TTL). (4)
+    Trả dữ liệu về client. Ứng dụng chịu trách nhiệm điều phối toàn bộ luồng này.
+- id: caching-q5
+  node: caching
+  tier: fast
+  prompt: Cache invalidation là gì, và vì sao nó được xem là một vấn đề khó?
+  answer: Là việc chủ động xoá/cập nhật entry cache khi dữ liệu gốc đổi. Khó vì xoá quá sớm mất lợi ích
+    hiệu năng, xoá quá muộn làm người dùng thấy dữ liệu sai — mức nghiêm trọng phụ thuộc loại dữ liệu.
+- id: caching-q6
+  node: caching
+  tier: fast
+  prompt: Nếu quên gọi Remove/RemoveAsync sau khi cập nhật database, người dùng sẽ thấy hậu quả gì, và
+    trong bao lâu?
+  answer: Tiếp tục thấy dữ liệu cũ (stale) từ cache, cho tới khi entry tự hết hạn theo TTL đã đặt.
+- id: caching-q7
+  node: caching
+  tier: fast
+  prompt: IDistributedCache.SetStringAsync khác IMemoryCache.Set như thế nào về kiểu dữ liệu chấp nhận?
+  answer: IMemoryCache.Set chấp nhận trực tiếp bất kỳ object C# nào. IDistributedCache chỉ làm việc với
+    string hoặc byte[] — muốn lưu object phải tự serialize/deserialize.
+- id: caching-q8
+  node: caching
+  tier: fast
+  prompt: Vì sao đặt TTL quá dài cho dữ liệu về quyền truy cập của người dùng có thể là một lỗ hổng bảo
+    mật?
+  answer: Nếu quyền bị thu hồi trong database nhưng cache còn giữ thông tin cũ, người dùng vẫn có thể
+    thực hiện hành động với quyền đã gỡ trong suốt thời gian TTL còn lại — đây là truy cập trái phép thực
+    sự.
+- id: rate-limiting-q1
+  node: rate-limiting
+  tier: fast
+  prompt: Rate limiting giải quyết vấn đề gốc nào, với ví dụ cụ thể?
+  answer: Ngăn một client gọi API quá nhiều lần gây quá tải server hoặc lạm dụng logic nghiệp vụ — ví
+    dụ brute-force dò mật khẩu ở endpoint đăng nhập.
+- id: rate-limiting-q2
+  node: rate-limiting
+  tier: fast
+  prompt: Phải gọi thêm phương thức nào ngoài AddRateLimiter để middleware thực sự hoạt động, và điều
+    gì xảy ra nếu quên?
+  answer: Phải gọi app.UseRateLimiter(). Nếu quên, các policy đã đăng ký không có hiệu lực — mọi request
+    đều lọt qua, không có exception nào báo.
+- id: rate-limiting-q3
+  node: rate-limiting
+  tier: fast
+  prompt: Fixed Window và Sliding Window khác nhau ở điểm nào?
+  answer: Fixed Window reset bộ đếm về 0 mỗi khung mới, cho phép gấp đôi giới hạn quanh ranh giới hai
+    khung. Sliding Window chia khung thành segment nhỏ và tính tổng có trọng số, phản ánh đúng số request
+    trong bất kỳ khoảng thời gian liên tục.
+- id: rate-limiting-q4
+  node: rate-limiting
+  tier: fast
+  prompt: Token Bucket khác Fixed/Sliding Window ở điểm cốt lõi nào?
+  answer: Token Bucket cho phép tích trữ token khi không gọi, rồi xả hết thành một loạt request dồn (burst).
+    Fixed/Sliding Window giới hạn cứng tổng số request trong mỗi khung, không cho tích trữ.
+- id: rate-limiting-q5
+  node: rate-limiting
+  tier: fast
+  prompt: Concurrency Limiter khác biệt về bản chất thế nào so với ba thuật toán còn lại?
+  answer: Ba thuật toán khác đếm request theo THỜI GIAN. Concurrency Limiter giới hạn số request ĐANG
+    xử lý đồng thời — một request chạy lâu chỉ chiếm một slot suốt thời gian chạy.
+- id: rate-limiting-q6
+  node: rate-limiting
+  tier: fast
+  prompt: Status code 429 nghĩa là gì, và header Retry-After dùng để làm gì?
+  answer: 429 báo request bị từ chối vì vượt giới hạn tốc độ. Retry-After cho client biết nên chờ bao
+    nhiêu giây trước khi gọi lại.
+- id: rate-limiting-q7
+  node: rate-limiting
+  tier: fast
+  prompt: Vì sao endpoint /login phải giới hạn theo IP chứ không thể giới hạn theo user-id?
+  answer: Tại thời điểm gọi /login, hệ thống chưa xác thực được người gọi là ai — chưa có user-id đáng
+    tin cậy để dùng làm khoá phân vùng.
+- id: rate-limiting-q8
+  node: rate-limiting
+  tier: fast
+  prompt: Nhược điểm của giới hạn theo IP là gì?
+  answer: Nhiều người dùng hợp lệ có thể đứng sau cùng một IP công cộng (NAT chung), khiến họ chia sẻ
+    chung một bộ đếm — một người gọi nhiều có thể khiến người khác cùng IP bị chặn oan.
+- id: rate-limiting-q9
+  node: rate-limiting
+  tier: fast
+  prompt: Một endpoint cần vừa giới hạn tổng số lần gọi/ngày, vừa giới hạn số request chạy song song.
+    Có thể dùng một thuật toán duy nhất không?
+  answer: Không. Bốn thuật toán trả lời hai loại câu hỏi khác nhau (theo thời gian vs theo đồng thời).
+    Cần kết hợp Fixed Window cho giới hạn theo ngày và Concurrency Limiter cho giới hạn đồng thời.
+- id: rate-limiting-q10
+  node: rate-limiting
+  tier: fast
+  prompt: Ví dụ kết hợp Fixed Window và Concurrency Limiter trên cùng một endpoint hoạt động thế nào?
+  answer: Cả hai policy hoạt động độc lập và cộng dồn — một request phải vượt qua cả hai để được xử lý;
+    vượt quá giới hạn của bất kỳ bên nào, request bị từ chối.
+- id: rate-limiting-q11
+  node: rate-limiting
+  tier: fast
+  prompt: Trả 403 Forbidden khi client vượt giới hạn tốc độ có đúng ngữ nghĩa HTTP không?
+  answer: Không đúng. 403 nghĩa là bị từ chối vĩnh viễn vì không có quyền, còn 429 nghĩa là request hợp
+    lệ nhưng đến quá sớm — có thể thử lại thành công sau khi chờ.
+- id: health-checks-observability-q1
+  node: health-checks-observability
+  tier: fast
+  prompt: Liveness check thất bại thì hành động đúng là gì, và vì sao không phải là rút traffic?
+  answer: Restart instance. Liveness kiểm tra process còn sống không — nếu thất bại, process đã treo/deadlock,
+    không có cách hồi phục ngoài restart. Rút traffic là vai trò của Readiness.
+- id: health-checks-observability-q2
+  node: health-checks-observability
+  tier: fast
+  prompt: Vì sao endpoint /health/live không nên kiểm tra kết nối database?
+  answer: Vì nếu database lỗi tạm thời, Liveness trả Unhealthy khiến orchestrator hiểu nhầm process bị
+    treo và restart, trong khi process vẫn khỏe — chỉ cần rút traffic (Readiness) là đủ.
+- id: health-checks-observability-q3
+  node: health-checks-observability
+  tier: fast
+  prompt: AddNpgSql(...) dùng để làm gì trong health check?
+  answer: Tự động mở kết nối thử tới PostgreSQL và trả Unhealthy nếu thất bại/timeout — dùng cho Readiness
+    check.
+- id: health-checks-observability-q4
+  node: health-checks-observability
+  tier: fast
+  prompt: Ai gọi endpoint /health trong vận hành thật?
+  answer: Hạ tầng vận hành (load balancer, orchestrator, hệ thống giám sát) — gọi tự động định kỳ để quyết
+    định route traffic hoặc restart instance.
+- id: health-checks-observability-q5
+  node: health-checks-observability
+  tier: fast
+  prompt: Metrics khác Logs ở điểm nào?
+  answer: Logs ghi từng sự kiện rời rạc tại một thời điểm. Metrics là số liệu tích lũy theo thời gian,
+    cho biết hệ thống vận hành ở mức nào theo xu hướng.
+- id: health-checks-observability-q6
+  node: health-checks-observability
+  tier: fast
+  prompt: Traces giải quyết vấn đề gì mà Logs và Metrics không giải quyết được?
+  answer: Theo dõi một request cụ thể đi qua nhiều service, gắn cùng trace ID xuyên suốt, để thấy request
+    tốn bao lâu ở mỗi tầng.
+- id: health-checks-observability-q7
+  node: health-checks-observability
+  tier: fast
+  prompt: OpenTelemetry là một sản phẩm giám sát cụ thể của một hãng, đúng hay sai?
+  answer: Sai. OpenTelemetry là một chuẩn mở định nghĩa cách thu thập/định dạng dữ liệu cho Logs, Metrics,
+    Traces — vẫn cần chọn một backend riêng để lưu trữ/hiển thị.
+- id: health-checks-observability-q8
+  node: health-checks-observability
+  tier: fast
+  prompt: Một endpoint có 3 check Healthy, Healthy, Unhealthy. Trạng thái tổng hợp là gì?
+  answer: Unhealthy — theo quy tắc mức độ tệ nhất thắng, chỉ cần một check Unhealthy là toàn bộ endpoint
+    trả Unhealthy.
+- id: background-jobs-q1
+  node: background-jobs
+  tier: fast
+  prompt: Vì sao gửi email đồng bộ ngay trong request /register là một thiết kế có vấn đề?
+  answer: Việc gửi email không cần hoàn tất ngay để client biết kết quả — chặn request để chờ khiến client
+    chờ lâu không cần thiết, và có thể gây timeout dù tài khoản đã tạo thành công.
+- id: background-jobs-q2
+  node: background-jobs
+  tier: fast
+  prompt: IHostedService có hai phương thức nào, và ai gọi chúng?
+  answer: StartAsync và StopAsync. Host của .NET tự động gọi hai phương thức này lúc app khởi động và
+    tắt — không phải tự gọi.
+- id: background-jobs-q3
+  node: background-jobs
+  tier: fast
+  prompt: Vì sao hầu như không ai tự implement IHostedService trực tiếp mà dùng BackgroundService?
+  answer: StartAsync phải trả về nhanh; tự viết vòng lặp vô hạn trực tiếp trong StartAsync sẽ khiến app
+    treo lúc khởi động. BackgroundService đã xử lý đúng việc chạy ExecuteAsync trong Task riêng.
+- id: background-jobs-q4
+  node: background-jobs
+  tier: fast
+  prompt: Điều gì xảy ra nếu vòng lặp trong ExecuteAsync không kiểm tra stoppingToken.IsCancellationRequested?
+  answer: App không tắt đúng hạn lúc shutdown — vòng lặp tiếp tục chạy, host phải đợi hết thời gian ân
+    hạn rồi buộc kill tiến trình.
+- id: background-jobs-q5
+  node: background-jobs
+  tier: fast
+  prompt: Đăng ký một BackgroundService bằng AddSingleton<T>() thay vì AddHostedService<T>() có chạy được
+    không?
+  answer: Biên dịch và chạy được, nhưng vòng lặp nền không bao giờ tự chạy vì không có gì gọi StartAsync/ExecuteAsync
+    — lỗi âm thầm, không có exception.
+- id: background-jobs-q6
+  node: background-jobs
+  tier: fast
+  prompt: Channel<T> khác message queue thực sự ở điểm quan trọng nào?
+  answer: Channel<T> chỉ hoạt động trong-tiến-trình — dữ liệu mất khi app restart, không chia sẻ được
+    giữa nhiều instance. Message queue thực sự lưu bền và hoạt động qua mạng.
+- id: background-jobs-q7
+  node: background-jobs
+  tier: fast
+  prompt: Khi nào dùng Channel<T> là phù hợp, khi nào nên dùng message queue thực sự?
+  answer: Channel<T> phù hợp cho việc nền chấp nhận mất khi restart, trong một service. Message queue
+    thực sự cần khi nghiệp vụ quan trọng không được mất, hoặc cần chia sẻ giữa nhiều instance.
+- id: background-jobs-q8
+  node: background-jobs
+  tier: fast
+  prompt: Nếu ExecuteAsync ném một exception không được bắt, hành vi mặc định của .NET là gì?
+  answer: Từ .NET 6, mặc định host dừng toàn bộ ứng dụng, không chỉ worker gây lỗi.
+- id: background-jobs-q9
+  node: background-jobs
+  tier: fast
+  prompt: Vì sao cần bắt OperationCanceledException riêng thay vì để chung vào catch (Exception ex)?
+  answer: OperationCanceledException là tín hiệu shutdown hợp lệ, không phải lỗi nghiệp vụ. Bắt chung
+    sẽ hiểu nhầm thành lỗi, log sai và trì hoãn worker kết thúc đúng hạn.
+- id: background-jobs-q10
+  node: background-jobs
+  tier: fast
+  prompt: Vì sao một BackgroundService không thể tiêm trực tiếp một DbContext (Scoped) qua constructor?
+  answer: 'BackgroundService có lifetime tương đương Singleton, DbContext là Scoped — tiêm Scoped vào
+    Singleton bị chặn. Cách đúng: tiêm IServiceScopeFactory rồi tự tạo scope khi cần.'
+- id: api-versioning-q1
+  node: api-versioning
+  tier: fast
+  prompt: Vì sao đổi trực tiếp một endpoint đang có client thật dùng có thể làm crash ứng dụng client?
+  answer: Client cũ đã viết code cố định dựa trên hình dạng response cũ; đổi trực tiếp khiến code đó đọc
+    sai dữ liệu, có thể crash ngay khi gọi lại.
+- id: api-versioning-q2
+  node: api-versioning
+  tier: fast
+  prompt: Nêu định nghĩa một câu của URL Path Versioning, kèm ví dụ URL.
+  answer: Đưa số version vào đường dẫn, ví dụ /v1/products và /v2/products là hai đường dẫn khác nhau.
+- id: api-versioning-q3
+  node: api-versioning
+  tier: fast
+  prompt: Nêu định nghĩa một câu của Query String Versioning, kèm ví dụ URL.
+  answer: Chỉ định version qua tham số trong URL, ví dụ /products?api-version=2, giữ nguyên đường dẫn
+    gốc.
+- id: api-versioning-q4
+  node: api-versioning
+  tier: fast
+  prompt: Nêu định nghĩa một câu của Header Versioning, kèm ví dụ.
+  answer: 'Chỉ định version qua một HTTP header riêng, ví dụ X-Api-Version: 2, URL không đổi.'
+- id: api-versioning-q5
+  node: api-versioning
+  tier: fast
+  prompt: Thêm một field mới optional vào response có phải breaking change không?
+  answer: Không — client cũ không đọc field này, không bị ảnh hưởng gì; các field cũ vẫn đọc đúng.
+- id: api-versioning-q6
+  node: api-versioning
+  tier: fast
+  prompt: Đổi kiểu dữ liệu của một field đã tồn tại có phải breaking change không?
+  answer: Có — client cũ code cứng kiểu dữ liệu cũ sẽ lỗi parse hoặc đọc sai khi nhận kiểu mới, dù tên
+    field vẫn giữ nguyên.
+- id: api-versioning-q7
+  node: api-versioning
+  tier: fast
+  prompt: Gói Asp.Versioning.Http giải quyết vấn đề gì so với tự viết if/else đọc version bằng tay?
+  answer: Tự động đọc version và định tuyến tới đúng handler, tự trả lỗi rõ ràng khi version không tồn
+    tại — thay vì if/else lặp lại ở mọi endpoint.
+- id: api-versioning-q8
+  node: api-versioning
+  tier: fast
+  prompt: Vì sao xoá version cũ ngay trong lần deploy version mới (không qua deprecate) có thể gây lỗi
+    client?
+  answer: Một số client chưa cập nhật sang version mới vẫn đang gọi version cũ; xoá ngay khiến họ nhận
+    404 ngay lập tức, không có thời gian chuẩn bị.
+- id: resilience-patterns-q1
+  node: resilience-patterns
+  tier: fast
+  prompt: Vì sao retry không có backoff lại nguy hiểm dưới tải cao, và tên gọi của hiện tượng này là gì?
+  answer: Gây thundering herd — số lần gọi thực tế tăng gấp nhiều lần đúng lúc dịch vụ đích yếu nhất,
+    có thể khiến sự cố nhỏ trở thành sập hoàn toàn.
+- id: resilience-patterns-q2
+  node: resilience-patterns
+  tier: fast
+  prompt: Circuit Breaker có bao nhiêu trạng thái, kể tên và mô tả ngắn.
+  answer: 'Ba trạng thái: Closed (bình thường), Open (chặn hoàn toàn, trả lỗi ngay), Half-Open (cho thử
+    một số request để kiểm tra hồi phục).'
+- id: resilience-patterns-q3
+  node: resilience-patterns
+  tier: fast
+  prompt: Trong trạng thái Open, exception nào được ném ra, và nó có nghĩa dịch vụ đích đã nhận request
+    không?
+  answer: BrokenCircuitException. Không có nghĩa dịch vụ đích nhận được — nó ném ra ngay tại tầng client
+    bởi Polly, request chưa từng được gửi ra mạng.
+- id: resilience-patterns-q4
+  node: resilience-patterns
+  tier: fast
+  prompt: Polly Timeout khác HttpClient.Timeout như thế nào?
+  answer: HttpClient.Timeout chỉ giới hạn một request đơn lẻ. Polly Timeout có thể bọc quanh bất kỳ logic
+    nào, bao gồm cả toàn bộ chuỗi retry.
+- id: resilience-patterns-q5
+  node: resilience-patterns
+  tier: fast
+  prompt: Khi kết hợp Retry + Circuit Breaker + Timeout, thứ tự thêm policy nào là đúng?
+  answer: Timeout tổng → Circuit Breaker → Retry. Policy thêm trước nằm ở ngoài, chạy trước và kết thúc
+    sau.
+- id: resilience-patterns-q6
+  node: resilience-patterns
+  tier: fast
+  prompt: Vì sao Circuit Breaker cần nằm ngoài Retry trong pipeline kết hợp?
+  answer: Để Circuit Breaker nhìn thấy toàn bộ các lần thử retry khi tính tỷ lệ lỗi, và có thể chặn cả
+    chuỗi retry ngay từ đầu khi mạch đang Open.
+- id: resilience-patterns-q7
+  node: resilience-patterns
+  tier: fast
+  prompt: MinimumThroughput trong circuit breaker dùng để làm gì?
+  answer: Là số request tối thiểu cần có trong cửa sổ thời gian trước khi tính tỷ lệ lỗi. Đặt quá thấp
+    gây false positive — vài lỗi ngẫu nhiên đã đủ mở mạch.
+- id: resilience-patterns-q8
+  node: resilience-patterns
+  tier: fast
+  prompt: Nếu chỉ catch (TaskCanceledException) nhưng dùng Polly Timeout bọc ngoài retry, điều gì xảy
+    ra khi Polly Timeout hết hạn?
+  answer: Polly Timeout ném TimeoutRejectedException, không phải TaskCanceledException — sẽ không được
+    bắt và lọt ra ngoài thành lỗi chưa xử lý.
+- id: security-headers-cors-q1
+  node: security-headers-cors
+  tier: fast
+  prompt: CORS được thực thi bởi server hay trình duyệt?
+  answer: Trình duyệt. Server chỉ trả về header CORS; trình duyệt đọc header đó và quyết định có cho JavaScript
+    đọc response hay không.
+- id: security-headers-cors-q2
+  node: security-headers-cors
+  tier: fast
+  prompt: http://localhost:3000 và http://localhost:5000 có cùng origin không?
+  answer: Không — khác port. Origin gồm scheme+domain+port; chỉ cần một khác là origin khác.
+- id: security-headers-cors-q3
+  node: security-headers-cors
+  tier: fast
+  prompt: Điều gì xảy ra nếu quên gọi app.UseCors sau khi đã AddCors?
+  answer: Middleware CORS không được thêm vào pipeline — mọi request vẫn bị chặn CORS như chưa cấu hình
+    gì, không có exception nào báo.
+- id: security-headers-cors-q4
+  node: security-headers-cors
+  tier: fast
+  prompt: Vì sao AllowAnyOrigin() và AllowCredentials() không thể dùng cùng lúc?
+  answer: Vì nếu cho phép, bất kỳ trang độc hại nào cũng có thể mượn cookie của người dùng để gọi API
+    — giới hạn bảo mật cố ý của chuẩn web.
+- id: security-headers-cors-q5
+  node: security-headers-cors
+  tier: fast
+  prompt: 'X-Content-Type-Options: nosniff giải quyết rủi ro gì?'
+  answer: Chặn trình duyệt tự đoán sai loại file, ngăn một file trông giống ảnh nhưng chứa script độc
+    hại bị thực thi như HTML.
+- id: security-headers-cors-q6
+  node: security-headers-cors
+  tier: fast
+  prompt: HSTS bảo vệ người dùng khỏi kiểu tấn công gì?
+  answer: Tấn công downgrade — kẻ tấn công ép trình duyệt dùng http:// không mã hoá. HSTS báo trình duyệt
+    luôn tự động dùng https://.
+- id: security-headers-cors-q7
+  node: security-headers-cors
+  tier: fast
+  prompt: Một API không xác thực nhưng CORS rất chặt có an toàn trước việc gọi trực tiếp bằng curl không?
+  answer: Không. CORS chỉ kiểm soát trình duyệt — không ngăn được gọi trực tiếp bằng công cụ không phải
+    trình duyệt.
+- id: security-headers-cors-q8
+  node: security-headers-cors
+  tier: fast
+  prompt: Vì sao không nên bật app.UseHsts() khi phát triển trên localhost bằng http://?
+  answer: HSTS khiến trình duyệt ép https:// cho domain đó — bật trên localhost http:// có thể khiến trình
+    duyệt từ chối kết nối http://localhost ở lần chạy sau.
+- id: security-headers-cors-q9
+  node: security-headers-cors
+  tier: fast
+  prompt: Hai nhóm endpoint cần chính sách CORS mâu thuẫn nhau. Giải pháp đúng là gì?
+  answer: Định nghĩa hai policy riêng, gán từng policy cho đúng nhóm endpoint bằng .RequireCors() hoặc
+    [EnableCors()].
+- id: security-headers-cors-q10
+  node: security-headers-cors
+  tier: fast
+  prompt: Content-Security-Policy bảo vệ đúng nguyên nhân gốc của XSS hay chỉ là lớp phòng thủ bổ sung?
+  answer: Chỉ là lớp phòng thủ bổ sung — CSP chặn thực thi script từ nguồn không cho phép, nhưng không
+    sửa nguyên nhân gốc là dữ liệu chưa được lọc/encode đúng.

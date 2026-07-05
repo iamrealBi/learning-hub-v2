@@ -210,3 +210,21 @@ phases:
           objective: "Gọi JS Interop đúng cú pháp, dùng OnAfterRender/@key/IDisposable đúng chỗ", requires: [p7-auth] }
       - { id: p7-deploy, file: p7-blazor/blazor-performance-deploy.md, tier: fast, status: core, owner: core-team,
           objective: "Tối ưu re-render, publish & deploy Blazor WASM lên static hosting", requires: [p7-jsinterop] }
+
+  - id: P8
+    title: "Production"
+    nodes:
+      - { id: p8-caching, file: p8-production/caching.md, tier: fast, status: core, owner: core-team,
+          objective: "Áp dụng IMemoryCache/IDistributedCache đúng theo kiến trúc, tránh dữ liệu cache cũ (stale)", requires: [p7-deploy] }
+      - { id: p8-ratelimit, file: p8-production/rate-limiting.md, tier: fast, status: core, owner: core-team,
+          objective: "Chọn đúng thuật toán rate limiting (Fixed/Sliding/Token Bucket/Concurrency) theo tình huống", requires: [p8-caching] }
+      - { id: p8-health, file: p8-production/health-checks-observability.md, tier: fast, status: core, owner: core-team,
+          objective: "Phân biệt Liveness/Readiness đúng cách, hiểu 3 trụ cột Observability", requires: [p8-ratelimit] }
+      - { id: p8-background, file: p8-production/background-jobs.md, tier: fast, status: core, owner: core-team,
+          objective: "Dùng BackgroundService đúng cách, tôn trọng CancellationToken lúc shutdown", requires: [p8-health] }
+      - { id: p8-versioning, file: p8-production/api-versioning.md, tier: fast, status: core, owner: core-team,
+          objective: "Chọn đúng chiến lược API versioning, phân biệt breaking vs non-breaking change", requires: [p8-background] }
+      - { id: p8-resilience, file: p8-production/resilience-patterns.md, tier: fast, status: core, owner: core-team,
+          objective: "Kết hợp đúng Retry/Circuit Breaker/Timeout qua Polly ResiliencePipeline", requires: [p8-versioning] }
+      - { id: p8-cors, file: p8-production/security-headers-cors.md, tier: fast, status: core, owner: core-team,
+          objective: "Cấu hình CORS/security header đúng, hiểu CORS là luật browser không phải server", requires: [p8-resilience] }

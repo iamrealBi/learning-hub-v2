@@ -151,5 +151,13 @@ nav:
     - "08 — Authentication trong Blazor": p7-blazor/blazor-authentication.md
     - "09 — JS Interop & Lifecycle nâng cao": p7-blazor/js-interop-lifecycle-sau.md
     - "10 — Performance & Deploy": p7-blazor/blazor-performance-deploy.md
+  - "P8 · Production":
+    - "01 — Caching: IMemoryCache & Distributed Cache": p8-production/caching.md
+    - "02 — Rate Limiting": p8-production/rate-limiting.md
+    - "03 — Health Checks & Observability": p8-production/health-checks-observability.md
+    - "04 — Background Jobs": p8-production/background-jobs.md
+    - "05 — API Versioning": p8-production/api-versioning.md
+    - "06 — Resilience Patterns": p8-production/resilience-patterns.md
+    - "07 — Security Headers & CORS": p8-production/security-headers-cors.md
   - "Về hệ thống":
     - "Kiến trúc sư phạm": PEDAGOGY.md
