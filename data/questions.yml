@@ -581,31 +581,36 @@ questions:
 - id: capstone-q1
   node: capstone
   tier: fast
-  prompt: Tầng nào trong TaskFlow chịu trách nhiệm bảo toàn quy tắc 'task đã xoá không thể hoàn thành'?
-  answer: Domain (P1) — bất biến đặt trong entity, không ở endpoint.
+  prompt: Tại sao .RequireAuthorization() không đủ để chặn lỗ hổng BOLA ở endpoint PUT /tasks/{id}?
+  answer: Vì .RequireAuthorization() chỉ kiểm authentication (biết ai đang gọi) — nó không kiểm authorization
+    theo dữ liệu (người gọi có quyền sửa bản ghi cụ thể này không). Phải tự so task.UserId == currentUserId
+    trong logic endpoint/service.
 - id: capstone-q2
   node: capstone
   tier: fast
-  prompt: Trong DoD, vì sao bắt buộc có một test tích hợp cho luồng 401/403?
-  answer: Vì thiếu phân quyền là lỗ hổng nghiêm trọng dễ lọt; test tự động bắt được nó trước khi lên production.
+  prompt: Navigation property User.Tasks và cột khoá ngoại TaskItem.UserId khác nhau ở điểm nào?
+  answer: TaskItem.UserId là cột thật tồn tại trong bảng database. User.Tasks là navigation property —
+    chỉ là thuộc tính C# giúp điều hướng trong code, không ánh xạ tới cột nào.
 - id: capstone-q3
   node: capstone
   tier: fast
-  prompt: Vì sao capstone khuyến khích dùng service qua DI thay vì new trong endpoint?
-  answer: DI cho phép mock/thay thế khi test và quản lý vòng đời; new thủ công tạo phụ thuộc cứng, khó
-    kiểm thử.
+  prompt: Nếu dotnet build chạy sạch nhưng gọi endpoint bị lỗi Unable to resolve service, nguyên nhân
+    thường gặp nhất là gì?
+  answer: Quên đăng ký service đó vào DI container — lỗi này chỉ xuất hiện lúc runtime, không phải lúc
+    build.
 - id: capstone-q4
   node: capstone
   tier: fast
-  prompt: Nêu một cạm bẫy khi chạy TaskFlow trong Docker liên quan tới kết nối cơ sở dữ liệu.
-  answer: Trong container DB không ở localhost; phải trỏ tới tên service/biến môi trường, nếu không kết
-    nối thất bại.
+  prompt: Vì sao lọc GET /tasks phải dùng userId từ ClaimsPrincipal chứ không phải từ query string?
+  answer: Vì claim trong JWT đã được ký — client không thể tự sửa mà không làm hỏng chữ ký. Query string
+    thì client tự do gõ bất kỳ giá trị nào; nếu dùng để lọc, ai cũng đọc được dữ liệu của người khác.
 - id: capstone-q5
   node: capstone
   tier: fast
-  prompt: Trong luồng request, thành phần nào chạy trước endpoint và làm gì?
-  answer: 'Middleware (xác thực JWT + logging): kiểm token, gắn ClaimsPrincipal, ghi log; chặn request
-    sai trước khi tới endpoint.'
+  prompt: Definition of Done yêu cầu ít nhất 2 test xUnit. Vì sao một trong hai bắt buộc phải kiểm luồng
+    401/403, không chỉ happy path?
+  answer: Vì thiếu phân quyền là lỗ hổng nghiêm trọng và dễ lọt qua review bằng mắt; chỉ test happy path
+    không phát hiện được trường hợp endpoint quên RequireAuthorization() hoặc quên kiểm chủ sở hữu.
 - id: generics-q1
   node: generics
   tier: fast
@@ -2343,3 +2348,119 @@ questions:
     không kèm condition?'
   answer: 'depends_on không kèm condition chỉ đợi container khởi động; condition: service_healthy đợi
     đến khi healthcheck của service đó thực sự báo PASS, tức service sẵn sàng nhận request/kết nối thật.'
+- id: claude-code-q1
+  node: claude-code
+  tier: fast
+  prompt: Claude Code có phải một plugin autocomplete trong IDE không? Nếu không, nó là gì?
+  answer: Không. Nó là một CLI agent chạy trong terminal, tự đọc/sửa file, tự chạy lệnh, và lặp lại chuỗi
+    hành động nhiều bước — khác autocomplete, vốn chỉ gợi ý một đoạn mã tại một vị trí và không tự thực
+    thi gì.
+- id: claude-code-q2
+  node: claude-code
+  tier: fast
+  prompt: CLAUDE.md có phải file cấu hình bắt buộc để Claude Code khởi động không? Giá trị thật của nó
+    là gì?
+  answer: 'Không bắt buộc — Claude Code chạy tốt dù file này không tồn tại. Giá trị thật: agent tự nạp
+    CLAUDE.md mỗi phiên như bộ nhớ dự án, nên không phải nhắc lại cùng ngữ cảnh ở đầu mỗi cuộc hội thoại.'
+- id: claude-code-q3
+  node: claude-code
+  tier: fast
+  prompt: Điều gì khiến một SKILL.md được Claude Code tự kích hoạt đúng lúc?
+  answer: Phần description trong front-matter phải chứa các cụm từ khớp với cách người dùng thật sẽ diễn
+    đạt yêu cầu — đây là thứ được so khớp để kích hoạt, không phải tên file hay nội dung chi tiết bên
+    trong.
+- id: claude-code-q4
+  node: claude-code
+  tier: fast
+  prompt: Ai thực thi một hook — model hay harness? Vì sao điều này quan trọng để ép một chính sách?
+  answer: Harness (chương trình chạy Claude Code, đứng ngoài model) thực thi hook, không phải model. Vì
+    vậy hook luôn chạy khi event khai báo xảy ra, không phụ thuộc việc model có nhớ quy tắc hay không.
+- id: claude-code-q5
+  node: claude-code
+  tier: fast
+  prompt: Tên event hook viết theo quy tắc nào? Cho 2 ví dụ và nêu khác biệt giữa chúng.
+  answer: 'PascalCase. Ví dụ: PreToolUse (chạy trước khi tool được gọi, có thể chặn hành động) và PostToolUse
+    (chạy sau khi tool chạy xong, không thể chặn vì hành động đã xảy ra rồi).'
+- id: claude-code-q6
+  node: claude-code
+  tier: fast
+  prompt: Khi nào nên giao việc cho subagent thay vì làm trong phiên chính?
+  answer: Khi task tốn nhiều ngữ cảnh để hoàn thành nhưng bạn chỉ cần kết quả tóm tắt cuối cùng, không
+    cần theo dõi hoặc can thiệp từng bước.
+- id: claude-code-q7
+  node: claude-code
+  tier: fast
+  prompt: --dangerously-skip-permissions tắt cái gì? Trong điều kiện nào mới nên dùng?
+  answer: Tắt toàn bộ bước hỏi-xác-nhận trước khi agent chạy lệnh hoặc sửa file. Chỉ nên dùng trong container/VM
+    dùng-một-lần, không có dữ liệu thật, không mạng nhạy cảm.
+- id: claude-code-q8
+  node: claude-code
+  tier: fast
+  prompt: Vì sao vẫn cần permission mode hỏi-từng-bước dù đã có hook PreToolUse chặn một số lệnh nguy
+    hiểm cụ thể?
+  answer: Vì hook chỉ chặn được những pattern cụ thể đã lường trước; permission mode là lớp bảo vệ tổng
+    quát, áp dụng cho mọi hành động có tác dụng phụ, kể cả tình huống chưa kịp viết hook riêng.
+- id: mcp-q1
+  node: mcp
+  tier: fast
+  prompt: MCP là sản phẩm riêng của công ty nào, hay là gì khác?
+  answer: Không của riêng công ty nào — MCP là một chuẩn mở; bất kỳ ai cũng viết được client hoặc server
+    tuân theo chuẩn này, Claude Code chỉ là một client triển khai chuẩn đó.
+- id: mcp-q2
+  node: mcp
+  tier: fast
+  prompt: 'Nêu định nghĩa một câu cho mỗi primitive: tools, resources, prompts.'
+  answer: 'Tools: hành động có tên/tham số mà model tự quyết định gọi (model-controlled). Resources: dữ
+    liệu chỉ-đọc, do ứng dụng/người dùng chọn nạp vào ngữ cảnh (app-controlled). Prompts: mẫu lời nhắc
+    dựng sẵn, do người dùng chủ động chọn chạy (user-controlled).'
+- id: mcp-q3
+  node: mcp
+  tier: fast
+  prompt: Trong kiến trúc client-server của MCP, Claude Code đóng vai trò nào?
+  answer: Client — nó chủ động mở kết nối tới server; MCP server chỉ đứng chờ và trả lời khi được gọi,
+    không bao giờ tự ý gọi vào Claude Code.
+- id: mcp-q4
+  node: mcp
+  tier: fast
+  prompt: Lệnh CLI thật nào dùng để thêm một MCP server (stdio) vào Claude Code, và lệnh nào để xem trạng
+    thái kết nối?
+  answer: claude mcp add <tên> -- <lệnh chạy server> để thêm; claude mcp list hoặc /mcp trong phiên để
+    xem trạng thái kết nối.
+- id: mcp-q5
+  node: mcp
+  tier: fast
+  prompt: stdio và HTTP/SSE khác nhau chủ yếu ở điểm nào, và HTTP bắt buộc phải có gì mà stdio không cần?
+  answer: 'stdio: server chạy như tiến trình con cùng máy, không ra mạng. HTTP/SSE: server chạy ở xa qua
+    mạng, bắt buộc phải có xác thực và TLS vì thông điệp đi qua mạng.'
+- id: mcp-q6
+  node: mcp
+  tier: fast
+  prompt: Vì sao không nên nhúng token trực tiếp vào .mcp.json rồi commit vào git?
+  answer: Vì file .mcp.json thường bị commit vào repo chia sẻ — ai đọc được repo cũng đọc được bí mật;
+    nên dùng biến môi trường và thêm file chứa giá trị thật vào .gitignore.
+- id: mcp-q7
+  node: mcp
+  tier: fast
+  prompt: Nếu một MCP server bị xâm nhập hoặc độc hại, nó có thể gây hại theo cách nào với dữ liệu agent
+    gửi qua nó?
+  answer: Nó có thể đọc/ghi log mọi dữ liệu đi qua nó và gửi ra ngoài mà bạn không biết, hoặc cấy chỉ
+    thị ẩn (prompt injection) vào dữ liệu trả về để điều khiển hành vi model ở lượt sau.
+- id: mcp-q8
+  node: mcp
+  tier: fast
+  prompt: Ba scope (local, project, user) của một MCP server khác nhau chủ yếu ở điểm nào?
+  answer: 'Ở ai nhìn thấy cấu hình: local chỉ máy bạn, project ghi vào .mcp.json và chia sẻ với team qua
+    git, user áp dụng cho mọi dự án bạn mở trên máy đó.'
+- id: capstone-q6
+  node: capstone
+  tier: fast
+  prompt: Middleware nào chạy trước Endpoint trong sơ đồ kiến trúc, và mỗi middleware làm gì?
+  answer: 'Theo đúng thứ tự: UseAuthentication (giải mã/kiểm chữ ký JWT) -> UseAuthorization (kiểm quyền)
+    -> exception handler toàn cục (bắt lỗi chưa xử lý). Chỉ sau khi qua cả ba, request mới tới Endpoint.'
+- id: capstone-q7
+  node: capstone
+  tier: fast
+  prompt: Nếu bạn chọn xoá mềm (IsDeleted) cho DELETE /tasks/{id}, endpoint GET /tasks cần thay đổi gì
+    để không hiển thị nhầm task đã xoá?
+  answer: Endpoint GET /tasks phải lọc thêm điều kiện !t.IsDeleted trong Where(...) — nếu quên, task đã
+    xoá vẫn hiện ra vì xoá mềm chỉ đổi cờ, không thật sự xoá dòng dữ liệu.

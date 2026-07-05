@@ -160,9 +160,9 @@ phases:
   - id: P5
     title: "AI Engineering (fast-churn — 'run-it-to-verify')"
     nodes:
-      - { id: p5-claude-code, file: p5-ai/claude-code.md, tier: fast, status: draft, owner: ai-expert,
+      - { id: p5-claude-code, file: p5-ai/claude-code.md, tier: fast, status: core, owner: ai-expert,
           objective: "Dùng Claude Code đúng: CLAUDE.md, SKILL.md, hooks PascalCase, subagent", requires: [p4-deploy], risk_tier: T3 }
-      - { id: p5-mcp, file: p5-ai/mcp.md, tier: fast, status: draft, owner: ai-expert,
+      - { id: p5-mcp, file: p5-ai/mcp.md, tier: fast, status: core, owner: ai-expert,
           objective: "Kết nối agent với công cụ ngoài qua MCP: tools/resources/prompts, stdio/HTTP", requires: [p5-claude-code], risk_tier: T3 }
-      - { id: p5-capstone, file: p5-ai/capstone.md, tier: fast, status: draft, owner: core-team,
+      - { id: p5-capstone, file: p5-ai/capstone.md, tier: fast, status: core, owner: core-team,
           objective: "Capstone trung gian: ghép P1–P4 thành app TaskFlow chạy được đầu-cuối", requires: [p5-mcp, p4-jwt, p2-ef] }
