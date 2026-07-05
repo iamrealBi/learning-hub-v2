@@ -262,3 +262,10 @@ phases:
           objective: "Nhận diện và áp dụng đúng Two Pointers / Sliding Window theo dấu hiệu đề bài", requires: [p10-dp] }
       - { id: p10-systemdesign, file: p10-cs-foundations/system-design-behavioral.md, tier: fast, status: core, owner: core-team,
           objective: "Áp dụng quy trình 4 bước System Design và STAR method cho behavioral interview", requires: [p10-patterns] }
+
+  - id: CAPSTONE-FINAL
+    title: "Capstone cuối cùng"
+    nodes:
+      - { id: p-capstone-final, file: capstone-final/final.md, tier: fast, status: core, owner: core-team,
+          objective: "Tổng hợp toàn bộ P1-P10 thành một hệ thống TaskFlow hoàn chỉnh, tự chấm bằng Definition of Done",
+          requires: [p10-systemdesign] }

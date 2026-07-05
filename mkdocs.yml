@@ -174,5 +174,7 @@ nav:
     - "06 — Dynamic Programming cơ bản": p10-cs-foundations/dynamic-programming-co-ban.md
     - "07 — Interview Patterns: Two Pointers & Sliding Window": p10-cs-foundations/interview-patterns.md
     - "08 — System Design cơ bản & Behavioral Interview": p10-cs-foundations/system-design-behavioral.md
+  - "Capstone cuối cùng":
+    - "Capstone cuối cùng — TaskFlow đầy đủ (P1–P10)": capstone-final/final.md
   - "Về hệ thống":
     - "Kiến trúc sư phạm": PEDAGOGY.md
