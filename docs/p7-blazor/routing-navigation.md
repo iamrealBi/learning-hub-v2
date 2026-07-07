@@ -567,7 +567,7 @@ Ví dụ luồng cụ thể ghép cả bốn khái niệm: người dùng click 
     </NavLink>
     ```
 
-    **Vì sao đúng:** route parameter tên `orderId` trong `@page` khớp property `OrderId` (không phân biệt hoa/thường), có `:int` để ràng buộc chỉ số nguyên mới khớp route — vào `/orders/abc` sẽ "not found" đúng như thiết kế. `NavLink` dùng `Match="NavLinkMatch.All"` để chỉ active đúng khi ở chính `/orders/5`, không active nhầm khi ở `/orders/6` (nếu dùng mặc định `Prefix`, `/orders/6` cũng làm link này active vì `/orders/6` bắt đầu bằng... thực ra không, vì `href="/orders/5"` chỉ match prefix `/orders/5`, không match `/orders/6` — nhưng nếu href chỉ là `/orders` thì mọi đơn hàng đều active, đây là lý do cần hiểu rõ Match trước khi chọn).
+    **Vì sao đúng:** route parameter tên `orderId` trong `@page` khớp property `OrderId` (không phân biệt hoa/thường), có `:int` để ràng buộc chỉ số nguyên mới khớp route — vào `/orders/abc` sẽ "not found" đúng như thiết kế. `NavLink` dùng `Match="NavLinkMatch.All"` để chỉ active đúng khi URL khớp **toàn bộ** `href` (chính xác `/orders/5`) — nếu `href` chỉ là `/orders` (không có số cụ thể) và dùng mặc định `Prefix`, mọi đường dẫn bắt đầu bằng `/orders` (kể cả `/orders/5`, `/orders/6`...) đều làm link đó active nhầm, đây là lý do cần hiểu rõ `Match` trước khi chọn.
 
 **Bài 2 — NavigationManager + query string.** Viết component `SearchPage.razor` tại `/search`, có property `Keyword` (kiểu `string`, mặc định rỗng) nhận từ query string `?keyword=...` qua `[SupplyParameterFromQuery]`. Thêm một nút "Tìm sản phẩm mới" dùng `NavigationManager` để chuyển sang `/products` sau khi bấm.
 

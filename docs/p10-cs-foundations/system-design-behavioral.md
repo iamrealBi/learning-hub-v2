@@ -107,7 +107,7 @@ lưu trong 5 năm:
 
 ```mermaid title="Kiến trúc tổng quan URL shortener"
 graph LR
-    Client["Client (browser/app)"] --> LB["Load Balancer"]
+    Client["Client (browser/app)"] --> LB["Load Balancer (phân luồng request ra nhiều server, định nghĩa đầy đủ ở mục 3)"]
     LB --> S1["App Server 1"]
     LB --> S2["App Server 2"]
     S1 --> Cache["Cache (đọc nhanh link phổ biến)"]

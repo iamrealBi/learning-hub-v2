@@ -27,7 +27,7 @@ est_minutes_fast: 40
 // test:skip đoạn trích rút gọn chỉ để suy luận, không phải chương trình đầy đủ
 app.MapPost("/orders", async (CreateOrderDto dto, AppDbContext db) =>
 {
-    if (string.IsNullOrWhiteSpace(dto.ProductName) || dto.Quantity <= 0)
+    if (dto.Quantity <= 0)
         return Results.BadRequest("Dữ liệu không hợp lệ");
 
     var product = await db.Products.FindAsync(dto.ProductId);
@@ -61,7 +61,7 @@ Nhìn lại đúng đoạn code ở mục 0 — 13 dòng nhưng đang làm **ba 
 app.MapPost("/orders", async (CreateOrderDto dto, AppDbContext db) =>
 {
     // (1) VALIDATE — kiểm tra hình thức dữ liệu đầu vào
-    if (string.IsNullOrWhiteSpace(dto.ProductName) || dto.Quantity <= 0)
+    if (dto.Quantity <= 0)
         return Results.BadRequest("Dữ liệu không hợp lệ");
 
     // (2) QUERY — chạm database

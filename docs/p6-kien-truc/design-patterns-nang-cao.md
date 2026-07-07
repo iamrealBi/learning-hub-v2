@@ -484,21 +484,22 @@ Sách GoF phân biệt hai cách cài Adapter:
 
 C# (giống Java) **không hỗ trợ đa kế thừa class** (một class chỉ kế thừa được một class cha, dù implement được nhiều interface) — nên **Class Adapter theo đúng nghĩa GoF không viết được trong C#** nếu class cần bọc không phải là interface. Vì lý do đó, trong C# gần như luôn dùng **Object Adapter** (composition: giữ field tham chiếu tới object cần bọc) — đây không phải một lựa chọn thiết kế, mà là **giới hạn ngôn ngữ** quyết định sẵn.
 
-```csharp title="Vì sao không viết được Class Adapter khi thư viện ngoài là class cụ thể"
-// test:skip minh hoạ lỗi biên dịch cố ý — CS1721 (đa kế thừa class)
+```csharp title="Class Adapter kiểu C#: kế thừa được TỐI ĐA một class + nhiều interface"
+// test:compile Class Adapter chỉ viết được khi đích (ITarget) là interface, không phải class cụ thể
 public interface ITarget { void Do(); }
 public class LegacyThing { public void OldDo() { } }
 
-// LỖI CS1721: 'Adapter': cannot have multiple base classes
-// (chỉ được kế thừa TỐI ĐA một class — 'ITarget' ở đây là interface nên OK,
-//  nhưng nếu ITarget cũng là MỘT class cụ thể thay vì interface, sẽ lỗi)
+// Biên dịch OK — vì ITarget là interface, không tính vào giới hạn "tối đa một class cha".
+// Nếu ITarget ở đây là MỘT CLASS CỤ THỂ khác (không phải interface), dòng kế thừa 2 class
+// này sẽ báo lỗi CS1721 ("'BadClassAdapter': cannot have multiple base classes") — đó là
+// lý do Class Adapter đúng nghĩa GoF (kế thừa CẢ HAI class) không viết được trong C#.
 public class BadClassAdapter : LegacyThing, ITarget
 {
     public void Do() => OldDo();
 }
 ```
 
-Ví dụ trên **thực ra biên dịch được** vì `ITarget` là `interface` (C# cho kế thừa một class + nhiều interface) — đây chính là hình thức gần nhất C# có với Class Adapter, và về bản chất **không khác Object Adapter về mặt giữ tham chiếu**: nó chỉ gộp việc kế thừa dữ liệu/hành vi của `LegacyThing` thay vì giữ nó qua field. Cách này ít linh hoạt hơn Object Adapter (không đổi được `LegacyThing` sang một bản khác lúc runtime, vì nó gắn cứng qua kế thừa) nên Object Adapter (composition, như 3.3) vẫn là lựa chọn mặc định nên dùng trong C#.
+Đây chính là hình thức gần nhất C# có với Class Adapter, và về bản chất **không khác Object Adapter về mặt giữ tham chiếu**: nó chỉ gộp việc kế thừa dữ liệu/hành vi của `LegacyThing` thay vì giữ nó qua field. Cách này ít linh hoạt hơn Object Adapter (không đổi được `LegacyThing` sang một bản khác lúc runtime, vì nó gắn cứng qua kế thừa) nên Object Adapter (composition, như 3.3) vẫn là lựa chọn mặc định nên dùng trong C#.
 
 ---
 

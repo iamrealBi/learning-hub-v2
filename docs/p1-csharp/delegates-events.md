@@ -974,6 +974,8 @@ Nghe: hello
 
 ### 7.5 Cạm bẫy `async void` trong event handler
 
+> Ghi chú: mục này mượn tạm cú pháp `async`/`await`/`Task` — ba từ khoá được dạy đầy đủ ở chương [async/await](async-await.md) (chương 9, sau chương này) — tạm chấp nhận dùng trước, chỉ cần hiểu ở mức "đánh dấu một hàm có thể tạm dừng chờ việc gì đó xong" để theo được ví dụ dưới.
+
 !!! danger "`async void` event handler: exception mất tích, không await được"
     Chữ ký event handler chuẩn luôn trả `void` (`EventHandler`, `EventHandler<T>`, hoặc `Action` tự khai báo), nên khi handler cần `await`, người viết thường thêm `async` trước `void`. Đây là **pitfall thực chiến rất phổ biến**:
 

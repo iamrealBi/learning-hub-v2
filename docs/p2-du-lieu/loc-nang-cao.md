@@ -5,7 +5,7 @@ owner: core-team
 verified_on: "2026-07-01"
 dotnet_version: "10.0"
 bloom: "Áp dụng"
-requires: [p2-sql-nen-tang]
+requires: [p2-sql]
 est_minutes_fast: 35
 ---
 

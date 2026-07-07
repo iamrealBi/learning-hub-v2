@@ -4,8 +4,8 @@ status: core
 owner: core-team
 verified_on: "2026-07-01"
 dotnet_version: "10.0"
-bloom: "Analyze"
-requires: [p1-nen-tang]
+bloom: "Create"
+requires: [p1-memory]
 est_minutes_fast: 75
 est_minutes_deep: 140
 ---
@@ -13,11 +13,11 @@ est_minutes_deep: 140
 # Lập trình hướng đối tượng (OOP)
 
 !!! info "Bạn đang ở đây · P1 → node `p1-oop`"
-    **Cần trước:** cú pháp C# nền tảng (biến, kiểu, hàm, điều kiện, vòng lặp, exceptions cơ bản).
+    **Cần trước:** cú pháp C# nền tảng (biến, kiểu, hàm, điều kiện, vòng lặp) và chương [Bộ nhớ & Kiểu dữ liệu](bo-nho-va-kieu-du-lieu.md) (đã giới thiệu ngắn `class`/`interface` như hai kiểu dữ liệu; chương này đi sâu vào cách *dùng* chúng để thiết kế).
     **Mở khoá:** Generics, Collections & LINQ, và toàn bộ thiết kế tầng dịch vụ ở P3 (DI dựa hoàn toàn trên tư duy OOP + interface).
     ⏱️ Fast path ~75 phút · Deep dive +65 phút.
 
-    **Giả định:** bạn CHƯA biết `class`, `interface`, `virtual` là gì. Mọi từ khoá mới trong bài đều được giải thích từ số 0 — định nghĩa bằng lời, cú pháp tối thiểu chạy được, rồi mới nâng cao.
+    **Giả định:** bạn đã biết cú pháp tối thiểu của `class`/`interface` (từ chương trước), nhưng CHƯA biết `virtual`/`override`, kế thừa, đa hình, hay SOLID. Mọi khái niệm mới trong bài đều được giải thích từ số 0 — định nghĩa bằng lời, cú pháp tối thiểu chạy được, rồi mới nâng cao.
 
 > **Mục tiêu (đo được):** Sau chương này bạn (1) **tự viết** được class/interface từ cú pháp trống, không cần tra thêm nguồn ngoài; (2) **tự thiết kế** một hệ phân cấp áp dụng đóng gói; (3) **dự đoán chính xác** phương thức nào chạy trong code có `virtual`/`override`/`new`; (4) **giải thích** interface là gì và tự viết được cả cài đặt bội, explicit implementation, default method; (5) **chọn đúng** giữa `abstract class`, `interface` và composition; (6) **viết lại** code vi phạm SOLID thành code tuân thủ, cho cả 5 nguyên tắc.
 

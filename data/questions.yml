@@ -847,7 +847,7 @@ questions:
     trong N lần Push chỉ là O(log N), và tổng chi phí copy phần tử qua tất cả các lần resize là O(N) —
     chia đều ra thì trung bình mỗi lần Push chỉ tốn O(1) (chi phí amortized), dù một vài lần Push riêng
     lẻ (đúng lúc mảng đầy) sẽ tốn O(n).
-- id: '9'
+- id: delegates-events-q9
   node: delegates-events
   tier: deep
   prompt: Vì sao `Action<object> aObject = o => {...}; Action<string> aString = aObject;` biên dịch được,
@@ -856,7 +856,7 @@ questions:
     số kiểu cha (object) đứng thay cho biến khai báo nhận kiểu con (string), vì bất kỳ string nào truyền
     vào cũng là một object hợp lệ. Chiều ngược lại sai vì một hàm chỉ biết xử lý string không thể nhận
     một object bất kỳ (có thể không phải string) một cách an toàn.'
-- id: '10'
+- id: delegates-events-q10
   node: delegates-events
   tier: deep
   prompt: '`Func<string> fString = () => "x"; Func<object> fObject = fString;` — vì sao gán được mà không
@@ -866,7 +866,7 @@ questions:
     kiểu con) luôn dùng thay được cho kiểu trả về tổng quát hơn (object, kiểu cha). Đổi sang vị trí tham
     số (Action<in T>) thì chiều đảo ngược — đó là contravariance, không phải covariance: tham số phải
     nới rộng lên kiểu cha, không thu hẹp xuống kiểu con.'
-- id: '11'
+- id: delegates-events-q11
   node: delegates-events
   tier: deep
   prompt: Vì sao dùng async void cho event handler lại nguy hiểm hơn async Task? Nếu handler bên trong
@@ -2455,8 +2455,9 @@ questions:
   node: capstone
   tier: fast
   prompt: Middleware nào chạy trước Endpoint trong sơ đồ kiến trúc, và mỗi middleware làm gì?
-  answer: 'Theo đúng thứ tự: UseAuthentication (giải mã/kiểm chữ ký JWT) -> UseAuthorization (kiểm quyền)
-    -> exception handler toàn cục (bắt lỗi chưa xử lý). Chỉ sau khi qua cả ba, request mới tới Endpoint.'
+  answer: 'Theo đúng thứ tự: exception handler toàn cục (đăng ký đầu tiên, bọc quanh mọi thứ phía sau để
+    bắt được cả lỗi trong middleware xác thực/phân quyền) -> UseAuthentication (giải mã/kiểm chữ ký JWT)
+    -> UseAuthorization (kiểm quyền). Chỉ sau khi qua cả ba, request mới tới Endpoint.'
 - id: capstone-q7
   node: capstone
   tier: fast
@@ -4521,7 +4522,7 @@ questions:
     SDK đã cài đúng và chạy được.
 - id: q-p0-05
   node: index
-  tier: deep
+  tier: fast
   prompt: Vì sao mục tiêu P0 ghi rõ "<30 phút" thay vì chỉ nói "cài .NET"?
   answer: Để đặt kỳ vọng rõ ràng — nếu việc cài đặt kéo dài hơn 30 phút, đó là dấu hiệu có vấn đề (sai
     phiên bản, thiếu quyền cài, mạng chặn) cần dừng lại xử lý, không phải trạng thái bình thường của
@@ -4534,7 +4535,7 @@ questions:
     Windows 10 1709+.
 - id: q-p0-07
   node: index
-  tier: deep
+  tier: fast
   prompt: Trên Linux, vì sao P0 không đưa một lệnh cài cố định duy nhất như Windows/macOS?
   answer: Vì cách cài .NET trên Linux khác nhau theo distro (Ubuntu/Debian dùng apt, Fedora dùng dnf,
     v.v.) — P0 chỉ đưa lệnh kiểm chứng dotnet --version chung, còn hướng dẫn cài cụ thể cần xem theo
@@ -4586,8 +4587,8 @@ questions:
 - id: q-capstone-final-07
   node: final
   tier: deep
-  prompt: Mục 9 của Definition of Done kiểm tra điều gì về CI pipeline, và vì sao phải "chủ động làm một
-    test fail" để kiểm?
+  prompt: Tiêu chí 9 trong mục 7 (Definition of Done) kiểm tra điều gì về CI pipeline, và vì sao phải
+    "chủ động làm một test fail" để kiểm?
   answer: Kiểm rằng job build KHÔNG chạy khi job test fail (do needs test chặn) — chỉ thấy pipeline "xanh"
     khi mọi thứ pass không chứng minh được gate hoạt động đúng; phải cố ý làm fail một lần để xác nhận
     cơ chế chặn thật sự hoạt động, không phải job build luôn chạy độc lập với job test.

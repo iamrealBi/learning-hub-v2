@@ -79,7 +79,7 @@ System.Text.Json.JsonException: The JSON value could not be converted to
 System.Decimal. Path: $.DiscountAppliedPercent | LineNumber: 0 | BytePositionInLine: 142
 ```
 
-Client gọi `POST /orders` gửi thiếu hoặc gửi sai kiểu cho một field mà nó **không hề cần biết** (vì field đó chỉ có ý nghĩa lúc đọc) — đây chính là dấu hiệu model đang bị dùng cho hai mục đích khác nhau.
+Đây thực ra là trường hợp nhẹ hơn dự đoán: nếu client **gửi thiếu** field đó, `System.Text.Json` không ném lỗi — nó âm thầm gán giá trị mặc định (`0` cho `decimal`), nguy hiểm hơn vì không ai biết mà kiểm tra. Lỗi `JsonException` ở trên chỉ xảy ra khi client **gửi sai kiểu** (ví dụ gửi chuỗi `"abc"` cho field kiểu `decimal`) — dù là thiếu (âm thầm) hay sai kiểu (ném lỗi), gốc rễ vẫn là: client đang phải biết tới một field mà nó **không hề cần biết** (vì field đó chỉ có ý nghĩa lúc đọc) — đây chính là dấu hiệu model đang bị dùng cho hai mục đích khác nhau.
 
 ---
 

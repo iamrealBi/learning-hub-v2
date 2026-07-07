@@ -33,11 +33,11 @@ flowchart TD
     subgraph Client
       BZ[Blazor UI - component .razor]
     end
-    BZ -->|HttpClient + JWT trong localStorage| RL[Rate Limiter - P8]
+    BZ -->|HttpClient + JWT trong localStorage| MW0[Exception handler toan cuc - P3]
+    MW0 --> RL[Rate Limiter - P8]
     RL --> MW1[UseAuthentication - P4]
     MW1 --> MW2[UseAuthorization - P4]
-    MW2 --> MW3[Exception handler toan cuc - P3]
-    MW3 --> CORS[CORS + security headers - P8]
+    MW2 --> CORS[CORS + security headers - P8]
     CORS --> EP[Endpoint Minimal API - P3]
     EP -->|validate DTO| VAL[Validation - P3]
     EP --> SVC[TaskService - domain rule P1]
@@ -47,10 +47,11 @@ flowchart TD
     RESIL --> REPO[TaskRepository / UnitOfWork - P6]
     REPO --> DBCTX[AppDbContext - P2]
     DBCTX --> PG[(PostgreSQL)]
+    PG -.du lieu.-> SVC
     SVC -.ket qua.-> EP
     EP -->|200/201/204| BZ
     subgraph Nen_tang_van_hanh
-      HC[/healthz - liveness+readiness - P8]
+      HC[/health - liveness+readiness - P8]
       BG[BackgroundService nhac han task - P8]
       LOG[Structured logging + CorrelationId - P4]
       OBS[Health checks + observability - P8]
@@ -77,7 +78,7 @@ Bản P5 đã có `TaskService` tách đúng ranh giới (không biết `HttpCon
 - **`p6-patterns-basic` (Factory/Strategy/Decorator):** áp dụng **Strategy** cho quy tắc sắp xếp/lọc task (ví dụ `ITaskSortStrategy` cho "theo hạn" vs "theo mức ưu tiên") nếu Blazor UI (mục 3) cần nhiều kiểu sắp xếp — chỉ thêm nếu thật sự có ≥2 biến thể, đúng nguyên tắc "nhận diện khi nào là thừa" đã học.
 - **`p6-cqrs` (CQRS):** quyết định **không** tách Command/Query đầy đủ cho TaskFlow (CRUD task đơn giản, không có mô hình đọc phức tạp khác mô hình viết) — nhưng ghi rõ lý do quyết định này vào README của project, đúng kỹ năng "tránh over-engineering CRUD" đã học, chứ không phải bỏ qua vì lười.
 - **`p6-ddd` (DDD cơ bản):** xác nhận `TaskItem` là **Entity** (có định danh `Id`, trạng thái thay đổi qua thời gian) và `User` là **Aggregate Root** hợp lý duy nhất cần bảo vệ bất biến (ví dụ: không xoá `User` khi còn task chưa hoàn thành, nếu bạn chọn thêm quy tắc này) — không cần tách thêm Value Object nếu domain vẫn đơn giản như bản P5.
-- **`p6-messaging` (Message Queue/Event-Driven):** thêm **một** sự kiện đơn giản — khi `TaskService.TryCompleteAsync` thành công, publish một in-process event (ví dụ qua `IPublisher`/`MediatR`-style, hoặc đơn giản hơn là gọi trực tiếp một `INotificationHandler`) để `BackgroundService` (mục 4) ghi log "task hoàn thành" — không cần dựng RabbitMQ/Kafka thật cho quy mô capstone, nhưng phải thể hiện đúng tư duy "publisher không biết ai là subscriber".
+- **`p6-messaging` (Message Queue/Event-Driven):** thêm **một** sự kiện đơn giản — khi `TaskService.TryCompleteAsync` thành công, publish một in-process event (dùng đúng interface `IRequest`/`IRequestHandler`/`IMediator.Send()` đã học ở chương CQRS — nếu không cần MediatR, gọi trực tiếp một service C# thuần đăng ký qua DI, như cách "khi nào KHÔNG cần MediatR" đã học) để `BackgroundService` (mục 4) ghi log "task hoàn thành" — không cần dựng RabbitMQ/Kafka thật cho quy mô capstone, nhưng phải thể hiện đúng tư duy "publisher không biết ai là subscriber".
 
 ---
 
@@ -104,7 +105,7 @@ Bản P5 chưa có bất kỳ cơ chế production nào — không cache, không
 
 - **`p8-caching` (IMemoryCache/IDistributedCache):** cache kết quả `GET /tasks` theo `userId` bằng `IMemoryCache`, TTL ngắn (ví dụ 30 giây); **invalidate cache đúng** ngay sau `POST`/`PUT`/`DELETE` thành công trên task của user đó — tránh đúng lỗi "dữ liệu cache cũ" đã học.
 - **`p8-ratelimit` (Rate Limiting):** áp `AddRateLimiter` lên `POST /auth/login` bằng thuật toán **Fixed Window** hoặc **Token Bucket** (chọn một, giải thích lý do trong README) để chặn brute-force password — đúng cảnh báo đã có ở phần Deep Dive của bản P5.
-- **`p8-health` (Health Checks & Observability):** thêm `/healthz/live` (liveness — process còn sống) và `/healthz/ready` (readiness — kết nối PostgreSQL còn tốt) qua `AddHealthChecks().AddNpgSql(...)` — phân biệt đúng hai loại đã học, không gộp chung một endpoint.
+- **`p8-health` (Health Checks & Observability):** thêm `/health/live` (liveness — process còn sống) và `/health/ready` (readiness — kết nối PostgreSQL còn tốt) qua `AddHealthChecks().AddNpgSql(...)` — phân biệt đúng hai loại đã học, không gộp chung một endpoint.
 - **`p8-background` (Background Jobs):** thêm một `BackgroundService` chạy định kỳ (ví dụ mỗi giờ) quét task quá hạn (`DueDate < DateTime.UtcNow && Status != Done`) và ghi log nhắc hạn — tôn trọng `CancellationToken` khi ứng dụng shutdown, không để job treo.
 - **`p8-versioning` (API Versioning):** gắn version cho API hiện có (ví dụ `/api/v1/tasks`) trước khi thêm bất kỳ breaking change nào ở capstone này — xác định rõ việc thêm field mới vào response là **non-breaking**, việc đổi kiểu `Status` từ `enum` sang `string` (nếu có) là **breaking**.
 - **`p8-resilience` (Resilience Patterns qua Polly):** bọc lời gọi PostgreSQL (qua Repository, mục 2) bằng một Polly `ResiliencePipeline` kết hợp **Retry** (2-3 lần, backoff) + **Timeout** — không cần Circuit Breaker đầy đủ nếu TaskFlow chỉ gọi một database, nhưng phải giải thích trong README vì sao bỏ Circuit Breaker (đúng tư duy "kết hợp đúng theo tình huống", không phải thêm cho đủ).
@@ -116,11 +117,11 @@ Bản P5 chưa có bất kỳ cơ chế production nào — không cache, không
 
 Bản P5 chỉ có Dockerfile đơn (từ `p4-deploy`) — chưa có pipeline tự động, chưa có khái niệm hạ tầng.
 
-- **`p9-cicd` (CI/CD với GitHub Actions):** viết một workflow `.github/workflows/ci.yml` thật có tối thiểu 2 job nối bằng `needs`: job `test` chạy `dotnet test`, job `build` (chỉ chạy nếu `test` pass) build Docker image — phân biệt đúng CI (test/build tự động mỗi push) với CD (deploy tự động) đã học; nếu chưa deploy thật, dừng ở CI + build image là đủ.
+- **`p9-cicd` (CI/CD với GitHub Actions):** viết một workflow `.github/workflows/ci.yml` thật có tối thiểu 2 job nối bằng `needs`: job `test` chạy `dotnet test`, job `build` (chỉ chạy nếu `test` pass) build Docker image bằng một step `run: docker build -t taskflow .` (ghép cú pháp job/needs đã học ở p9-cicd với Dockerfile đã có từ `p4-deploy` — chương p9-cicd không tự có ví dụ build Docker image sẵn, vì workflow CI thật của Learning Hub build tài liệu, không phải image) — phân biệt đúng CI (test/build tự động mỗi push) với CD (deploy tự động) đã học; nếu chưa deploy thật, dừng ở CI + build image là đủ.
 - **`p9-cloud` (Cloud Fundamentals):** ghi trong README lựa chọn hạ tầng cho TaskFlow (ví dụ PaaS như Azure App Service/Render cho API, static hosting cho Blazor WASM nếu chọn hosting model đó) và lý do — phân biệt đúng tầng bạn tự quản lý (code) vs tầng nhà cung cấp quản lý (OS/runtime) theo IaaS/PaaS/SaaS.
 - **`p9-k8s` (Container Orchestration — tuỳ chọn nâng cao):** nếu muốn đi xa hơn mức tối thiểu, viết một `deployment.yaml` + `service.yaml` cơ bản cho TaskFlow API, giải thích vai trò tự phục hồi (self-healing) của Kubernetes khi một Pod crash — không bắt buộc để đạt Definition of Done, nhưng phải hiểu đúng khái niệm nếu đưa vào.
 - **`p9-iac` (Infrastructure as Code — tuỳ chọn nâng cao):** nếu triển khai lên cloud thật, viết hạ tầng (database, app service) bằng Terraform/Bicep thay vì tạo tay qua UI — phân biệt đúng `plan` (xem trước thay đổi) vs `apply` (thực thi).
-- **`p9-monitoring` (Monitoring & Alerting):** kết nối `/healthz/ready` (mục 4) với một cơ chế alert đơn giản (ví dụ GitHub Actions scheduled job gọi health check, hoặc log warning nếu response không phải `200`) — định nghĩa tối thiểu một SLI (ví dụ "tỷ lệ request `/healthz/ready` trả `200`") cho TaskFlow.
+- **`p9-monitoring` (Monitoring & Alerting):** kết nối `/health/ready` (mục 4) với một cơ chế alert đơn giản (ví dụ GitHub Actions scheduled job gọi health check, hoặc log warning nếu response không phải `200`) — định nghĩa tối thiểu một SLI (ví dụ "tỷ lệ request `/health/ready` trả `200`") cho TaskFlow.
 
 ---
 
@@ -147,10 +148,10 @@ Chấm TaskFlow bản cuối — chỉ tick khi kiểm chứng được bằng l
 - [ ] **4. Auth Blazor hoạt động (P7):** truy cập `/tasks` khi chưa đăng nhập bị `AuthorizeView` chặn và điều hướng về `/login` — kiểm bằng cách xoá token khỏi localStorage rồi reload trang.
 - [ ] **5. Cache invalidate đúng (P8):** gọi `GET /tasks` hai lần liên tiếp (lần 2 phải ra từ cache — kiểm qua log "cache hit"), sau đó `POST /tasks` một task mới, gọi lại `GET /tasks` phải thấy task mới ngay (không phải đợi TTL hết) — kiểm bằng `curl -i` xem log server.
 - [ ] **6. Rate limiter chặn đúng (P8):** gửi 11 request `POST /auth/login` liên tục trong 10 giây (ví dụ bằng `for i in {1..11}; do curl -s -o /dev/null -w "%{http_code}\n" -X POST .../auth/login; done`) — thấy tối thiểu một response trả `429 Too Many Requests`.
-- [ ] **7. Health check phân biệt đúng liveness/readiness (P8):** `curl -i /healthz/live` trả `200` ngay cả khi tắt PostgreSQL; `curl -i /healthz/ready` trả `503` khi PostgreSQL không kết nối được — kiểm bằng cách `docker stop <container-postgres>` rồi gọi lại cả hai endpoint.
+- [ ] **7. Health check phân biệt đúng liveness/readiness (P8):** `curl -i /health/live` trả `200` ngay cả khi tắt PostgreSQL; `curl -i /health/ready` trả `503` khi PostgreSQL không kết nối được — kiểm bằng cách `docker stop <container-postgres>` rồi gọi lại cả hai endpoint.
 - [ ] **8. Resilience hoạt động khi database chậm/lỗi (P8):** tạm chặn kết nối PostgreSQL (dừng container) rồi gọi `GET /tasks` — log server thể hiện đúng số lần retry theo cấu hình Polly `ResiliencePipeline`, không phải một lỗi 500 ngay lập tức.
 - [ ] **9. CI pipeline xanh trên GitHub Actions (P9):** push commit lên branch, mở tab Actions, thấy job `test` và job `build` đều có dấu tick xanh; nếu chủ động làm một test fail rồi push, job `build` **không chạy** (do `needs: test` chặn) — chứng minh gate hoạt động đúng.
-- [ ] **10. Docker image build được từ pipeline (P9):** `docker images` sau khi CI chạy xong (hoặc build local bằng đúng Dockerfile) thấy image TaskFlow được tạo, `docker run` image đó và `curl /healthz/live` trả `200`.
+- [ ] **10. Docker image build được từ pipeline (P9):** `docker images` sau khi CI chạy xong (hoặc build local bằng đúng Dockerfile) thấy image TaskFlow được tạo, `docker run` image đó và `curl /health/live` trả `200`.
 - [ ] **11. Lighthouse Performance cho Blazor UI (P7):** chạy Lighthouse (Chrome DevTools) trên trang `/tasks` đã publish (Release build, không phải `dotnet watch`), điểm Performance **>= 70**.
 - [ ] **12. Không còn lỗ hổng BOLA cũ (P4, kiểm lại):** `curl` `PUT /tasks/{id-của-user-khác}` kèm token hợp lệ của user A vẫn trả `403`/`404` (không `200`) — xác nhận việc thêm Repository (mục 2) không vô tình làm mất kiểm tra chủ sở hữu đã có từ P5.
 
@@ -158,8 +159,8 @@ Chấm TaskFlow bản cuối — chỉ tick khi kiểm chứng được bằng l
 dotnet build
 dotnet test
 docker compose up -d
-curl -i http://localhost:8080/healthz/live
-curl -i http://localhost:8080/healthz/ready
+curl -i http://localhost:8080/health/live
+curl -i http://localhost:8080/health/ready
 dotnet run --project TaskFlow.Api
 ```
 
@@ -176,7 +177,7 @@ dotnet run --project TaskFlow.Api
 - [ ] **P5 (AI Engineering & capstone trung gian):** nếu dùng Claude Code/agent để hỗ trợ mở rộng chương này, có một `CLAUDE.md` mô tả đúng cấu trúc TaskFlow hiện tại, và bạn vẫn là người review từng diff trước khi merge — không để agent tự merge.
 - [ ] **P6 (Kiến trúc):** trả lời được "vì sao chọn Repository ở đây mà không phải gọi `DbSet` trực tiếp" bằng đúng lý do đã ghi ở mục 2 (không phải "vì tài liệu bảo làm vậy").
 - [ ] **P7 (Blazor):** trả lời được "vì sao chọn state container service mà không phải CascadingParameter" cho `TaskStateContainer` — dựa trên phạm vi chia sẻ dữ liệu thực tế của TaskFlow.
-- [ ] **P8 (Production):** trả lời được sự khác biệt giữa liveness và readiness bằng chính hai endpoint `/healthz/live` và `/healthz/ready` của TaskFlow, không bằng định nghĩa chung.
+- [ ] **P8 (Production):** trả lời được sự khác biệt giữa liveness và readiness bằng chính hai endpoint `/health/live` và `/health/ready` của TaskFlow, không bằng định nghĩa chung.
 - [ ] **P9 (DevOps):** trả lời được "CI khác CD ở đâu trong pipeline TaskFlow của tôi" bằng chính job `test`/`build` đã viết, không bằng định nghĩa sách giáo khoa.
 - [ ] **P10 (CS Foundations & System Design):** áp dụng đúng quy trình 4 bước System Design (làm rõ yêu cầu → ước lượng quy mô → thiết kế → đánh đổi) để tự phản biện một quyết định đã đưa ra ở TaskFlow (ví dụ: "nếu TaskFlow phải phục vụ 10,000 request/giây, `IMemoryCache` còn đủ hay phải đổi sang `IDistributedCache` với Redis?").
 

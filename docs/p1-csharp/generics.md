@@ -731,7 +731,7 @@ Với `T` hoàn toàn không ràng buộc (không `class`, không `struct`, khô
 - `IComparable<T>`: đối tượng **tự biết** so sánh với đồng loại (`x.CompareTo(y)`).
 - `IComparer<T>`: một đối tượng **bên thứ ba** biết so sánh hai `T` (`comparer.Compare(x, y)`) — dùng khi bạn muốn nhiều cách sắp xếp mà không sửa lớp gốc.
 
-**`IComparable<T>` một mình** — kiểu tự định nghĩa "thứ tự mặc định" của chính nó, dùng được ngay với `List<T>.Sort()` không tham số. *(Nhắc lại ngắn gọn: `record` là một kiểu tham chiếu bất biến (immutable) với cú pháp khai báo gọn, so sánh bằng theo giá trị — đã học ở chương OOP/bộ nhớ và kiểu dữ liệu; dùng lại ở đây chỉ để có sẵn một lớp dữ liệu ngắn gọn cho ví dụ generic.)*
+**`IComparable<T>` một mình** — kiểu tự định nghĩa "thứ tự mặc định" của chính nó, dùng được ngay với `List<T>.Sort()` không tham số. *(Nhắc lại ngắn gọn: `record` là một kiểu tham chiếu **immutable-by-default** (không phải bất biến tuyệt đối — property vẫn có thể `set` được, xem đính chính đầy đủ ở chương [Records & Pattern Matching](records-pattern-matching.md)) với cú pháp khai báo gọn, so sánh bằng theo giá trị; dùng lại ở đây chỉ để có sẵn một lớp dữ liệu ngắn gọn cho ví dụ generic.)*
 
 ```csharp title="IComparable<T>"
 // test:run

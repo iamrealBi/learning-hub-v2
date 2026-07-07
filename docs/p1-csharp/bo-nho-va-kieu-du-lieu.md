@@ -362,7 +362,7 @@ Trả lời *không nhìn lại bài*, rồi mở đáp án. Việc gợi lại 
 
 Không có starter code. Dùng Claude Code/IDE như *pair*, nhưng bạn thiết kế + viết test:
 
-> Viết `record struct Money(decimal Amount, string Currency)` và một hàm `Add` cộng hai `Money`. Viết **test xUnit** chứng minh: (a) cộng hai Money cùng loại tiền cho kết quả đúng; (b) `Money` có value semantics (hai biến bằng nhau về *giá trị* thì `==` trả `true`). Vì sao `record struct` khiến (b) đúng "miễn phí"?
+> Viết `record struct Money(decimal Amount, string Currency)` và một hàm `Add` cộng hai `Money`. Viết vài dòng top-level dùng `Console.WriteLine`/so sánh `==` để tự chứng minh: (a) cộng hai Money cùng loại tiền cho kết quả đúng; (b) `Money` có value semantics (hai biến bằng nhau về *giá trị* thì `==` trả `true`). Vì sao `record struct` khiến (b) đúng "miễn phí"? *(Muốn viết bằng test xUnit thật thay vì `Console.WriteLine` — xUnit được dạy đầy đủ ở chương [Testing](../p4-bao-mat/testing.md), P4.)*
 
 ---
 

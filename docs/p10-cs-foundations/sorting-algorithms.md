@@ -616,7 +616,7 @@ Nhắc lại ngắn cột "Stable?" trong bảng dưới: đúng định nghĩa 
 | Merge Sort | O(n log n) | O(n log n) | O(n log n) | O(n) | Có |
 | Quick Sort | O(n²) (pivot luôn min/max) | O(n log n) | O(n log n) (đã cân bằng) | O(log n) tb, O(n) xấu nhất | Không |
 
-*Selection Sort **về bản chất thuật toán** không stable (đổi chỗ trực tiếp có thể đưa phần tử bằng nhau vượt qua nhau — ví dụ khi đổi chỗ phần tử ở vị trí i với phần tử nhỏ nhất tìm được ở xa, một phần tử bằng giá trị pivot nằm giữa 2 vị trí đó có thể bị "nhảy qua"), nên bảng liệt kê "Không". Một số tài liệu vẫn liệt kê Selection Sort là biên giới — bản cài đặt chuẩn (đổi chỗ trực tiếp, không chèn) là **không stable**.
+*Selection Sort **về bản chất thuật toán** không stable (đổi chỗ trực tiếp có thể đưa phần tử bằng nhau vượt qua nhau — ví dụ khi đổi chỗ phần tử ở vị trí i với phần tử nhỏ nhất tìm được ở xa, một phần tử bằng giá trị pivot nằm giữa 2 vị trí đó có thể bị "nhảy qua"), nên bảng liệt kê "Không". Bản cài đặt chuẩn (đổi chỗ trực tiếp, không chèn) luôn là **không stable** — không có biến thể phổ biến nào đổi được kết luận này.
 
 **Cách chọn nhanh:**
 

@@ -12,7 +12,7 @@ est_minutes_fast: 30
 # async/await & Task: lập trình bất đồng bộ đúng cách
 
 !!! info "Bạn đang ở đây · P1 → node `p1-async`"
-    **cần trước:** bộ nhớ & kiểu dữ liệu (value vs reference), đã chạy được `dotnet run`.
+    **cần trước:** bộ nhớ & kiểu dữ liệu (value vs reference), LINQ cơ bản (`Select`, `IEnumerable`), đã chạy được `dotnet run`.
     **mở khoá sau bài này:** ef core (truy vấn bất đồng bộ), asp.net core (handler async), gọi api ai bằng http.
     ⏱️ Fast path ~30 phút · Deep dive cuối bài (tuỳ chọn, không bắt buộc).
 

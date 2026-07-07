@@ -16,7 +16,7 @@ est_minutes_fast: 60
     mở khoá sau bài này: migration ef core nhiều bảng có quan hệ, transaction/index (vì thiết kế schema đúng là điều kiện tiên quyết để migration EF Core sinh ra đúng và để index phát huy tác dụng), và các chương thiết kế API/domain model ở P3 dựa trên đúng các bảng đã chuẩn hoá ở đây.
     ⏱️ fast path ~60 phút · deep dive thêm ~30 phút (tuỳ chọn).
 
-> **Mục tiêu (đo được):** Sau bài này bạn **định nghĩa** được 5 loại khoá (primary/foreign/composite/candidate/surrogate/natural) bằng lời của riêng mình; **áp dụng** được ba chuẩn hoá 1NF/2NF/3NF để tách một bảng "phẳng" chứa dữ liệu trùng lặp thành nhiều bảng quan hệ đúng chuẩn; **giải thích** được vì sao và khi nào nên cố ý denormalize (đọc nhiều, có số liệu đo cụ thể); **thiết kế** đúng bảng trung gian cho quan hệ N-N; và **vẽ** được sơ đồ `erDiagram` (Mermaid) mô tả một schema hoàn chỉnh.
+> **Mục tiêu (đo được):** Sau bài này bạn **định nghĩa** được 6 loại khoá (primary/foreign/composite/candidate/surrogate/natural) bằng lời của riêng mình; **áp dụng** được ba chuẩn hoá 1NF/2NF/3NF để tách một bảng "phẳng" chứa dữ liệu trùng lặp thành nhiều bảng quan hệ đúng chuẩn; **giải thích** được vì sao và khi nào nên cố ý denormalize (đọc nhiều, có số liệu đo cụ thể); **thiết kế** đúng bảng trung gian cho quan hệ N-N; và **vẽ** được sơ đồ `erDiagram` (Mermaid) mô tả một schema hoàn chỉnh.
 
 ---
 

@@ -63,9 +63,9 @@ Kiến trúc các lớp và luồng một request điển hình của TaskFlow:
 
 ```mermaid
 flowchart TD
-    C[Client] -->|POST /tasks + Authorization: Bearer| MW1[Middleware: UseAuthentication]
-    MW1 --> MW2[Middleware: UseAuthorization]
-    MW2 --> MW3[Middleware: Exception handler toàn cục]
+    C[Client] -->|POST /tasks + Authorization: Bearer| MW1[Middleware: Exception handler toàn cục]
+    MW1 --> MW2[Middleware: UseAuthentication]
+    MW2 --> MW3[Middleware: UseAuthorization]
     MW3 --> EP[Endpoint - Minimal API]
     EP -->|validate DTO| VAL[Validation]
     VAL -->|400 nếu sai| C
@@ -80,7 +80,7 @@ flowchart TD
     end
 ```
 
-Đọc sơ đồ theo đúng thứ tự request đi qua: **middleware xác thực** (giải mã và kiểm chữ ký JWT, điền `ClaimsPrincipal`) chạy trước **middleware phân quyền** (kiểm route có yêu cầu `[Authorize]`/`RequireAuthorization()` không); sau đó **exception handler toàn cục** bọc quanh phần còn lại để bắt mọi lỗi chưa xử lý; chỉ khi qua hết ba lớp đó, request mới chạm vào **endpoint**, nơi validation DTO chạy trước khi endpoint gọi service.
+Đọc sơ đồ theo đúng thứ tự request đi qua: **exception handler toàn cục** chạy **đầu tiên**, bọc quanh mọi middleware/endpoint phía sau để bắt được cả lỗi xảy ra trong chính middleware xác thực/phân quyền, không chỉ lỗi trong endpoint; tiếp theo là **middleware xác thực** (giải mã và kiểm chữ ký JWT, điền `ClaimsPrincipal`), rồi **middleware phân quyền** (kiểm route có yêu cầu `[Authorize]`/`RequireAuthorization()` không); chỉ khi qua hết ba lớp đó, request mới chạm vào **endpoint**, nơi validation DTO chạy trước khi endpoint gọi service.
 
 !!! danger "Hiểu lầm phổ biến — đính chính"
     "Capstone = viết lại từ đầu cho hoành tráng, thêm càng nhiều công nghệ mới càng tốt." **Sai.** Phần lớn mã đã tồn tại ở các chương trước — bạn chỉ nối chúng lại và **bịt các khe hở giữa các tầng** (quên map DTO, quên `RequireAuthorization()`, quên đăng ký service trong DI, quên `Include()` nên navigation property luôn null). Giá trị capstone nằm ở sự liền mạch và khả năng tự phát hiện khe hở, không ở số lượng công nghệ mới nhồi vào.
@@ -272,36 +272,24 @@ Nếu chưa quen phân biệt hai khái niệm này: validation trả lời câu
 // test:skip cần ASP.NET Core Minimal API — minh hoạ validation tự động
 using System.ComponentModel.DataAnnotations;
 
+var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddValidation();   // đã học ở chương Validation (P3) — bắt buộc phải gọi, xem cảnh báo dưới
+var app = builder.Build();
+
 public record CreateTaskDto(
     [Required(ErrorMessage = "Title bắt buộc")]
     [MaxLength(200, ErrorMessage = "Title tối đa 200 ký tự")]
     string Title
 );
 
-// Minimal API tự validate DTO khi có [Required]/[MaxLength] NẾU bạn dùng
-// package hỗ trợ validation filter (ví dụ MinimalApis.Extensions, hoặc tự viết
-// filter gọi Validator.TryValidateObject). Không có filter, [Required] trên DTO
-// KHÔNG tự chặn — model binding của Minimal API mặc định không validate như MVC.
-app.MapPost("/tasks", (CreateTaskDto dto) => Results.Created("/tasks/1", dto))
-   .AddEndpointFilter(async (context, next) =>
-   {
-       var dto = context.GetArgument<CreateTaskDto>(0);
-       var results = new List<ValidationResult>();
-       var isValid = Validator.TryValidateObject(
-           dto, new ValidationContext(dto), results, validateAllProperties: true);
-
-       if (!isValid)
-           return Results.ValidationProblem(
-               results.ToDictionary(
-                   r => r.MemberNames.FirstOrDefault() ?? "",
-                   r => new[] { r.ErrorMessage ?? "" }));
-
-       return await next(context);
-   });
+// builder.Services.AddValidation() (đã đăng ký ở trên) tự gắn một endpoint
+// filter phía trước handler, tự validate [Required]/[MaxLength] trên DTO —
+// không cần tự viết AddEndpointFilter/Validator.TryValidateObject thủ công.
+app.MapPost("/tasks", (CreateTaskDto dto) => Results.Created("/tasks/1", dto));
 ```
 
 !!! danger "Cạm bẫy dễ nhầm nhất của validation trong Minimal API"
-    Khác với ASP.NET Core MVC (Controller), **Minimal API không tự động chạy `[Required]`/`[MaxLength]` khi bind DTO** — bạn phải tự thêm `AddEndpointFilter` (như trên) hoặc dùng thư viện hỗ trợ. Nếu bạn chỉ gắn attribute vào DTO rồi tưởng "chắc nó tự chặn", `POST /tasks` với `Title` rỗng sẽ đi thẳng vào logic nghiệp vụ và trả `201 Created` với dữ liệu rác — đây chính là lý do checklist mục 5 yêu cầu **kiểm bằng request thật** (`curl`), không chỉ đọc code có attribute là đủ.
+    `AddValidation()` (đã học ở chương Validation, P3) tự chạy `[Required]`/`[MaxLength]` khi bind DTO — nhưng **chỉ khi bạn nhớ gọi `builder.Services.AddValidation()`**. Đây là lỗi câm (silent failure) kinh điển: nếu bạn chỉ gắn attribute vào DTO mà quên dòng đăng ký đó, không có exception, không có cảnh báo lúc build — `POST /tasks` với `Title` rỗng sẽ đi thẳng vào logic nghiệp vụ và trả `201 Created` với dữ liệu rác — đây chính là lý do checklist mục 5 yêu cầu **kiểm bằng request thật** (`curl`), không chỉ đọc code có attribute là đủ.
 
 Song song với validation, exception handler toàn cục bắt phần còn lại — lỗi xảy ra *sau* khi dữ liệu đã hợp lệ về hình thức:
 
@@ -379,6 +367,7 @@ builder.Services.AddScoped<TokenService>();
 // 3) Web API (P3) — service nghiệp vụ đăng ký qua DI, không "new" tay trong endpoint
 builder.Services.AddScoped<TaskService>();
 builder.Services.AddProblemDetails();   // hỗ trợ exception handler trả JSON chuẩn
+builder.Services.AddValidation();       // đã học ở chương Validation (P3) — thiếu dòng này thì [Required]/[MaxLength] dưới không chặn gì cả
 
 var app = builder.Build();
 
@@ -421,7 +410,7 @@ app.MapPost("/tasks", async (CreateTaskDto dto, ClaimsPrincipal me, TaskService 
 
 app.Run();
 
-// DTO tối thiểu để ví dụ compile được — validation attribute trả 400 tự động qua model binding.
+// DTO tối thiểu để ví dụ compile được — validation attribute trả 400 tự động nhờ AddValidation() đã đăng ký ở trên.
 public record LoginDto(string Email, string Password);
 public record CreateTaskDto([System.ComponentModel.DataAnnotations.Required, System.ComponentModel.DataAnnotations.MaxLength(200)] string Title);
 

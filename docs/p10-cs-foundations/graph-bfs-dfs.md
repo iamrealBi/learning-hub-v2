@@ -403,7 +403,7 @@ Cùng một graph `1-2, 1-3, 2-4, 3-4` (undirected), xuất phát từ đỉnh `
 | 1 | `[1]` → dequeue 1, enqueue 2,3 | 1 | gọi `DFS(1)` | 1 |
 | 2 | `[2,3]` → dequeue 2, enqueue 4 | 1,2 | `DFS(1)` gọi `DFS(2)` | 1,2 |
 | 3 | `[3,4]` → dequeue 3 (4 đã có, không enqueue lại) | 1,2,3 | `DFS(2)` gọi `DFS(4)` | 1,2,4 |
-| 4 | `[4]` → dequeue 4 | 1,2,3,4 | `DFS(4)` lùi ra, `DFS(2)` lùi ra, `DFS(1)` gọi `DFS(3)` (3 đã thăm ở nhánh khác? không — thăm mới nếu chưa `daThay`) | 1,2,4,3 |
+| 4 | `[4]` → dequeue 4 | 1,2,3,4 | `DFS(4)` gọi `DFS(3)` **trực tiếp** (2 và 1 vẫn còn trên stack, chưa lùi ra) vì hàng xóm còn lại của 4 là 3, chưa `daThay`; `DFS(3)` hết hàng xóm mới (1 và 4 đều đã thăm) nên lùi ra, rồi `DFS(4)` lùi ra, rồi `DFS(2)` lùi ra, cuối cùng `DFS(1)` cũng hết hàng xóm mới (3 đã thăm) nên lùi ra | 1,2,4,3 |
 
 **Quan sát:** BFS thăm `3` **trước** `4` (vì `3` cùng lớp với `2`, còn `4` ở lớp sau). DFS thăm `4` **trước** `3` (vì đi sâu vào nhánh `1→2→4` tới cùng trước khi quay lại thử nhánh `1→3`). Cả hai đều đúng, đều thăm hết 4 đỉnh, đều O(V+E) — chỉ khác **thứ tự**, và thứ tự đó chính là lý do BFS mới đảm bảo "ngắn nhất".
 
