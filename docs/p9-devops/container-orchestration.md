@@ -345,4 +345,4 @@ spec:
     - **Horizontal Pod Autoscaler (HPA):** một cơ chế tự động tăng/giảm `replicas` của Deployment dựa trên chỉ số thực tế (ví dụ CPU trung bình vượt 70%), tự động hoá chính việc "scale theo nhu cầu" đã nêu là vấn đề gốc ở mục 1, thay vì bạn phải tự sửa `replicas` bằng tay.
     - **Rolling update:** khi bạn đổi `image` trong Deployment sang phiên bản mới, Kubernetes mặc định thay Pod cũ bằng Pod mới theo từng đợt nhỏ (không xoá hết Pod cũ cùng lúc), giữ dịch vụ luôn có Pod phục vụ trong suốt quá trình cập nhật.
 
-Tiếp theo -> infrastructure as code
+**Tiếp theo →** [P9 · Infrastructure as Code: Terraform & Bicep](infrastructure-as-code.md)

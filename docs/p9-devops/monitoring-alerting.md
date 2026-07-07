@@ -601,4 +601,4 @@ Bốn khái niệm này, dù học riêng lẻ trong chương này để hiểu 
 
     Hai nhóm thực hành này không thay thế nhau — một pipeline CI/CD xanh 100% vẫn không đảm bảo hệ thống production không bao giờ gặp sự cố (ví dụ do tải tăng bất ngờ, hoặc phụ thuộc bên thứ ba lỗi), đây là lý do một hệ thống production trưởng thành luôn cần cả hai nhóm thực hành song song: CI/CD để giảm lỗi trước khi deploy, Monitoring/Alerting/runbook để phát hiện và xử lý nhanh những gì CI/CD không thể ngăn được.
 
-Tiếp theo -> container orchestration co ban
+**Tiếp theo →** [P10 · Big-O & Độ phức tạp thuật toán](../p10-cs-foundations/big-o-complexity.md)

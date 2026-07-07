@@ -708,4 +708,4 @@ Trả lời rồi mở đáp án.
 
     **Đo hiệu năng thật, đừng chỉ đoán:** Big-O cho biết **tốc độ tăng**, không cho biết số giây cụ thể. Muốn biết chính xác đệ quy hay loop nhanh hơn bao nhiêu **trên máy thật, với `n` thật**, cách đáng tin nhất là đo bằng benchmark (ví dụ thư viện `BenchmarkDotNet`) chứ không suy diễn từ Big-O — vì Big-O bỏ qua hằng số, và với `n` nhỏ, chi phí cố định (constant overhead) của một cách viết "phức tạp hơn về Big-O" đôi khi vẫn thắng cách viết "đơn giản hơn về Big-O" trên thực tế.
 
-Tiếp theo -> chia để trị và quy hoạch động
+**Tiếp theo →** [P10 · Dynamic Programming cơ bản](dynamic-programming-co-ban.md)

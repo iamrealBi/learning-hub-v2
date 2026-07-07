@@ -623,4 +623,4 @@ FROM employees;
 
     **`COALESCE` và `ORDER BY` với NULL.** Mặc định PostgreSQL xếp `NULL` **cuối** khi `ORDER BY ... ASC` và **đầu** khi `DESC`. Muốn kiểm soát rõ ràng, dùng `ORDER BY col ASC NULLS FIRST` hoặc `NULLS LAST` thay vì bọc `COALESCE` chỉ để đổi thứ tự sắp xếp (COALESCE làm thay đổi giá trị hiển thị, còn `NULLS FIRST/LAST` chỉ đổi vị trí sắp xếp mà giữ nguyên giá trị gốc).
 
-Tiếp theo -> join, group by & subquery
+**Tiếp theo →** [P2 · Ràng buộc dữ liệu (Constraints)](constraints.md)

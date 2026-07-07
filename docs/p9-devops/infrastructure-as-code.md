@@ -252,5 +252,5 @@ resource "aws_instance" "web" {
 
     Khi một file `.tf`/`.bicep` phình to (hàng trăm resource), thực tế thường chia nhỏ thành **module** — một thư mục con định nghĩa một nhóm resource liên quan (ví dụ module `network` định nghĩa toàn bộ mạng, module `database` định nghĩa toàn bộ database), rồi file chính chỉ "gọi" các module đó với tham số riêng cho từng môi trường (dev/staging/production dùng cùng module nhưng tham số khác nhau, ví dụ kích thước máy chủ nhỏ hơn ở dev). Terraform còn có khái niệm **workspace** để quản lý nhiều môi trường dùng cùng file `.tf` nhưng state file tách riêng theo từng môi trường — tránh việc lệnh `apply` cho môi trường dev vô tình chạy nhầm vào state của production. Cả hai khái niệm (module, workspace) chỉ thật sự cần thiết khi hạ tầng đã đủ lớn — ở quy mô học tập/dự án nhỏ, một file `.tf` duy nhất tại mỗi môi trường là đủ, đúng tinh thần "giới thiệu khái niệm, không cần thành thạo công cụ" của chương này.
 
-Tiếp theo -> monitoring & observability nền tảng
+**Tiếp theo →** [P9 · Monitoring & Alerting Production](monitoring-alerting.md)
 

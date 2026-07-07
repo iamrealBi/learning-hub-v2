@@ -543,4 +543,4 @@ Gợi ý giàn giáo: binder cấu hình của .NET khớp tên thuộc tính C#
 
     **User Secrets** (`dotnet user-secrets init`, `dotnet user-secrets set "Email:SmtpHost" "..."`) lưu giá trị nhạy cảm ngoài source control, trên máy dev — chỉ hoạt động khi `ASPNETCORE_ENVIRONMENT=Development`, không dùng được cho production (production nên dùng biến môi trường hoặc dịch vụ quản lý secret như Azure Key Vault).
 
-Tiếp theo -> ef core va dbcontext
+**Tiếp theo →** [P3 · Validation](validation.md)

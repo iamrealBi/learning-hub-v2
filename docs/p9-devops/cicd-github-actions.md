@@ -296,4 +296,4 @@ deploy:
 
 Tóm lại bốn điều cần nhớ khi mang chương này vào một dự án thật: (1) CI và CD là hai khái niệm khác nhau — CI hỏi "có đúng không", CD hỏi "có nên đưa lên không", CD nên luôn phụ thuộc kết quả CI; (2) một workflow GitHub Actions gồm nhiều job chạy trên các máy ảo tách biệt, mỗi job gồm các step chạy tuần tự trên cùng máy ảo đó; (3) `needs: [...]` là cách khai báo job này phải chờ job khác xanh trước khi chạy — bỏ dòng này biến các job độc lập chạy song song, có thể để lỗi lọt qua; (4) `permissions:` nên luôn khai báo đúng quyền tối thiểu job cần, không cấp dư "cho chắc".
 
-Tiếp theo -> cloud fundamentals (IaaS, PaaS, SaaS)
+**Tiếp theo →** [P9 · Cloud Fundamentals: IaaS, PaaS, SaaS](cloud-fundamentals.md)

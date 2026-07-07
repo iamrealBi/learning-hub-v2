@@ -704,4 +704,4 @@ Gọi `GET /health/ready` trả về trạng thái tổng hợp nào, và HTTP s
 
     Cũng cần phân biệt với rate limiting (chương trước, `AddRateLimiter`): rate limiting bảo vệ app khỏi **quá tải do chính traffic đến** (quá nhiều request cùng lúc), còn health check báo cáo **tình trạng sức khoẻ tổng thể** không phụ thuộc vào số lượng request. Một app có thể đồng thời: đang từ chối request vì vượt rate limit (429 Too Many Requests, do quá nhiều traffic) **và** vẫn `Healthy` ở health check (vì bản thân app và các phụ thuộc của nó vẫn hoạt động tốt, chỉ là traffic đến vượt ngưỡng cho phép) — hai cơ chế đo hai chiều hoàn toàn khác nhau của "app đang ổn không".
 
-Tiếp theo -> logging co cau truc va correlation id
+**Tiếp theo →** [P8 · Background Jobs](background-jobs.md)

@@ -887,4 +887,4 @@ So sánh với `using (...) { }` tường minh: nếu muốn đóng tài nguyên
 
     Ngược lại, bọc `try`/`catch` quanh lời gọi một `async void` **không** bắt được exception ném ra bên trong nó — vì `async void` không trả `Task` để `await`, exception thoát ra ngay khi hàm đang chạy (không đồng bộ với điểm gọi), khiến `catch` xung quanh lời gọi vô dụng. Vì lý do này, chỉ dùng `async void` cho event handler (nơi buộc phải có chữ ký `void`); mọi trường hợp khác hãy dùng `async Task`.
 
-Tiếp theo -> generics và collections
+**Tiếp theo →** [P2 · SQL nền tảng](../p2-du-lieu/sql-nen-tang.md)

@@ -708,4 +708,4 @@ FROM monthly_revenue;
     - **EF Core & LINQ**: EF Core (bản chuẩn, không kèm phần mở rộng của bên thứ ba) KHÔNG dịch trực tiếp `ROW_NUMBER()`/`RANK()` từ cú pháp LINQ thông thường sang window function một cách tường minh cho mọi trường hợp — một số phiên bản hỗ trợ dịch `GroupBy` + `Select` với `Count`/`Sum` sang `OVER`, nhưng logic phức tạp (xếp hạng, `LAG`/`LEAD`) thường phải dùng `FromSql`/`FromSqlRaw` viết SQL thô rồi map về DTO. Khi thấy một câu LINQ phức tạp chạy chậm bất thường, luôn bật log SQL sinh ra (chương EF Core) để kiểm tra xem EF có vô tình sinh N+1 query thay vì một window function duy nhất hay không.
     - **So sánh hiệu năng với subquery tương đương**: mọi window function đều có thể viết lại bằng correlated subquery (VD `SUM() OVER (PARTITION BY region)` ≈ `(SELECT SUM(amount) FROM sales2 s2 WHERE s2.region = s1.region)`), nhưng window function thường NHANH HƠN đáng kể vì PostgreSQL chỉ cần MỘT lượt sort/scan dữ liệu, trong khi correlated subquery chạy lại truy vấn con cho từng dòng ngoài.
 
-Tiếp theo -> ef core & migrations
+**Tiếp theo →** [P2 · EF Core](ef-core.md)

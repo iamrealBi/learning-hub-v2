@@ -471,4 +471,4 @@ ENTRYPOINT ["dotnet", "Api.dll"]
     - **Multi-arch build:** `docker buildx build --platform linux/amd64,linux/arm64 -t myapi:1.0 --push .` build một image chạy được cả trên máy Apple Silicon (ARM) và server x64 (Intel/AMD) từ cùng một Dockerfile, hữu ích khi team dev dùng Mac M-series nhưng production chạy trên server x64.
     - **Rootless Docker daemon:** ngoài việc container chạy non-root (mục "Cạm bẫy"), cả **Docker daemon** chính nó cũng có thể chạy ở chế độ rootless trên host — giảm thêm một tầng rủi ro nếu daemon bị khai thác.
 
-Tiếp theo -> dùng claude code hiệu quả
+**Tiếp theo →** [P5 · Dùng Claude Code](../p5-ai/claude-code.md)

@@ -598,4 +598,4 @@ Chương kế tiếp (`p5-mcp`) sẽ giải thích MCP là gì (một *protocol 
 
     **Câu hỏi để tự kiểm lại trước khi rời chương.** Nếu ai đó hỏi bạn "làm sao biết một dự án đang dùng Claude Code an toàn?", câu trả lời đúng không phải "vì họ dùng AI xịn" — mà là: có `CLAUDE.md` phản ánh đúng thực tế dự án, có hook ép được ít nhất các chính sách nguy hiểm nhất (chặn push thẳng `main`, chặn lệnh phá hoại), có review-của-người trước mọi merge, và không ai bật `--dangerously-skip-permissions` ngoài sandbox cô lập. Bốn điều đó — không phải mức độ "thông minh" của model — mới là thứ quyết định độ an toàn thật của một pipeline dùng agent.
 
-Tiếp theo -> model context protocol (mcp)
+**Tiếp theo →** [P5 · Model Context Protocol](mcp.md)

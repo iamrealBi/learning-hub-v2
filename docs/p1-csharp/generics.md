@@ -1315,4 +1315,4 @@ Viết `Bag<T>` sao cho mỗi closed type đếm được **số instance đã t
 
 Phiên bản .NET hiện hành khi viết chương này là {{ dotnet.current }} và C# {{ csharp.version }}. Về lịch sử: generics ra mắt ở **C# 2.0 / .NET 2.0** (2005); trước đó (.NET 1.x) chỉ có `ArrayList`/`Hashtable` dựa trên `object`. Ràng buộc `unmanaged` thêm ở **C# 7.3**, `notnull` ở **C# 8**, `allows ref struct` ở **C# 13**.
 
-Tiếp theo -> collections & linq
+**Tiếp theo →** [P1 · Delegates, Events & Lambda](delegates-events.md)

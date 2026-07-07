@@ -595,4 +595,4 @@ string PhanLoaiTuoi(int tuoi)
     - **Verify số lần gọi bằng thư viện mock:** thay vì tự đếm bằng field như `SoLanGoi` ở bài tập 2, thư viện như `NSubstitute` cho phép viết `emailGia.Received(1).Gui("a@example.com")` để khẳng định chính xác lời gọi đã xảy ra đúng số lần, đúng tham số — tiện khi cần verify nhiều tương tác phức tạp cùng lúc.
     - **Song song hoá:** xUnit mặc định chạy các **collection** khác nhau song song để tăng tốc độ tổng thể. Test nào đụng vào tài nguyên chung (ví dụ cùng ghi một file, cùng một database instance) cần được gom vào cùng một `[Collection("tên")]` để tránh chạy chồng nhau gây kết quả ngẫu nhiên (flaky test).
 
-Tiếp theo -> structured logging với ilogger
+**Tiếp theo →** [P4 · Structured Logging (ILogger)](logging-exceptions.md)

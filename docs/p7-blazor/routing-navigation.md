@@ -698,4 +698,4 @@ Ví dụ luồng cụ thể ghép cả bốn khái niệm: người dùng click 
 
     **Quan hệ giữa `NavLink`/`NavigationManager` và `AuthenticationStateProvider`:** một pattern thường gặp là kiểm tra trạng thái đăng nhập trước khi cho vào một route (ví dụ trang `/admin`). Việc này **không** nằm trong phạm vi của `@page`, `NavLink`, hay `NavigationManager` — các khái niệm ở bài này chỉ quan tâm "URL nào ứng với component nào" và "làm sao chuyển URL", còn "ai được phép xem" là trách nhiệm của `AuthenticationStateProvider` (lớp trung tâm cung cấp trạng thái đăng nhập cho toàn bộ cây component) kết hợp với attribute `[Authorize]` — một chủ đề riêng sẽ học ở bài Authentication & Authorization trong Blazor, không lấn sang phạm vi của bài này.
 
-Tiếp theo -> quan ly state va cascading parameters trong blazor
+**Tiếp theo →** [P7 · Forms & Validation](forms-validation.md)

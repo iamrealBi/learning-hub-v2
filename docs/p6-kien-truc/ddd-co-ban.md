@@ -705,4 +705,4 @@ Nếu câu trả lời cho cả ba câu trên là **"không"** — một `record
 
     **Tóm lại quan hệ giữa ba mục xây dựng đã học và hạ tầng persist:** Entity/Value Object/Aggregate (mục 1–3) là cách **mô hình hoá nghiệp vụ trong bộ nhớ**, hoàn toàn độc lập với việc dữ liệu được lưu ở đâu; Repository/EF Core (đã học ở bài trước) là **cách persist** mô hình đó — hai lớp kiến thức bổ sung cho nhau nhưng không phải một, và như mọi pattern khác trong chương này, chỉ nên áp dụng đủ độ phức tạp cần thiết cho đúng nghiệp vụ, không áp dụng vì "đây là chuẩn DDD nên phải làm đủ tầng".
 
-Tiếp theo -> vertical slice: tổ chức code theo tính năng thay vì theo lớp
+**Tiếp theo →** [P6 · Message Queue & Event-Driven](message-queue-event-driven.md)

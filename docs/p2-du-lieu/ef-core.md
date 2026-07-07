@@ -590,4 +590,4 @@ public async Task<List<string>> GetActiveCustomerNamesAsync()
     - **`AsNoTrackingWithIdentityResolution`**: một biến thể trung gian giữa tracking mặc định và `AsNoTracking()` — không giữ snapshot để so sánh khi `SaveChanges` (nên vẫn không dùng để sửa-rồi-lưu), nhưng đảm bảo nếu cùng một dòng database xuất hiện nhiều lần trong kết quả (do JOIN), nó chỉ tạo **một** đối tượng C# duy nhất cho dòng đó thay vì nhiều bản sao — hữu ích khi truy vấn phức tạp có join nhiều bảng nhưng vẫn chỉ để đọc.
     - **Vì sao entity thường không nên là `record`**: EF Core cần thay đổi được từng thuộc tính của entity đang tracking (qua property setter) để cập nhật change tracker; `record` với thuộc tính chỉ-đọc (`init`) hoặc so sánh bằng giá trị (value equality) có thể gây nhầm lẫn với cách EF Core theo dõi định danh (identity) bằng khoá chính, nên entity trong ví dụ chương này cố tình dùng `class` với `{ get; set; }` thông thường (POCO cổ điển) thay vì `record`.
 
-Tiếp theo -> ef core: map, migration & quan hệ
+**Tiếp theo →** [P2 · EF Core: Quan hệ & N+1](ef-core-quan-he.md)

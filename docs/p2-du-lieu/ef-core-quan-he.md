@@ -493,4 +493,4 @@ public async Task<List<(string Ten, int SoSach)>> GetAuthorBookCountsAsync()
     - **Ranh giới với migration**: chương này giả định các bảng `Authors`/`Books`/`Tags` đã tồn tại đúng với cấu hình Fluent API; chương kế tiếp về migration sẽ chỉ ra cách EF Core sinh ra các câu lệnh `CREATE TABLE`/`ALTER TABLE` (bao gồm khoá ngoại, bảng trung gian N-N) từ chính những khai báo entity và Fluent API đã học ở đây, thông qua `dotnet ef migrations add`.
     - **Đo N+1 bằng công cụ, không chỉ bằng mắt**: ngoài `LogTo(Console.WriteLine)`, các công cụ như MiniProfiler hoặc Application Insights có thể đếm số lượt truy vấn thật sự trong một request HTTP — hữu ích để bắt N+1 tự động trong quy trình kiểm thử/CI thay vì chỉ dựa vào review code thủ công, kể cả khi review bằng hỗ trợ của mô hình AI dòng Claude 4.x.
 
-Tiếp theo -> ef core: migration & repository pattern
+**Tiếp theo →** [P2 · EF Core: Migration & Seeding](ef-core-migration.md)

@@ -786,4 +786,4 @@ Bảng `categories(id, name, parent_id)` như trong chương. Viết một recur
     - **Writable CTE**: PostgreSQL cho phép `WITH` chứa `INSERT`/`UPDATE`/`DELETE` có mệnh đề `RETURNING`, rồi CTE khác đọc lại kết quả đó trong cùng một câu lệnh — hữu ích để "xoá rồi lưu lại các dòng đã xoá vào bảng khác" trong một transaction ngầm định, nhưng cần cẩn trọng vì tất cả các nhánh `WITH` trong PostgreSQL nhìn thấy **cùng một snapshot** dữ liệu tại thời điểm câu lệnh bắt đầu chạy.
     - **Khi dịch sang EF Core** (chương sau): EF Core dịch subquery `Where(x => x.Prop == other.Where(...).Select(...).FirstOrDefault())` thành scalar subquery hoặc `APPLY`/`LATERAL JOIN` tuỳ ngữ cảnh; recursive CTE **không có** cú pháp LINQ tương ứng trực tiếp — thường phải viết bằng SQL thô (`FromSqlRaw`) hoặc xử lý đệ quy ở tầng ứng dụng.
 
-Tiếp theo -> ef core
+**Tiếp theo →** [P2 · Window Functions](window-functions.md)

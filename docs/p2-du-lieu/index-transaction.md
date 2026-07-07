@@ -706,4 +706,4 @@ Viết transaction thử chuyển 5 đơn vị từ A sang B (biết trước A 
 
     **EF Core và transaction.** Mỗi lần gọi `SaveChanges()`/`SaveChangesAsync()`, EF Core tự động bọc toàn bộ các câu `INSERT`/`UPDATE`/`DELETE` phát sinh trong một transaction ngầm — nếu một thao tác thất bại giữa chừng, EF Core rollback toàn bộ, đúng tinh thần Atomicity đã học ở đây. Muốn gộp **nhiều lần gọi `SaveChanges()`** vào cùng một transaction lớn hơn, dùng `context.Database.BeginTransactionAsync()` tường minh — hiểu `BEGIN`/`COMMIT`/`ROLLBACK` ở tầng SQL trước giúp đọc đúng những gì EF Core đang làm hộ bạn phía dưới, thay vì coi `SaveChanges()` là một "hộp đen".
 
-Tiếp theo -> ef core (truy vấn và ánh xạ)
+**Tiếp theo →** [P2 · JOIN, GROUP BY & Subquery](joins-aggregation.md)

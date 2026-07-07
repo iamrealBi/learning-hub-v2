@@ -704,4 +704,4 @@ public class NotificationWorker : BackgroundService
 
     Tóm lại thứ tự tư duy đúng khi thêm một background job mới vào ứng dụng: (1) xác định đây có thật là việc không cần client đợi ngay không (mục 1), (2) viết logic vào `ExecuteAsync` của một `BackgroundService` (mục 3), (3) đảm bảo vòng lặp tôn trọng `stoppingToken` ở mọi điểm chờ (mục 4), (4) đăng ký qua `AddHostedService<T>()` (mục 5), (5) nếu cần nhận dữ liệu từ request, dùng `Channel<T>` cho nhu cầu đơn giản trong-tiến-trình hoặc message queue thực sự cho nhu cầu quan trọng hơn (mục 6), và (6) luôn bọc `try/catch` quanh từng item xử lý để một lỗi nhỏ không kéo sập cả ứng dụng (mục 7).
 
-Tiếp theo -> health checks & readiness probes
+**Tiếp theo →** [P8 · API Versioning](api-versioning.md)

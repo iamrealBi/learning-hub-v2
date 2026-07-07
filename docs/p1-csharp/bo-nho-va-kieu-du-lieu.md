@@ -392,4 +392,4 @@ Không có starter code. Dùng Claude Code/IDE như *pair*, nhưng bạn thiết
 [^msdocs]: Microsoft Learn — *Value types and reference types* (C# language reference). Kiểm chứng lại `verified_on` ở front-matter.
 
 <!-- Điều hướng canonical: mọi trang cần khái niệm này PHẢI link về đây, không giải thích lại. -->
-**Tiếp theo →** P1 · async/await *(chương draft — mở trong v0.2)*
+**Tiếp theo →** [P1 · OOP](oop.md)

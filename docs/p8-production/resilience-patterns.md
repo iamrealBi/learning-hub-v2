@@ -700,4 +700,4 @@ sealed record OrderConfirmation(string OrderId, string Status);
 
     Trong hệ thống production, các callback này thường được nối vào hệ thống logging có cấu trúc hoặc metrics (ví dụ tăng một counter mỗi lần circuit breaker mở mạch), giúp đội vận hành biết ngay khi một dịch vụ phụ thuộc bắt đầu gặp sự cố — thay vì chỉ phát hiện qua báo cáo lỗi từ người dùng cuối. Đây là điểm nối trực tiếp tới các chương observability/logging nâng cao (structured logging, distributed tracing) sẽ học sau.
 
-Tiếp theo -> health checks & readiness probes
+**Tiếp theo →** [P8 · Security Headers & CORS](security-headers-cors.md)

@@ -600,4 +600,4 @@ Gợi ý giàn giáo: đổi `GetFromJsonAsync` (không kiểm tra status) thàn
 
     Với các tình huống cần tuỳ biến sâu hơn (ví dụ bỏ qua kiểm tra chứng chỉ TLS trong môi trường test, hoặc thêm handler log request/response), `AddHttpClient` cho phép gắn thêm `ConfigurePrimaryHttpMessageHandler` để tuỳ biến `HttpClientHandler`, và `AddHttpMessageHandler<T>` để chèn thêm các "delegating handler" xử lý xuyên suốt (cross-cutting) như đính kèm token xác thực vào mọi request tự động — đây là nền tảng để hiểu cách các thư viện xác thực (ví dụ tự động gắn Bearer token) tích hợp với `IHttpClientFactory` mà không cần sửa code gọi API ở từng nơi.
 
-Tiếp theo -> jwt authentication
+**Tiếp theo →** [P4 · JWT (canonical)](../p4-bao-mat/jwt.md)

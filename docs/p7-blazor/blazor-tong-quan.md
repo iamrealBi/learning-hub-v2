@@ -699,4 +699,4 @@ Bất kỳ -> Hybrid:       UI (.razor) tái dùng được, nhưng logic truy c
 
     **Ranh giới — khi nào cần prerendering:** với một ứng dụng nội bộ, không quan tâm SEO, không cần tối ưu "thời gian thấy nội dung đầu tiên" (ví dụ dashboard quản trị chỉ nhân viên dùng) — prerendering chỉ thêm độ phức tạp hạ tầng (cần một ASP.NET Core server đứng sau, không thể dùng static file host đơn giản như mục 4 đã nêu) mà không mang lại lợi ích tương xứng. Prerendering đáng dùng cho ứng dụng public, cần SEO, hoặc cần cải thiện cảm nhận tốc độ tải cho người dùng lần đầu ghé trang.
 
-Tiếp theo -> component cơ bản: data binding, event handling và vòng đời component trong blazor
+**Tiếp theo →** [P7 · Component cơ bản](component-co-ban.md)

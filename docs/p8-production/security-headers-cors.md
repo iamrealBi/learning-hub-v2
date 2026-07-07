@@ -690,4 +690,4 @@ app.Run();
 
 Tóm lại bốn điều cần nhớ khi mang chương này vào một dự án production thật: (1) CORS là cơ chế trình duyệt, không phải server — đừng debug sai hướng khi thấy lỗi console mà server log vẫn sạch; (2) luôn khai báo origin cụ thể qua `WithOrigins`, tránh `AllowAnyOrigin()` trừ khi bạn thực sự có ý định mở API cho mọi origin đọc mà không dùng credentials; (3) `UseCors()`/`UseHsts()` phải thực sự được gọi trong pipeline, đúng vị trí — định nghĩa policy không tự động bật middleware; (4) các security header (HSTS, `nosniff`, CSP) là lớp phòng thủ bổ sung, không thay thế cho xác thực/phân quyền đúng đắn ở tầng server.
 
-Tiếp theo -> hosting & deployment (docker, môi trường production)
+**Tiếp theo →** [P9 · CI/CD với GitHub Actions](../p9-devops/cicd-github-actions.md)

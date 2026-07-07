@@ -271,7 +271,10 @@ sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
 - `app.UseExceptionHandler()` **không tham số** — nó tự tìm mọi `IExceptionHandler` đã đăng ký và gọi lần lượt `TryHandleAsync` cho tới khi một handler trả `true`.
 - `builder.Services.AddProblemDetails()` bật cơ chế `ProblemDetails` mặc định của framework cho các lỗi khác (như lỗi routing, 404) — nên gọi cùng với `IExceptionHandler` để nhất quán toàn hệ thống.
 
-**Nếu dùng sai:** nếu bạn quên `builder.Services.AddExceptionHandler<GlobalExceptionHandler>()` nhưng vẫn gọi `app.UseExceptionHandler()` không tham số, sẽ không có handler nào được gọi khi exception xảy ra — hành vi rơi về **mặc định của framework** (trang lỗi Development hoặc 500 rỗng ở Production), không có log, không có `ProblemDetails` như bạn mong đợi. Đây là lỗi câm: code biên dịch bình thường, không có cảnh báo, chỉ lộ ra khi bạn thực sự gọi endpoint lỗi và thấy response không giống thiết kế.
+**Nếu dùng sai:** nếu bạn quên `builder.Services.AddExceptionHandler<GlobalExceptionHandler>()` nhưng vẫn gọi `app.UseExceptionHandler()` không tham số, điều gì xảy ra phụ thuộc vào việc bạn **có** gọi `AddProblemDetails()` hay không (đã kiểm chứng thật bằng `dotnet run`, không suy đoán):
+
+- **Có `AddProblemDetails()`** (đúng như setup ở mục này): ứng dụng khởi động bình thường, nhưng vì không có `IExceptionHandler` nào xử lý được, `UseExceptionHandler()` tự dùng `IProblemDetailsService` làm phương án dự phòng — request lỗi vẫn trả về `500` kèm body `ProblemDetails` hợp lệ (`application/problem+json`), chỉ là **không có log tuỳ biến** và **không đúng cấu trúc lỗi bạn thiết kế** trong `GlobalExceptionHandler`. Đây là lỗi câm dạng nhẹ: response trông "có vẻ đúng" (500 + JSON có cấu trúc) nên dễ bị bỏ qua khi test nhanh bằng mắt.
+- **Không có `AddProblemDetails()`:** ứng dụng ném `InvalidOperationException` ngay lúc **khởi động** (`builder.Build()`/lần đầu `app.Run()`), với thông báo rõ ràng: *"An error occurred when configuring the exception handler middleware. Either the 'ExceptionHandlingPath' or the 'ExceptionHandler' property must be set..."* — ứng dụng không chạy được, chứ không phải lỗi câm.
 
 ---
 
@@ -599,7 +602,7 @@ Gợi ý giàn giáo: middleware bọc theo thứ tự đăng ký — muốn `Us
 7. Nếu bạn gọi `app.UseExceptionHandler()` không tham số nhưng quên `builder.Services.AddExceptionHandler<T>()`, chuyện gì xảy ra khi có exception?
 
     ??? note "Đáp án"
-        Không có handler nào được gọi — hành vi rơi về mặc định của framework (trang lỗi Development hoặc 500 rỗng ở Production). Đây là lỗi câm: không có cảnh báo lúc build, chỉ lộ ra khi thực sự test endpoint gây lỗi.
+        Tuỳ có `AddProblemDetails()` hay không (xem mục 4): có — ứng dụng chạy bình thường, nhưng trả `500` kèm `ProblemDetails` mặc định (không có log/cấu trúc tuỳ biến của bạn) — lỗi câm dạng nhẹ, dễ tưởng response "đúng" khi nhìn qua. Không có — ứng dụng ném `InvalidOperationException` ngay lúc khởi động, không chạy được — không phải lỗi câm, lộ ra ngay.
 
 ---
 
@@ -654,4 +657,4 @@ Gợi ý giàn giáo: middleware bọc theo thứ tự đăng ký — muốn `Us
 
     Cuối cùng, ASP.NET Core còn có `IProblemDetailsService` — một service DI cho phép tuỳ biến **mọi** `ProblemDetails` được tạo ra trong ứng dụng (kể cả các lỗi tự động như 404 route không khớp) tại một điểm cấu hình duy nhất, qua `builder.Services.AddProblemDetails(options => options.CustomizeProblemDetails = context => { ... })`. Đây là công cụ hữu ích khi bạn muốn thêm trường tuỳ chỉnh (ví dụ `traceId` từ `Activity.Current`) vào **mọi** response lỗi trong toàn hệ thống, không chỉ lỗi từ exception.
 
-Tiếp theo -> ef core và dbcontext
+**Tiếp theo →** [P3 · OpenAPI & Swagger](openapi-swagger.md)

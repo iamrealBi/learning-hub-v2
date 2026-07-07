@@ -788,4 +788,4 @@ Thiết kế schema cho một blog đơn giản với các luật:
 
     **Đo lường trước khi denormalize: EXPLAIN ANALYZE.** Trước khi quyết định thêm cột denormalize, công cụ đúng để lấy "số liệu đo" như mục 3.3 yêu cầu là `EXPLAIN ANALYZE` trên câu truy vấn `JOIN + SUM()` thật, so sánh thời gian thực thi (không chỉ ước lượng cảm tính) — nội dung này sẽ được đào sâu ở chương transaction/index kế tiếp.
 
-Tiếp theo -> migration ef core & quan hệ giữa các entity
+**Tiếp theo →** [P2 · Index, Transaction & ACID](index-transaction.md)

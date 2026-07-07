@@ -235,7 +235,7 @@ a va b co phai cung 1 instance? False
 
 **Quan sát:** hai lần "resolve" liên tiếp tạo **hai instance khác nhau** (`#1` và `#2`) — đúng nghĩa Transient: mới mỗi lần được yêu cầu, kể cả khi được gọi ở cùng một chỗ trong cùng một request. Trong DI container thật của ASP.NET Core (`AddTransient<Worker>()`), hành vi giống hệt: mỗi `GetRequiredService<Worker>()` (kể cả trong cùng một request/scope) trả về một instance mới, và container tự `Dispose` mọi Transient nó tạo ra khi scope chứa chúng kết thúc.
 
-> Lưu ý kỹ thuật: đoạn trên dùng gói `Microsoft.Extensions.DependencyInjection` (namespace `Microsoft.Extensions.DependencyInjection`) — đây là gói lõi bên dưới, được ASP.NET Core Web SDK tham chiếu sẵn nên biên dịch được như một console app thuần khi có gói NuGet đó. Nếu môi trường của bạn không có sẵn, hãy xem lại ví dụ ASP.NET Core đầy đủ ở mục 2.4.
+> Lưu ý kỹ thuật: đoạn trên **không** dùng gói `Microsoft.Extensions.DependencyInjection` — đây là mini-container tự dựng chỉ bằng BCL (`Func<Worker>`), biên dịch được như một console app thuần, không cần package ngoài. Muốn xem hành vi tương đương dùng đúng container DI thật của ASP.NET Core (`AddTransient`/`AddScoped`/`AddSingleton` trên `IServiceCollection`), xem ví dụ ở mục 2.2 và 2.3.
 
 ### 2.2. Scoped — một instance cho mỗi request
 
@@ -377,7 +377,7 @@ Cả hai đoạn trên **đều chạy đúng** — Service Locator không gây 
 
 - Với constructor injection (3.1), chỉ cần đọc chữ ký `GreetingService(IClock clock)` là biết ngay class này cần gì — dependency được khai báo **tường minh**.
 - Với Service Locator (3.2), dependency thật sự (`IClock`) bị **giấu bên trong thân hàm**. Muốn biết handler cần gì phải đọc toàn bộ code, không thể nhìn chữ ký mà đoán được.
-- Service Locator khiến lỗi "quên đăng ký" bị đẩy từ **lúc khởi động/biên dịch** sang **lúc runtime** ở một dòng sâu bên trong logic, khó phát hiện hơn khi test.
+- Cả hai cách đều chỉ phát hiện lỗi "quên đăng ký" ở **runtime khi có request** (không phải lúc biên dịch — xem mục "Cạm bẫy" cuối chương), nhưng Service Locator khiến lỗi đó nằm **sâu bên trong một dòng code cụ thể** thay vì ngay ở constructor — khó dò ra hơn khi debug, vì bạn phải chạy đúng nhánh code gọi tới `GetRequiredService` mới thấy lỗi, thay vì thấy ngay khi handler được khởi tạo.
 - Ngoại lệ hợp lệ hiếm hoi để dùng `IServiceProvider` trực tiếp: khi cần **tạo scope thủ công** bên trong một Singleton (xem mục 4.2) — đó không phải Service Locator theo nghĩa xấu, vì mục đích là quản lý vòng đời, không phải để né khai báo dependency.
 
 ---
@@ -787,4 +787,4 @@ Viết đăng ký DI + class `VisitCounter` + class `RequestLog` thoả cả 3 y
     Bat duoc captive dependency ngay trong test, truoc khi deploy
     ```
 
-Tiếp theo -> ef core và dbcontext
+**Tiếp theo →** [P3 · Routing & Model Binding](routing-model-binding.md)

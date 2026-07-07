@@ -1362,4 +1362,4 @@ Trả lời rồi mở đáp án.
 
 ---
 
-Tiếp theo -> linq và xử lý dữ liệu khai báo
+**Tiếp theo →** [P1 · Collections & LINQ (tổng hợp)](collections-linq.md)

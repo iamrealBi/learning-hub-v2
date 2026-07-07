@@ -775,4 +775,4 @@ ORDER BY so_don ____;
 
     **Liên hệ EF Core (chương sau)**: khi dùng LINQ, `GroupBy(...)` theo sau bởi `Where(...)` trên kết quả nhóm sẽ dịch thành `HAVING`; còn `Where(...)` đặt **trước** `GroupBy(...)` dịch thành `WHERE`. Hiểu đúng ngữ nghĩa SQL gốc trong chương này giúp đọc được log truy vấn EF Core sinh ra và biết ngay khi nào EF Core dịch sai ý định.
 
-Tiếp theo -> ef core & migrations
+**Tiếp theo →** [P2 · Subquery & CTE (WITH)](subquery-cte.md)

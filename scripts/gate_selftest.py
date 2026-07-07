@@ -16,6 +16,7 @@ FIX = ROOT / "tests" / "fixtures"
 import banned_terms
 import qa_lint
 import macro_safety
+import nav_audit
 
 def main() -> int:
     fails: list[str] = []
@@ -40,6 +41,24 @@ def main() -> int:
         fails.append("macro_safety KHÔNG bắt được fixture xấu (gate hỏng!)")
     else:
         print(f"✅ macro_safety bắt được {len(v3)} vi phạm trong fixture (đúng kỳ vọng)")
+
+    # 4) nav_audit.curriculum_check PHẢI bắt được chu trình DAG và sai thứ tự nav
+    bad_curriculum = {
+        "phases": [{"id": "PX", "title": "fixture", "nodes": [
+            {"id": "a", "file": "a.md", "requires": ["b"]},
+            {"id": "b", "file": "b.md", "requires": ["a"]},   # chu trình a<->b
+            {"id": "c", "file": "c.md", "requires": ["a"]},   # nhưng c đứng TRƯỚC a trong nav
+        ]}]
+    }
+    ok4, errs4 = nav_audit.curriculum_check(
+        in_nav={"a.md", "b.md", "c.md"},
+        nav_order=["c.md", "a.md", "b.md"],
+        curriculum_cfg=bad_curriculum,
+    )
+    if ok4 or not errs4:
+        fails.append("nav_audit.curriculum_check KHÔNG bắt được fixture xấu (gate hỏng!)")
+    else:
+        print(f"✅ nav_audit.curriculum_check bắt được {len(errs4)} vi phạm trong fixture (đúng kỳ vọng)")
 
     if fails:
         print("\n❌ GATE SELF-TEST THẤT BẠI:")

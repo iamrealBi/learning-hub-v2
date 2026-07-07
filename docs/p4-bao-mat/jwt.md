@@ -422,4 +422,4 @@ public sealed class TokenServiceLoi(IConfiguration config)
     - **Thu hồi access token trước hạn:** vì kiểm JWT không tra cứu server, muốn "logout ngay" một access token cụ thể cần thêm một danh sách đen (blacklist theo `jti`, lưu Redis với TTL bằng thời gian còn lại của token) — đánh đổi lại một phần lợi ích "không cần hỏi server" để có khả năng thu hồi.
     - **Rotate refresh token:** mỗi lần dùng refresh token để đổi access token mới, cấp luôn một refresh token **mới** và vô hiệu hoá refresh token cũ (refresh token rotation) — nếu một refresh token bị dùng lại sau khi đã rotate, đó là dấu hiệu token đã bị đánh cắp, hệ thống có thể chủ động thu hồi toàn bộ phiên.
 
-Tiếp theo -> tải file an toàn
+**Tiếp theo →** [P4 · Tải file an toàn](tai-file-an-toan.md)

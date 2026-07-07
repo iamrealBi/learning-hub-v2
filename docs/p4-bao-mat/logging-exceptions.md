@@ -544,4 +544,4 @@ Gợi ý giàn giáo: message template dùng `{TenTruong}` viết hoa chữ cái
 
     Ở production thật, format log phổ biến nhất không phải là dòng text như các ví dụ console trong chương này, mà là **JSON có cấu trúc** — mỗi dòng log là một object JSON với các trường `Timestamp`, `Level`, `MessageTemplate`, và mọi tham số structured logging dưới dạng field riêng. Cả logging built-in (qua `AddJsonConsole()`) và Serilog (qua `Serilog.Formatting.Compact`) đều hỗ trợ xuất JSON — đây chính là định dạng mà Seq/Elasticsearch/Loki đọc và index để bạn truy vấn theo field như các mục trước đã mô tả.
 
-Tiếp theo -> docker & deploy
+**Tiếp theo →** [P4 · Docker & Deploy](deploy-docker.md)

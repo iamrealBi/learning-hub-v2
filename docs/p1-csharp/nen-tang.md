@@ -830,4 +830,4 @@ static decimal AverageValid(string[] inputs)
 
     Với C# {{ csharp.version }} trên .NET {{ dotnet.current }}, pattern matching (property/list/relational patterns) giúp thay thế nhiều chuỗi `if-else` dài bằng biểu thức ngắn, dễ đọc và an toàn kiểu hơn.
 
-Tiếp theo -> bộ nhớ & kiểu dữ liệu
+**Tiếp theo →** [P1 · Bộ nhớ & Kiểu dữ liệu](bo-nho-va-kieu-du-lieu.md)

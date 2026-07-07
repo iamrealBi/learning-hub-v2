@@ -707,4 +707,4 @@ Trả lời rồi mở đáp án.
 
 ---
 
-Tiếp theo -> cây và thuật toán trên cây (tree traversal, binary search tree)
+**Tiếp theo →** [P10 · System Design cơ bản & Behavioral Interview](system-design-behavioral.md)

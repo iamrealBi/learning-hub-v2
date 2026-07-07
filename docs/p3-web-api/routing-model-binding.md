@@ -543,4 +543,4 @@ Hãy thiết kế lại theo đúng chuẩn REST (danh từ số nhiều, method
 
     **Binding tuỳ biến (`BindAsync`):** với kiểu phức tạp cần logic parse đặc biệt (ví dụ đọc từ nhiều header ghép lại thành một object), bạn có thể tự viết `static bool TryParse` hoặc `static ValueTask<T?> BindAsync(HttpContext context, ParameterInfo parameter)` trên chính kiểu đó để ASP.NET Core gọi khi binding — đây là cơ chế mở rộng cho các trường hợp bốn nguồn chuẩn (route/query/body/header) không đủ diễn đạt.
 
-Tiếp theo -> validation
+**Tiếp theo →** [P3 · Configuration & Options](configuration-options.md)

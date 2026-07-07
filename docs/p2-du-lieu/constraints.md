@@ -798,4 +798,4 @@ Thiết kế bảng `table_reservations` với các luật nghiệp vụ sau:
 
     **Constraint và migration EF Core.** Khi dùng Entity Framework Core, các ràng buộc này thường được khai qua Fluent API (`HasKey`, `HasIndex().IsUnique()`, `HasCheckConstraint`, `HasForeignKey().OnDelete(DeleteBehavior.Cascade)`) trong `OnModelCreating`, rồi EF sinh migration chứa đúng các câu `ALTER TABLE`/`CREATE TABLE` như trong chương này. Hiểu constraint ở tầng SQL trước giúp đọc migration EF Core sinh ra dễ dàng hơn nhiều, thay vì học thuộc lòng cú pháp Fluent API mà không biết nó dịch ra gì.
 
-Tiếp theo -> thiết kế schema quan hệ
+**Tiếp theo →** [P2 · Thiết kế CSDL & Chuẩn hoá](thiet-ke-schema.md)

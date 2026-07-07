@@ -698,4 +698,4 @@ Chương này khép lại chuỗi kiến thức Blazor bắt đầu từ tổng 
 
 Cùng với chương JS Interop & lifecycle nâng cao đã học trước, chương này hoàn thiện bộ kỹ năng cần để không chỉ **viết** một ứng dụng Blazor chạy đúng, mà còn **vận hành** nó tốt trong tay người dùng thật — từ lúc họ bấm vào link lần đầu tới lúc bạn đẩy bản cập nhật tiếp theo lên production.
 
-Tiếp theo -> ôn tập & tổng kết p7 blazor
+**Tiếp theo →** [P8 · Caching: IMemoryCache & Distributed Cache](../p8-production/caching.md)

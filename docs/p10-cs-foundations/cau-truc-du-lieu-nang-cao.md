@@ -906,4 +906,4 @@ Kết quả cho thấy: heap luôn ưu tiên `MucDo` nhỏ hơn trước; khi `M
 
 ---
 
-Tiếp theo -> thuật toán sắp xếp và tìm kiếm nâng cao
+**Tiếp theo →** [P10 · Graph & BFS/DFS](graph-bfs-dfs.md)

@@ -305,7 +305,6 @@ Khi gọi `GET /du-lieu-mat` **không kèm** header `X-Api-Key`:
 
 ```text title="Response"
 HTTP/1.1 401 Unauthorized
-Xin chao
 
 Thieu header X-Api-Key
 ```
@@ -329,30 +328,34 @@ Endpoint `/du-lieu-mat` **không hề chạy** — dòng `"Day la du lieu bi mat
 
 ## Bài tập
 
-**Bài 1 (giàn giáo):** Bạn có pipeline sau, nhưng endpoint `/admin` vẫn chạy được dù request không có header `X-Api-Key`. Tìm lỗi thứ tự và sửa.
+**Bài 1 (giàn giáo):** Bạn có pipeline sau. Response trả về header `X-User: AN DANH` dù middleware phía dưới **có** gán `context.Items["user"] = "admin"`. Tìm lỗi thứ tự và sửa.
 
 ```csharp title="Program.cs (có lỗi)"
 // test:compile bai tap 1 - co loi thu tu, can sua
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 
-app.MapGet("/admin", () => "Khu vuc quan tri");
-
+// Middleware "đọc" user để gắn vào header — đăng ký TRƯỚC middleware "ghi" user.
 app.Use(async (context, next) =>
 {
-    if (!context.Request.Headers.ContainsKey("X-Api-Key"))
-    {
-        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-        await context.Response.WriteAsync("Thieu API key");
-        return;
-    }
+    var user = context.Items["user"] as string ?? "AN DANH";
+    context.Response.Headers.Append("X-User", user);
     await next();
 });
+
+// Middleware "ghi" user (giả lập xác thực) — đăng ký SAU middleware đọc ở trên.
+app.Use(async (context, next) =>
+{
+    context.Items["user"] = "admin";
+    await next();
+});
+
+app.MapGet("/admin", () => "Khu vuc quan tri");
 
 app.Run();
 ```
 
-Gợi ý giàn giáo: middleware kiểm tra API key được đăng ký **sau** `MapGet`. Trong pipeline thật, `MapGet` không phải middleware chạy tuần tự theo dòng code như vậy — nhưng thứ tự đăng ký `app.Use` so với thời điểm gọi `app.Run()` (kết thúc cấu hình) vẫn quan trọng: middleware phải được đăng ký **trước khi endpoint xử lý xong request**, nghĩa là phải đứng trước trong pipeline logic. Hãy di chuyển khối `app.Use` lên trước `app.MapGet`.
+Gợi ý giàn giáo: đoạn code **trước** `await next()` trong mỗi middleware chạy theo đúng **thứ tự đăng ký** (trên xuống dưới) — middleware đọc `context.Items["user"]` chạy phần "trước `next()`" của nó trước khi middleware ghi kịp chạy tới phần gán giá trị. Hãy đổi thứ tự hai khối `app.Use`.
 
 ??? success "Lời giải + vì sao"
     ```csharp title="Program.cs (đã sửa)"
@@ -360,14 +363,17 @@ Gợi ý giàn giáo: middleware kiểm tra API key được đăng ký **sau** 
     var builder = WebApplication.CreateBuilder(args);
     var app = builder.Build();
 
+    // Middleware "ghi" — chuyển lên đăng ký TRƯỚC middleware đọc.
     app.Use(async (context, next) =>
     {
-        if (!context.Request.Headers.ContainsKey("X-Api-Key"))
-        {
-            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-            await context.Response.WriteAsync("Thieu API key");
-            return;
-        }
+        context.Items["user"] = "admin";
+        await next();
+    });
+
+    app.Use(async (context, next) =>
+    {
+        var user = context.Items["user"] as string ?? "AN DANH";
+        context.Response.Headers.Append("X-User", user);
         await next();
     });
 
@@ -376,7 +382,10 @@ Gợi ý giàn giáo: middleware kiểm tra API key được đăng ký **sau** 
     app.Run();
     ```
 
-    **Vì sao:** middleware kiểm tra API key phải được đăng ký **trước** endpoint trong pipeline để nó có cơ hội chặn request trước khi endpoint chạy. Middleware là các lớp lồng nhau theo thứ tự đăng ký — đăng ký sau `MapGet` nghĩa là nó nằm "trong" lớp xử lý endpoint, không còn cơ hội chặn trước khi endpoint thực thi.
+    **Vì sao:** middleware ghi `context.Items["user"]` phải chạy **trước** middleware đọc nó — vì phần code trước `await next()` của mỗi middleware thực thi theo đúng thứ tự đăng ký, top-down. Đăng ký "đọc" trước "ghi" nghĩa là lúc middleware đọc chạy tới, giá trị vẫn chưa được gán. Đã kiểm chứng thật bằng `dotnet run`: bản có lỗi trả `X-User: AN DANH`, bản đã sửa trả đúng `X-User: admin`.
+
+    !!! note "Vì sao KHÔNG dùng thứ tự `app.Use` so với `MapGet` cho bài tập này"
+        Một cạm bẫy hay gặp: tưởng rằng đăng ký `app.Use` **sau** `app.MapGet` sẽ khiến middleware "không kịp" chặn endpoint. Trên thực tế, `WebApplication` luôn thực thi endpoint (`MapGet`) ở **điểm cuối cùng** của pipeline — bất kể `MapGet` được gọi ở dòng nào trong `Program.cs` so với `app.Use`. Middleware đăng ký qua `app.Use` luôn bọc quanh mọi endpoint, kể cả khi dòng `app.Use` nằm sau dòng `app.MapGet` trong code. Vấn đề thứ tự thật sự chỉ xảy ra giữa các `app.Use`/`app.Map...` **với nhau**, như bài tập trên.
 
 **Bài 2 (thiết kế):** Thiết kế một pipeline cho ứng dụng có: phục vụ file tĩnh trong `wwwroot`, ghi log mọi request (path + status code), và một endpoint `GET /so-du` yêu cầu đăng nhập (`RequireAuthorization()`). Viết `Program.cs` với đúng thứ tự middleware và giải thích vì sao chọn thứ tự đó.
 
@@ -486,4 +495,4 @@ Gợi ý giàn giáo: middleware kiểm tra API key được đăng ký **sau** 
 
     **Pipeline có nhánh theo điều kiện:** `app.MapWhen(...)` và `app.UseWhen(...)` cho phép rẽ nhánh pipeline dựa trên điều kiện của request (ví dụ: chỉ áp dụng một nhóm middleware cho path bắt đầu bằng `/api`), hữu ích khi API và trang tĩnh cần các pipeline xử lý khác nhau trong cùng một ứng dụng.
 
-Tiếp theo -> ef core và dbcontext
+**Tiếp theo →** [P3 · Xử lý lỗi toàn cục & ProblemDetails](xu-ly-loi-toan-cuc.md)

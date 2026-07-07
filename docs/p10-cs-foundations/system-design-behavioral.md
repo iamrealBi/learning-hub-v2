@@ -707,4 +707,4 @@ Trả lời rồi mở đáp án.
 
 ---
 
-Tiếp theo -> ôn tập tổng hợp p10
+**Tiếp theo →** [Capstone cuối cùng — TaskFlow đầy đủ (P1–P10)](../capstone-final/final.md)

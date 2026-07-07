@@ -713,4 +713,4 @@ Trả lời rồi mở đáp án.
 
     **Big-O trong ngữ cảnh nhiều biến (không chỉ một biến `n`).** Một số bài toán có độ phức tạp phụ thuộc **nhiều hơn một** kích thước đầu vào — ví dụ so khớp hai chuỗi có độ dài `n` và `m` khác nhau thường có Big-O dạng O(n × m), không rút gọn về một biến duy nhất được vì `n` và `m` độc lập với nhau. Tương tự, thuật toán trên đồ thị (sẽ học ở chương cấu trúc dữ liệu nâng cao) thường biểu diễn theo cả số đỉnh `V` và số cạnh `E`, ví dụ BFS/DFS là O(V + E) — không thể rút gọn thành một biến `n` chung nếu đồ thị không đảm bảo quan hệ cố định giữa `V` và `E`.
 
-Tiếp theo -> cấu trúc dữ liệu nâng cao
+**Tiếp theo →** [P10 · Cấu trúc dữ liệu nâng cao](cau-truc-du-lieu-nang-cao.md)

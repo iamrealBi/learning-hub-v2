@@ -1,7 +1,7 @@
 # Q&A data — nguồn sự thật duy nhất, kiểm bằng scripts/qa_lint.py (mọi câu PHẢI có answer, không trùng prompt)
 questions:
 - id: q-mem-01
-  node: p1-memory
+  node: bo-nho-va-kieu-du-lieu
   tier: fast
   prompt: Khác biệt THẬT giữa value type và reference type là gì?
   answer: 'Là CÁCH SAO CHÉP: value type chép toàn bộ giá trị (bản độc lập), reference type chép tham chiếu
@@ -10,13 +10,13 @@ questions:
     '
   code_ref: p1-csharp/bo-nho-va-kieu-du-lieu.md#chung_minh
 - id: q-mem-02
-  node: p1-memory
+  node: bo-nho-va-kieu-du-lieu
   tier: fast
   prompt: Một struct là field của một class thì nằm ở stack hay heap?
   answer: Heap — nó nằm inline bên trong object của class trên heap. (Bác bỏ huyền thoại 'value type luôn
     ở stack'.)
 - id: q-mem-03
-  node: p1-memory
+  node: bo-nho-va-kieu-du-lieu
   tier: deep
   prompt: GC của .NET dùng thuật toán gì? 'Mark-and-sweep' có đúng không?
   answer: 'Là tracing, generational, MARK-AND-COMPACT cho SOH (gen 0/1/2) — nén để chống phân mảnh. ''Mark-and-sweep''
@@ -24,7 +24,7 @@ questions:
 
     '
 - id: q-jwt-01
-  node: p4-jwt
+  node: jwt
   tier: fast
   prompt: Vì sao nên dùng DateTime.UtcNow cho 'expires', và vì sao câu 'DateTime.Now lệch 7 giờ' là sai?
   answer: 'exp là mốc UTC. Thư viện tự chuyển DateTime.Now (Kind=Local) sang UTC nên KHÔNG lệch 7 giờ
@@ -34,7 +34,7 @@ questions:
     '
   code_ref: p4-bao-mat/jwt.md#2-cap-token-code-dung
 - id: q-jwt-02
-  node: p4-jwt
+  node: jwt
   tier: fast
   prompt: JWT lưu trong localStorage dính lỗ hổng gì, khác cookie thế nào?
   answer: 'localStorage -> rủi ro XSS (script đọc được token). Cookie -> rủi ro CSRF, nhưng chặn được
@@ -4492,3 +4492,118 @@ questions:
   prompt: Vì sao dòng CV liệt kê tên công nghệ suông bị đánh giá thấp?
   answer: Vì không chứng minh được ứng viên đã thực sự dùng công nghệ đó giải quyết vấn đề gì — bất kỳ
     ai cũng gõ được tên công nghệ.
+- id: q-p0-01
+  node: index
+  tier: fast
+  prompt: Vòng lặp phản hồi mà P0 thiết lập là gì, và vì sao mọi bài học sau đều dựa vào nó?
+  answer: Cài .NET SDK rồi chạy được code thấy PASS/FAIL ngay (chu kỳ dưới 10 giây, lặp lại hàng trăm
+    lần) — từ P1 trở đi, mọi bài kết thúc bằng code chạy được và câu hỏi có đáp án, dựa đúng trên vòng
+    lặp sửa-chạy-thấy-kết-quả này.
+- id: q-p0-02
+  node: index
+  tier: fast
+  prompt: PASS ✅ ở ví dụ "test đầu tiên" của P0 được tạo ra bằng cách nào — có phải chạy qua xUnit không?
+  answer: Không. Đây chỉ là so sánh thủ công Add(2, 3) == 5 rồi Console.WriteLine ra PASS/FAIL để làm
+    quen khái niệm trước khi học framework test thật (xUnit) ở P4 — chưa cần cài package test nào ở
+    bước này.
+- id: q-p0-03
+  node: index
+  tier: fast
+  prompt: Dev Container mà P0 giới thiệu giải quyết vấn đề gì?
+  answer: Cho phép chạy đúng phiên bản .NET SDK mà không cần cài SDK thủ công trên máy — mở repo trong
+    VS Code, chọn "Reopen in Container", .devcontainer đã cấu hình sẵn SDK đúng phiên bản.
+- id: q-p0-04
+  node: index
+  tier: fast
+  prompt: Sau khi chạy dotnet new console -o hello && cd hello && dotnet run, bạn mong đợi thấy gì trên
+    terminal?
+  answer: Hello, World! — đây là chương trình console tối giản mặc định của template console, xác nhận
+    SDK đã cài đúng và chạy được.
+- id: q-p0-05
+  node: index
+  tier: deep
+  prompt: Vì sao mục tiêu P0 ghi rõ "<30 phút" thay vì chỉ nói "cài .NET"?
+  answer: Để đặt kỳ vọng rõ ràng — nếu việc cài đặt kéo dài hơn 30 phút, đó là dấu hiệu có vấn đề (sai
+    phiên bản, thiếu quyền cài, mạng chặn) cần dừng lại xử lý, không phải trạng thái bình thường của
+    bước setup.
+- id: q-p0-06
+  node: index
+  tier: fast
+  prompt: Trên Windows, câu lệnh nào được P0 khuyến nghị để cài .NET SDK?
+  answer: winget install Microsoft.DotNet.SDK.10 — dùng Windows Package Manager (winget) có sẵn từ
+    Windows 10 1709+.
+- id: q-p0-07
+  node: index
+  tier: deep
+  prompt: Trên Linux, vì sao P0 không đưa một lệnh cài cố định duy nhất như Windows/macOS?
+  answer: Vì cách cài .NET trên Linux khác nhau theo distro (Ubuntu/Debian dùng apt, Fedora dùng dnf,
+    v.v.) — P0 chỉ đưa lệnh kiểm chứng dotnet --version chung, còn hướng dẫn cài cụ thể cần xem theo
+    đúng distro đang dùng.
+- id: q-capstone-final-01
+  node: final
+  tier: fast
+  prompt: Vì sao chương capstone cuối cùng ghi rõ "không dạy khái niệm mới"?
+  answer: Vì đây là bài tập tích hợp (Bloom Tổng hợp) — mọi khái niệm dùng ở đây đã học đầy đủ ở P1-P10,
+    chương chỉ yêu cầu ghép lại thành một hệ thống chạy được, không giới thiệu API/pattern mới.
+- id: q-capstone-final-02
+  node: final
+  tier: deep
+  prompt: Theo mục 2, vì sao nên tách Repository/Unit of Work ra khỏi TaskService TRƯỚC khi thêm cache/resilience
+    ở P8, thay vì làm ngược lại?
+  answer: Vì cache/resilience (mục 4) sẽ chèn logic vào đúng lớp Repository — nếu thêm cache trước rồi
+    mới tách Repository sau, phải sửa lại logic đó hai lần; tách Repository trước tránh làm lại công
+    việc.
+- id: q-capstone-final-03
+  node: final
+  tier: fast
+  prompt: Vì sao TaskFlow chọn state container service (Scoped) cho Blazor thay vì CascadingParameter
+    cho TaskStateContainer?
+  answer: Vì trạng thái danh sách task cần chia sẻ giữa nhiều component KHÔNG lồng cha-con trực tiếp —
+    CascadingParameter chỉ truyền được xuống cây con trực tiếp, không phù hợp khi các component ngang
+    hàng đều cần truy cập chung một state.
+- id: q-capstone-final-04
+  node: final
+  tier: fast
+  prompt: Definition of Done mục 5 kiểm tra cache invalidation bằng cách nào cụ thể?
+  answer: Gọi GET /tasks hai lần (lần 2 phải là cache hit qua log), POST một task mới, rồi gọi lại GET
+    /tasks — phải thấy task mới NGAY (không đợi hết TTL) để xác nhận cache bị invalidate đúng lúc sau
+    khi ghi.
+- id: q-capstone-final-05
+  node: final
+  tier: deep
+  prompt: Vì sao Definition of Done mục 7 yêu cầu tắt PostgreSQL để kiểm health check, thay vì chỉ đọc
+    code?
+  answer: Vì mục đích là phân biệt đúng liveness (process còn sống — /healthz/live vẫn 200 dù DB chết)
+    và readiness (phụ thuộc dependency — /healthz/ready phải trả 503 khi mất kết nối DB); chỉ đọc code
+    không xác nhận được hành vi thật khi dependency thật sự lỗi.
+- id: q-capstone-final-06
+  node: final
+  tier: fast
+  prompt: Theo mục 2, vì sao TaskFlow KHÔNG tách CQRS đầy đủ cho phần quản lý task, dù đã học CQRS ở P6?
+  answer: Vì CRUD task đơn giản, không có mô hình đọc phức tạp khác mô hình viết — tách CQRS ở đây là
+    over-engineering; quyết định "không dùng" cũng là một quyết định kiến trúc đúng, cần ghi rõ lý do
+    vào README, không phải bỏ qua vì lười.
+- id: q-capstone-final-07
+  node: final
+  tier: deep
+  prompt: Mục 9 của Definition of Done kiểm tra điều gì về CI pipeline, và vì sao phải "chủ động làm một
+    test fail" để kiểm?
+  answer: Kiểm rằng job build KHÔNG chạy khi job test fail (do needs test chặn) — chỉ thấy pipeline "xanh"
+    khi mọi thứ pass không chứng minh được gate hoạt động đúng; phải cố ý làm fail một lần để xác nhận
+    cơ chế chặn thật sự hoạt động, không phải job build luôn chạy độc lập với job test.
+- id: q-capstone-final-08
+  node: final
+  tier: fast
+  prompt: Mục 8 (checklist P4) yêu cầu xác nhận lại điều gì liên quan tới lỗ hổng BOLA cũ, và vì sao cần
+    soát lại đúng lúc này?
+  answer: Xác nhận PUT /tasks/{id-của-user-khác} vẫn trả 403/404 (không phải 200) — vì việc thêm Repository
+    ở mục 2 (tách khỏi AppDbContext trực tiếp) có rủi ro vô tình làm mất đi lớp kiểm tra chủ sở hữu đã
+    có từ P5 nếu implement Repository không cẩn thận.
+- id: q-capstone-final-09
+  node: final
+  tier: deep
+  prompt: Câu hỏi tự phản biện ở mục 8 (P10) đặt ra tình huống "10.000 request/giây" để làm gì?
+  answer: Để luyện áp dụng quy trình 4 bước System Design (làm rõ yêu cầu → ước lượng quy mô → thiết kế
+    → đánh đổi) đã học ở P10, tự đánh giá xem IMemoryCache (cache tại 1 instance, không chia sẻ giữa
+    nhiều server) còn đủ ở quy mô đó hay phải đổi sang IDistributedCache (Redis, chia sẻ giữa nhiều instance)
+    — không có đáp án "đúng" cố định, mục đích là luyện tư duy đánh đổi.

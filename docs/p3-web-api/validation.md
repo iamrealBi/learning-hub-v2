@@ -617,4 +617,4 @@ Yêu cầu: viết đủ record và endpoint, đảm bảo mọi tầng (field p
 
     **So sánh nhanh với `[ApiController]` (MVC truyền thống):** nếu bạn từng biết ASP.NET Core MVC, `[ApiController]` trên controller cũng tự động validate `ModelState` và trả 400 tương tự — đó là cơ chế **tương đương** ở tầng MVC, ra đời trước cơ chế `AddValidation()` cho Minimal API. Cả hai cùng mục tiêu, khác tầng framework.
 
-Tiếp theo -> xử lý lỗi tập trung với middleware
+**Tiếp theo →** [P3 · Middleware Pipeline](middleware.md)

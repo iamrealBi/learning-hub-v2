@@ -1386,4 +1386,4 @@ Trả lời rồi mới mở đáp án.
 
 ---
 
-Tiếp theo -> collections & linq
+**Tiếp theo →** [P1 · Records & Pattern Matching](records-pattern-matching.md)

@@ -137,6 +137,16 @@ Không có exception, không có cảnh báo biên dịch — chương trình ch
 
 **Định nghĩa:** `MapGet(pattern, handler)` là một phương thức trên `WebApplication` đăng ký một **route** khớp với HTTP method `GET` và đường dẫn `pattern`; khi có request khớp, `handler` (một delegate, thường là lambda) được gọi để xử lý và trả về kết quả.
 
+!!! info "curl trong 5 phút — công cụ kiểm chứng dùng suốt chương này"
+    Từ đây, mọi ví dụ đều dùng `curl` (có sẵn trên macOS/Linux; Windows 10+ cũng có sẵn) để tự gọi API và xem kết quả thật, không cần cài thêm gì. Bốn thứ cần biết:
+
+    - `curl <url>` — gọi `GET` tới `<url>`, in ra **body** của response (mặc định không in status code/header).
+    - `curl -i <url>` — thêm cờ `-i` (include) để in **cả status line + header** trước body — dùng khi cần thấy `HTTP/1.1 200 OK` hay `404 Not Found`, không chỉ nội dung.
+    - `curl -X POST -H "Content-Type: application/json" -d '{"name":"A"}' <url>` — `-X POST` đổi method (mặc định `GET`), `-H` thêm một header, `-d` gửi kèm body (tự động đổi method sang `POST` nếu không có `-X`).
+    - `curl -s <url>` — cờ `-s` (silent) tắt thanh tiến trình tải, chỉ in kết quả — hữu ích khi ghép với script khác.
+
+    **Nếu gõ sai** (ví dụ chạy `curl` trước khi `dotnet run` đã khởi động xong): `curl: (7) Failed to connect to localhost port 5000: Connection refused` — nghĩa là chưa có gì đang lắng nghe ở cổng đó, không phải lỗi cú pháp `curl`.
+
 Ví dụ tối thiểu — lấy toàn bộ danh sách sản phẩm từ một `List<Product>` giữ tạm trong bộ nhớ:
 
 ```csharp title="Program.cs"
@@ -194,15 +204,16 @@ public record Product(int Id, string Name, decimal Price);
 
 `{id:int}` có hai phần: `id` là tên tham số (phải khớp tên tham số `int id` trong lambda), `:int` là **route constraint** — chỉ khớp khi đoạn đó thật sự là một số nguyên; nếu client gọi `/products/abc`, route này không khớp và ASP.NET Core trả `404` ngay ở tầng routing (chưa vào tới handler).
 
-**Dùng sai:** đặt tên tham số route và tham số handler không khớp nhau — lỗi này ASP.NET Core phát hiện lúc **runtime** khi khởi động (không phải lỗi biên dịch C#, vì cú pháp hoàn toàn hợp lệ):
+**Dùng sai:** đặt tên tham số route và tham số handler không khớp nhau — ứng dụng vẫn **khởi động bình thường** (đây không phải lỗi biên dịch C# lẫn lỗi khởi động, vì cú pháp hoàn toàn hợp lệ và ASP.NET Core không xác thực tên tham số lúc build route), nhưng request sẽ lỗi ở **runtime**:
 
-```text title="Lỗi runtime khi khởi động"
+```text title="Đã kiểm chứng thật bằng dotnet run + curl"
 app.MapGet("/products/{productId:int}", (int id) => ...);
-// System.InvalidOperationException: 'id' cần một giá trị khớp với route parameter,
-// nhưng route pattern chỉ có 'productId'. Không tìm thấy nguồn để bind tham số 'id'.
+// GET /products/5 -> HTTP 400 Bad Request
+// Microsoft.AspNetCore.Http.BadHttpRequestException: Required parameter "int id"
+// was not provided from query string.
 ```
 
-Vì route pattern khai báo tham số tên `productId` nhưng handler lại khai báo tham số tên `id` — ASP.NET Core không tự đoán được hai tên khác nhau là "cùng một thứ", nên khi cố bind, nó không tìm thấy nguồn dữ liệu hợp lệ cho `id` và ném `InvalidOperationException` ngay khi ứng dụng khởi động (validate route xảy ra sớm, trước khi nhận request đầu tiên).
+Vì route pattern khai báo tham số tên `productId` nhưng handler lại khai báo tham số tên `id` — ASP.NET Core không tự đoán được hai tên khác nhau là "cùng một thứ", nên nó áp đúng quy tắc fallback đã học ở mục "Route parameter vs Query string" (chương [Routing & Model Binding](routing-model-binding.md) mục 6): không tìm thấy `id` trong route, ASP.NET Core **tự chuyển sang tìm `id` trong query string** — và vì request `/products/5` không có `?id=...`, tham số bắt buộc `id` không có giá trị nào, nên trả **400 Bad Request** ngay khi xử lý request đó (không phải lúc khởi động).
 
 ---
 
@@ -578,18 +589,20 @@ So sánh trực tiếp hai cách cho **cùng một tình huống** (không tìm 
 
 **Dùng sai (bổ sung):** trộn lẫn hai kiểu trả về khác nhau trong cùng handler (ví dụ nhánh này trả `Product`, nhánh khác trả `Results.NotFound()`) — đây thực ra vẫn **biên dịch được** nhờ ASP.NET Core suy luận kiểu trả về chung là `IResult` (thông qua target-typing của biểu thức điều kiện `?:` khi cả hai nhánh có thể quy về `IResult`), nhưng nếu trộn kiểu **không tương thích** sẽ gây lỗi biên dịch rõ ràng:
 
-```text title="Lỗi biên dịch minh hoạ"
+```text title="Lỗi biên dịch thật — đã kiểm chứng bằng dotnet build"
 app.MapGet("/products/{id:int}", (int id) =>
 {
     var found = products.FirstOrDefault(p => p.Id == id);
     if (found is null) return Results.NotFound();
     return found;   // trả Product, không phải IResult
 });
-// CS8934: Cannot convert lambda expression to intended delegate type because
-// not all code paths return a value that is convertible to 'IResult'
+// error CS1661: Cannot convert lambda expression to type 'RequestDelegate'
+// because the parameter types do not match the delegate parameter types
+// error CS1678: Parameter 1 is declared as type 'int' but should be
+// 'Microsoft.AspNetCore.Http.HttpContext'
 ```
 
-Trình biên dịch báo **CS8934** vì hai nhánh trả về hai kiểu không tương thích ngầm định (`IResult` từ `Results.NotFound()` và `Product` từ `found`) — ASP.NET Core không tự "nâng cấp" `Product` thành `IResult` được. Sửa bằng cách bọc nhánh còn lại bằng `Results.Ok(found)` như ví dụ 9.2 ở trên, để cả hai nhánh cùng trả về `IResult`.
+Vì hai nhánh trả về hai kiểu không tương thích ngầm định (`IResult` từ `Results.NotFound()` và `Product` từ `found`), trình biên dịch **không suy ra được kiểu tự nhiên** cho lambda này — mà `MapGet` có hai overload cùng khớp về mặt tên: overload Minimal API hiện đại nhận `Delegate` (bind tham số tự do như `int id`) và một overload cũ hơn nhận `RequestDelegate` (chữ ký cố định `Task (HttpContext context)`, có từ trước khi Minimal API ra đời). Khi lambda không có kiểu tự nhiên rõ ràng, trình biên dịch thử khớp nó với overload `RequestDelegate` cụ thể — và báo lỗi tham số `int id` không khớp `HttpContext` (CS1678), kéo theo lỗi chuyển đổi lambda (CS1661). Sửa bằng cách bọc nhánh còn lại bằng `Results.Ok(found)` như ví dụ 9.2 ở trên, để cả hai nhánh cùng trả về `IResult` — lambda có kiểu tự nhiên rõ ràng, overload Minimal API đúng được chọn ngay, không còn lỗi.
 
 ---
 
@@ -602,7 +615,7 @@ Trình biên dịch báo **CS8934** vì hai nhánh trả về hai kiểu không 
     - **Quên `Content-Type: application/json` khi `POST`/`PUT` body:** binding thất bại, ASP.NET Core trả `415 Unsupported Media Type` trước khi handler kịp chạy.
     - **Dùng `First`/`Single` thay vì `FirstOrDefault` trong handler tìm theo id:** biến một tình huống hợp lệ ("không tìm thấy" → nên là `404`) thành exception chưa xử lý → `500 Internal Server Error` — xem mục 8.4.
     - **Gọi `MapGet`/`MapPost`... sau `app.Run()`:** không lỗi biên dịch, nhưng dòng đăng ký route đó không bao giờ chạy tới vì `Run()` chặn vĩnh viễn — xem mục 3.
-    - **Đặt tên route parameter khác tên tham số handler:** ví dụ route `{productId}` nhưng handler `(int id)` — ném `InvalidOperationException` lúc khởi động ứng dụng, không phải lỗi biên dịch C# (xem mục 4.1).
+    - **Đặt tên route parameter khác tên tham số handler:** ví dụ route `{productId}` nhưng handler `(int id)` — ứng dụng khởi động bình thường, nhưng request thất bại với `400 Bad Request` ("Required parameter ... was not provided from query string") vì ASP.NET Core tự chuyển sang tìm `id` trong query string, không tìm thấy trong route (xem mục 4.1).
     - **URL chứa động từ:** `POST /createProduct` thay vì `POST /products` — không lỗi kỹ thuật, nhưng vi phạm quy ước REST khiến API khó đoán và không tương thích với tool sinh client tự động dựa trên chuẩn REST.
 
 ---
@@ -766,8 +779,8 @@ public record Product(int Id, string Name, decimal Price);
 
     **Idempotency và retry an toàn:** `GET`/`PUT`/`DELETE` là idempotent (gọi lại nhiều lần cho **cùng trạng thái cuối**), nên proxy/client có thể tự động retry an toàn khi mạng lỗi giữa chừng; `POST` thì **không** idempotent — retry mù một `POST` có thể tạo trùng tài nguyên (ví dụ đặt hàng hai lần). Đây là lý do các cổng thanh toán thường yêu cầu client gửi kèm `Idempotency-Key` cho `POST` để server tự nhận diện và bỏ qua các lần gửi trùng.
 
-    **OpenAPI:** gọi `builder.Services.AddOpenApi()` và `app.MapOpenApi()` (có sẵn từ .NET 9 trở lên trong Web SDK, không cần package ngoài) để tự sinh mô tả API máy-đọc-được — nền tảng cho tài liệu tương tác (Swagger UI, thường cần thêm package `Swashbuckle.AspNetCore` để có giao diện) và sinh client SDK tự động.
+    **OpenAPI:** gọi `builder.Services.AddOpenApi()` và `app.MapOpenApi()` để tự sinh mô tả API máy-đọc-được — cần package NuGet riêng `Microsoft.AspNetCore.OpenApi` (từ .NET 9, template `dotnet new webapi` tự thêm sẵn package này, nhưng nếu tạo bằng `dotnet new web` trần thì phải `dotnet add package` thủ công — xem chi tiết ở chương [OpenAPI & Swagger](openapi-swagger.md)); đây là nền tảng cho tài liệu tương tác (Swagger UI, thường cần thêm package `Swashbuckle.AspNetCore` để có giao diện) và sinh client SDK tự động.
 
     **Content negotiation:** ASP.NET Core mặc định trả JSON, nhưng có thể trả định dạng khác (XML, plain text) dựa trên header `Accept` của client — nằm ngoài phạm vi tối thiểu của chương này, chỉ cần biết JSON là mặc định hợp lý cho hầu hết API hiện đại.
 
-Tiếp theo -> dependency injection & vòng đời service
+**Tiếp theo →** [P3 · Dependency Injection](dependency-injection.md)

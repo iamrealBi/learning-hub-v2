@@ -606,4 +606,4 @@ dotnet ef ____ ____
     - **Ranh giới với repository pattern**: chương này cố tình chỉ dừng ở quy trình migration/seed thuần EF Core, chưa đề cập tới việc bọc `DbContext` sau một lớp repository hay unit of work để tách biệt logic truy cập dữ liệu khỏi logic nghiệp vụ — đó là chủ đề của chương kế tiếp, sau khi đã vững quy trình đưa schema từ model C# xuống database thật ở đây.
     - **AI hỗ trợ đọc migration**: khi nhờ AI (bất kỳ dòng Claude 4.x nào — Opus/Sonnet/Haiku) giải thích một file migration lạ (ví dụ kế thừa từ dự án cũ), luôn đối chiếu `Up`/`Down` được AI diễn giải với chính nội dung SQL thật sự sinh ra (`dotnet ef migrations script`) trước khi tin tưởng áp dụng lên môi trường có dữ liệu thật.
 
-Tiếp theo -> ef core: repository pattern & unit of work
+**Tiếp theo →** [P3 · Minimal API & REST](../p3-web-api/minimal-api.md)

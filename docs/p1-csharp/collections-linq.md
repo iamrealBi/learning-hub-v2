@@ -573,4 +573,4 @@ Console.WriteLine($"Tổng = {/* TODO 4 */}");
 
     **Struct enumerator:** `List<T>.GetEnumerator()` trả về struct để tránh cấp phát heap trong `foreach` — một lý do `foreach` trực tiếp trên `List<T>` nhanh hơn qua `IEnumerable<T>` (bị boxing).
 
-Tiếp theo -> xử lý ngoại lệ & kết quả
+**Tiếp theo →** [P1 · async/await](async-await.md)

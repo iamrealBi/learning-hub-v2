@@ -724,4 +724,4 @@ Trả lời rồi mới mở đáp án.
 
 ---
 
-Tiếp theo -> design patterns nâng cao: cqrs và repository
+**Tiếp theo →** [P6 · Clean Architecture](clean-architecture.md)

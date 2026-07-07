@@ -698,4 +698,4 @@ Trả lời rồi mở đáp án.
 
 ---
 
-Tiếp theo -> cấu trúc dữ liệu nâng cao
+**Tiếp theo →** [P10 · Interview Patterns: Two Pointers & Sliding Window](interview-patterns.md)

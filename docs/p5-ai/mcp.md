@@ -598,4 +598,4 @@ Gợi ý: ranh giới quyền thật nằm ở **scope của token**, không ở
 
     **Vòng đời một request đầy đủ, nối lại toàn bộ chương:** người dùng mở Claude Code trong repo có `.mcp.json` khai báo server `notes` (mục 7) → Claude Code (client, mục 5) chạy server đó qua stdio (mục 6.1) vì nó là tiến trình con cục bộ → hai bên bắt tay bằng `initialize` rồi `tools/list` (mục 5, dùng JSON-RPC ở trên) → model thấy tool `ReadNote` → khi người dùng hỏi "tóm tắt ghi chú hôm nay", model tự quyết định gọi `ReadNote("2026-07-05.md")` (mục 2, model-controlled) → server kiểm tra phạm vi (đoạn code trên) → trả nội dung → model tóm tắt. Không bước nào trong chuỗi này bỏ qua được — thiếu bắt tay thì không có danh sách tool, thiếu kiểm tra phạm vi thì mất nguyên tắc quyền tối thiểu.
 
-Tiếp theo -> capstone: ghép ai vào một dự án .net thật
+**Tiếp theo →** [P5 · Capstone trung gian: TaskFlow (P1–P4)](capstone.md)

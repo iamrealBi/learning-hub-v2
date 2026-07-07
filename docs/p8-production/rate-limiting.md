@@ -709,4 +709,4 @@ app.Run();
 
     Để giới hạn đúng nghĩa **trên toàn cụm** (tổng số request cộng dồn từ mọi instance), bộ đếm phải được lưu ở một nơi **dùng chung được giữa các instance** — đây chính là vai trò của distributed cache (ví dụ Redis) đã học ở chương caching: thay vì mỗi instance giữ bộ đếm riêng trong bộ nhớ, tất cả instance cùng đọc/ghi một bộ đếm duy nhất lưu trên Redis. .NET không có sẵn một `AddRateLimiter` tích hợp Redis trong BCL — cần dùng thư viện ngoài (ví dụ các thư viện community implement `PartitionedRateLimiter` backed bởi Redis) để đạt được rate limiting phân tán thực sự chính xác trên nhiều instance.
 
-Tiếp theo -> health checks: phân biệt live và ready
+**Tiếp theo →** [P8 · Health Checks & Observability](health-checks-observability.md)

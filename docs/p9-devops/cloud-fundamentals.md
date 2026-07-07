@@ -263,4 +263,4 @@ IaaS và PaaS (mục 2, 3) đều hỗ trợ cả hai cách scale, nhưng PaaS t
 
     Cuối cùng, khái niệm "serverless" (thường bị nhầm là "không có server") đáng nhắc tới ngắn gọn: đây thực chất là một dạng PaaS đẩy xa hơn — người dùng chỉ viết một hàm (function) xử lý một sự kiện cụ thể (ví dụ một request HTTP, hoặc một file mới được tải lên), nhà cung cấp tự động cấp phát tài nguyên chạy hàm đó **chỉ trong lúc nó thực thi**, rồi giải phóng ngay sau đó — người dùng trả tiền theo số lần gọi/thời gian chạy thực tế, không trả tiền cho thời gian máy chủ "rỗi" (idle). Vẫn có server thật chạy bên dưới — chỉ là người dùng không thấy và không quản lý gì về nó, kể cả việc nó có đang "tồn tại" giữa hai lần gọi hay không. Serverless là một hướng đào sâu riêng, không phải nội dung bắt buộc của chương giới thiệu này.
 
-Tiếp theo -> container orchestration
+**Tiếp theo →** [P9 · Container Orchestration: Kubernetes cơ bản](container-orchestration.md)

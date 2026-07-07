@@ -1078,4 +1078,4 @@ Trả lời rồi mở đáp án.
 
     **5. Exhaustiveness là phân tích compile-time:** compiler mô hình hoá miền giá trị (đặc biệt tốt với `enum`, `bool`, kiểu bao đóng như record hierarchy có `sealed`) và cảnh báo nếu có "khe hở". Đánh dấu record cha `abstract` + con `sealed` giúp compiler suy luận vét cạn tốt hơn và cảnh báo chính xác khi bạn quên một biến thể.
 
-Tiếp theo -> generics
+**Tiếp theo →** [P1 · Collections](collections.md)

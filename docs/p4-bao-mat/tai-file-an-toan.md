@@ -423,4 +423,4 @@ static (bool ok, string? storedName) TryValidateUpload(
     - **Cô lập lưu trữ ở tầng hạ tầng**: lý tưởng nhất là đẩy file sang object storage (blob) trên domain/bucket riêng biệt hoàn toàn với domain chạy ứng dụng, phục vụ qua URL ký tạm thời có hạn, kèm header `Content-Disposition: attachment` để buộc trình duyệt tải xuống thay vì cố render — loại bỏ khả năng stored XSS ngay cả khi có sai sót ở các bước kiểm trước.
     - **Quét mã độc**: với hệ thống chấp nhận file từ người dùng ẩn danh/không tin cậy cao, tích hợp thêm bước quét virus/mã độc (ClamAV hoặc dịch vụ quét cloud) trước khi file được coi là "an toàn để phục vụ lại" — magic byte chỉ xác nhận *định dạng*, không xác nhận *nội dung định dạng đó có sạch không* (ví dụ một PNG hợp lệ vẫn có thể chứa exploit nhắm vào lỗi decoder ảnh).
 
-Tiếp theo -> viết test cho api
+**Tiếp theo →** [P4 · Testing (xUnit)](testing.md)

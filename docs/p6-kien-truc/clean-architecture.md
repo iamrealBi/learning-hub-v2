@@ -700,4 +700,4 @@ Trả lời rồi mở đáp án.
 
     **7. `record` (P1) là lựa chọn tự nhiên cho Domain value object.** Value object trong Domain (như `Money`, `Address` ở chương `p1-records-pattern-matching`) hợp với `record`/`readonly record struct` vì chúng thuần dữ liệu + logic tính toán, không I/O, đúng bản chất "Domain không phụ thuộc ai". Đây là một ví dụ cụ thể cho thấy các chương P1 (nền tảng ngôn ngữ) và P6 (kiến trúc) không tách biệt — kỹ thuật ngôn ngữ tốt (record, pattern matching) giúp Domain layer viết ra "sạch" hơn đúng nghĩa Clean Architecture.
 
-Tiếp theo -> cqrs và mediator
+**Tiếp theo →** [P6 · CQRS](cqrs.md)

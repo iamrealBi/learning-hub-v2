@@ -638,4 +638,4 @@ dotnet run
     - **Rate limiting:** endpoint `/auth/login` không giới hạn số lần thử sẽ mở đường cho brute-force password — production cần `AddRateLimiter` (có sẵn trong ASP.NET Core từ .NET 7) giới hạn số request/IP/thời gian.
     - **Vòng lặp AI có kỷ luật (P5):** dùng Claude Code với một file `CLAUDE.md` mô tả quy ước dự án TaskFlow (cấu trúc thư mục, quy tắc naming, cách chạy test), để agent tự chạy `dotnet test` sau mỗi thay đổi và tự biết ngữ cảnh dự án mà không cần giải thích lại mỗi lần — nhưng bạn vẫn là người review diff và chịu trách nhiệm merge, đúng nguyên tắc đã học ở chương claude-code và mcp. Nếu cần agent thao tác trực tiếp trên PostgreSQL (ví dụ tự kiểm dữ liệu sau khi seed), gắn một MCP server với tài khoản **readonly**, không dùng tài khoản có quyền ghi.
 
-Tiếp theo -> kiến trúc phần mềm (clean architecture & domain-driven design)
+**Tiếp theo →** [P6 · Kiến trúc phân lớp](../p6-kien-truc/kien-truc-phan-lop.md)

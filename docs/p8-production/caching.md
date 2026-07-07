@@ -719,4 +719,4 @@ Gợi ý giàn giáo: đặt `entry.AbsoluteExpirationRelativeToNow` ngay dòng 
 
     Cách tổ chức này không đổi hành vi cache-aside (vẫn đúng luồng đọc-trước/ghi-sau mô tả ở mục 5) — nó chỉ gom logic serialize lặp lại vào một nơi, giảm khả năng một endpoint quên serialize đúng cách hoặc quên đặt TTL. Cấu hình Redis nâng cao hơn (cluster để chịu lỗi một node Redis, persistence để Redis tự phục hồi dữ liệu sau restart, pub/sub để một instance chủ động báo cho các instance khác biết cache cần làm mới) là nội dung của chương resilience/observability sâu hơn, không thuộc phạm vi chương này.
 
-Tiếp theo -> observability và logging tập trung
+**Tiếp theo →** [P8 · Rate Limiting](rate-limiting.md)

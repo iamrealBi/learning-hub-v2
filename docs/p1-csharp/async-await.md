@@ -486,4 +486,4 @@ Quy tắc thực dụng: **"async cả đường" (async all the way)** — mộ
 
     **`Task.Run` vs `await`:** `await` dành cho I/O (không tốn thread khi chờ). `Task.Run` đẩy công việc **CPU nặng** sang một thread pool khác để không chặn thread hiện tại. Đừng bọc I/O bằng `Task.Run` — vô ích và tốn thêm một thread.
 
-Tiếp theo -> ef core: truy vấn dữ liệu bất đồng bộ
+**Tiếp theo →** [P1 · Xử lý ngoại lệ](exceptions.md)

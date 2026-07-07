@@ -58,4 +58,4 @@ dotnet run    # → PASS ✅
 !!! success "Xong P0"
     Bạn vừa hoàn tất vòng phản hồi cốt lõi. Từ giờ mỗi bài kết thúc bằng code **chạy được** và câu hỏi **có đáp án**.
 
-**Tiếp theo →** [P1 · Bộ nhớ & Kiểu dữ liệu](../p1-csharp/bo-nho-va-kieu-du-lieu.md)
+**Tiếp theo →** [P1 · Nền tảng](../p1-csharp/nen-tang.md)

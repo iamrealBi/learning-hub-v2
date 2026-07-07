@@ -701,4 +701,4 @@ CHƯA an toàn để xoá v1 — vẫn còn 2 lượt gọi thực tế.
 
 **Tóm tắt toàn chương, để mang theo khi thiết kế API thật:** một API chỉ cần versioning khi nó đã có (hoặc sắp có) client thật không thể ép cập nhật đồng thời với backend (mục 1); versioning nghĩa là nhiều hình dạng response cùng sống song song, client chủ động chọn version qua URL/query string/header (mục 2-6); breaking change (xoá field, đổi kiểu dữ liệu) bắt buộc phải lên version mới, còn thêm field optional thì không (mục 8); và một version cũ cần được deprecate — thông báo trước, đo lượt gọi thực tế — trước khi thật sự bị xoá (mục 10-11), không phải xoá ngay khi có version mới thay thế.
 
-Tiếp theo -> resilience patterns nâng cao
+**Tiếp theo →** [P8 · Resilience Patterns](resilience-patterns.md)

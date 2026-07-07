@@ -1018,4 +1018,4 @@ LIMIT ____;
     RETURNING id, name;
     ```
 
-Tiếp theo -> join, group by & subquery
+**Tiếp theo →** [P2 · Lọc & Biểu thức nâng cao](loc-nang-cao.md)
